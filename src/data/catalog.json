@@ -1,0 +1,94 @@
+{
+  "items": [
+    { "id": "gem-glimmer", "name": "Glimmer Shard", "description": "A sliver of crystal that hums faintly near hidden caches.", "rarity": "common", "category": "treasure", "art": "gem", "transferable": true, "max_supply": 100000 },
+    { "id": "coin-wayfarer", "name": "Wayfarer Coin", "description": "Old trade coin stamped with a compass rose. Merchants love these.", "rarity": "common", "category": "treasure", "art": "coin", "transferable": true, "max_supply": 100000 },
+    { "id": "scroll-trailmap", "name": "Trail Map Fragment", "description": "Part of a map that redraws itself as you explore.", "rarity": "rare", "category": "artifact", "art": "scroll", "transferable": true, "max_supply": 20000 },
+    { "id": "relic-compass", "name": "Ancient Compass", "description": "Its needle points to places nobody has visited in a long time.", "rarity": "rare", "category": "artifact", "art": "compass", "transferable": true, "max_supply": 10000 },
+    { "id": "relic-hourglass", "name": "Sunken Hourglass", "description": "Sand flows upward inside. Recovered from a flooded vault.", "rarity": "epic", "category": "artifact", "art": "hourglass", "transferable": true, "max_supply": 2000 },
+    { "id": "relic-lantern", "name": "Aurora Lantern", "description": "Burns with northern-light colours. Keeper-forged.", "rarity": "epic", "category": "artifact", "art": "lantern", "transferable": true, "max_supply": 2000 },
+    { "id": "crown-tide", "name": "Tidecaller Crown", "description": "One of only 250. Legend says it chooses its finder.", "rarity": "legendary", "category": "artifact", "art": "crown", "transferable": true, "max_supply": 250 },
+    { "id": "egg-ember", "name": "Ember Egg", "description": "Warm to the touch. Only 50 will ever exist.", "rarity": "legendary", "category": "special", "art": "egg", "transferable": true, "max_supply": 50 },
+    { "id": "badge-pioneer", "name": "Pioneer Badge", "description": "Awarded for your very first discovery. Soulbound.", "rarity": "rare", "category": "badge", "art": "badge", "transferable": false, "max_supply": 1000000 },
+    { "id": "badge-cartographer", "name": "Cartographer's Seal", "description": "Proof that you charted new ground. Soulbound.", "rarity": "epic", "category": "badge", "art": "seal", "transferable": false, "max_supply": 1000000 },
+    { "id": "frame-ember", "name": "Ember Frame", "description": "A smouldering profile frame for long-distance explorers.", "rarity": "rare", "category": "cosmetic", "art": "frame", "transferable": true, "max_supply": 5000 },
+    { "id": "frame-aurora", "name": "Aurora Frame", "description": "Shimmering profile frame traded by the Merchant.", "rarity": "epic", "category": "cosmetic", "art": "frame2", "transferable": true, "max_supply": 2000 },
+    { "id": "token-harvest-moon", "name": "Harvest Moon Token", "description": "Event collectible from the November 2026 Harvest Moon Hunt.", "rarity": "rare", "category": "event", "art": "moon", "transferable": true, "max_supply": 5000 }
+  ],
+
+  "npcs": [
+    {
+      "id": "cartographer", "name": "Ines Vale", "title": "The Cartographer", "avatar": "🧭", "color": "#3DDCB4",
+      "personality": "Precise, curious, quietly competitive. Measures everything twice.",
+      "greeting": "Every street you walk is a line on my map. Bring me new lines.",
+      "lines": ["Blank spaces on a map are just invitations.", "You walked 400 metres north yesterday. I noticed.", "A good explorer never takes the same path twice."],
+      "onchain": { "daily_spend_limit_near": "0" }
+    },
+    {
+      "id": "merchant", "name": "Bram Cogsworth", "title": "The Merchant", "avatar": "⚖️", "color": "#FFB547",
+      "personality": "Warm, shrewd, always negotiating. Runs the only shop that never closes.",
+      "greeting": "Everything has a price, friend. Today, mine are fair. Tomorrow? Ask the curve.",
+      "lines": ["Prices rise when you buy and fall when you sell. That is the whole secret.", "My treasury pays for what I buy back. When it runs dry, I stop buying.", "A 2.5% cut of every player trade keeps my coffers honest."],
+      "onchain": { "daily_spend_limit_near": "2" }
+    },
+    {
+      "id": "keeper", "name": "Oru", "title": "The Treasure Keeper", "avatar": "🗝️", "color": "#B07CFF",
+      "personality": "Ancient, cryptic, generous to the worthy. Guards a finite vault.",
+      "greeting": "My vault is not bottomless. Prove yourself, and a piece of it is yours.",
+      "lines": ["Only so many relics remain. When they are gone, they are gone.", "Rare things find patient people.", "The vault remembers every hand that took from it."],
+      "onchain": { "daily_spend_limit_near": "0" }
+    },
+    {
+      "id": "explorer", "name": "Kaia Ridge", "title": "The Explorer", "avatar": "🥾", "color": "#4AA8FF",
+      "personality": "Energetic, encouraging, allergic to sitting still.",
+      "greeting": "Lace up! The best treasure is always one more block away.",
+      "lines": ["Distance is the only currency I trust.", "Rain? Perfect. Fewer hunters out there.", "Keep your streak alive and the world opens up."],
+      "onchain": { "daily_spend_limit_near": "0" }
+    }
+  ],
+
+  "npc_offers": [
+    { "npc_id": "explorer", "token_id": "badge-pioneer", "allocation": 1000000, "base_price_near": "0", "buyback_bps": 0 },
+    { "npc_id": "explorer", "token_id": "frame-ember", "allocation": 2000, "base_price_near": "0", "buyback_bps": 0 },
+    { "npc_id": "cartographer", "token_id": "scroll-trailmap", "allocation": 5000, "base_price_near": "0", "buyback_bps": 0 },
+    { "npc_id": "cartographer", "token_id": "badge-cartographer", "allocation": 1000000, "base_price_near": "0", "buyback_bps": 0 },
+    { "npc_id": "keeper", "token_id": "relic-compass", "allocation": 2500, "base_price_near": "0", "buyback_bps": 0 },
+    { "npc_id": "keeper", "token_id": "relic-lantern", "allocation": 500, "base_price_near": "0", "buyback_bps": 0 },
+    { "npc_id": "merchant", "token_id": "scroll-trailmap", "allocation": 3000, "base_price_near": "0.05", "buyback_bps": 6000 },
+    { "npc_id": "merchant", "token_id": "frame-aurora", "allocation": 1000, "base_price_near": "0.2", "buyback_bps": 6000 },
+    { "npc_id": "merchant", "token_id": "gem-glimmer", "allocation": 5000, "base_price_near": "0.01", "buyback_bps": 6000 },
+    { "npc_id": "merchant", "token_id": "coin-wayfarer", "allocation": 5000, "base_price_near": "0.01", "buyback_bps": 6000 }
+  ],
+
+  "missions": [
+    { "id": "exp-first-steps", "npc_id": "explorer", "title": "First Steps", "description": "Discover your first treasure.", "intro": "Everyone remembers their first find. Go make yours.", "outro": "That look on your face? That's why we do this. Keep the badge.", "kind": "progress", "metric": "treasure", "target": 1, "unlock_cost": 0, "reward_shards": 30, "reward_xp": 50, "reward_item_id": "badge-pioneer", "min_level": 1, "sort": 1 },
+    { "id": "exp-long-road", "npc_id": "explorer", "title": "The Long Road", "description": "Travel 3 km while on this mission.", "intro": "Three kilometres. On foot. No shortcuts.", "outro": "Legs still working? Good. This frame suits you.", "kind": "progress", "metric": "distance", "target": 3000, "unlock_cost": 0, "reward_shards": 150, "reward_xp": 250, "reward_item_id": "frame-ember", "min_level": 2, "sort": 2 },
+    { "id": "carto-chart", "npc_id": "cartographer", "title": "Chart the Unknown", "description": "Visit 3 places you have never been to in TREZO.", "intro": "My map has gaps. Fill three of them.", "outro": "Three new lines. Here, this fragment shows where they lead.", "kind": "progress", "metric": "new_cell", "target": 3, "unlock_cost": 0, "reward_shards": 80, "reward_xp": 120, "reward_item_id": "scroll-trailmap", "min_level": 1, "sort": 1 },
+    { "id": "carto-grid", "npc_id": "cartographer", "title": "Grid Walker", "description": "Travel 1.5 km while on this mission.", "intro": "Walk the grid. I'll be measuring.", "outro": "Precise work. You've earned my seal.", "kind": "progress", "metric": "distance", "target": 1500, "unlock_cost": 0, "reward_shards": 100, "reward_xp": 150, "reward_item_id": "badge-cartographer", "min_level": 1, "sort": 2 },
+    { "id": "keeper-trial", "npc_id": "keeper", "title": "The Keeper's Trial", "description": "Find a Rare or better treasure. Costs 50 Shards to begin.", "intro": "Pay the toll and seek something rare. The vault will answer.", "outro": "Worthy. Take the compass — the vault has fewer of them now.", "kind": "progress", "metric": "treasure_rare_plus", "target": 1, "unlock_cost": 50, "reward_shards": 100, "reward_xp": 200, "reward_item_id": "relic-compass", "min_level": 1, "sort": 1 },
+    { "id": "keeper-echoes", "npc_id": "keeper", "title": "Vault of Echoes", "description": "Find an Epic or Legendary treasure. Costs 150 Shards to begin.", "intro": "The deeper vault opens only for the truly fortunate.", "outro": "The lantern is yours. Only a few hundred remain.", "kind": "progress", "metric": "treasure_epic_plus", "target": 1, "unlock_cost": 150, "reward_shards": 250, "reward_xp": 400, "reward_item_id": "relic-lantern", "min_level": 3, "sort": 2 },
+    { "id": "merchant-fair-trade", "npc_id": "merchant", "title": "Fair Trade", "description": "Hand over 3 Glimmer Shards for a Trail Map Fragment.", "intro": "Three glimmers for a map. Fair, no?", "outro": "Pleasure doing business. Come back any time.", "kind": "exchange", "require_item_id": "gem-glimmer", "require_item_qty": 3, "unlock_cost": 0, "reward_shards": 20, "reward_xp": 40, "reward_item_id": "scroll-trailmap", "repeatable": 1, "min_level": 1, "sort": 1 },
+    { "id": "merchant-aurora", "npc_id": "merchant", "title": "Aurora Exchange", "description": "Trade 3 Wayfarer Coins and 120 Shards for a limited Aurora Frame.", "intro": "Only a thousand of these frames will leave my shop.", "outro": "Wear it well. Supply just got a little tighter.", "kind": "exchange", "require_item_id": "coin-wayfarer", "require_item_qty": 3, "unlock_cost": 120, "reward_shards": 0, "reward_xp": 80, "reward_item_id": "frame-aurora", "repeatable": 1, "min_level": 2, "sort": 2 }
+  ],
+
+  "quests": [
+    { "id": "d-discover-3", "category": "daily", "title": "Treasure Trail", "description": "Discover 3 treasures today.", "difficulty": "medium", "metric": "treasure", "target": 3, "reward_shards": 40, "reward_xp": 60, "sort": 1 },
+    { "id": "d-travel-1k", "category": "daily", "title": "Stretch Your Legs", "description": "Travel 1 kilometre today.", "difficulty": "easy", "metric": "distance", "target": 1000, "reward_shards": 30, "reward_xp": 50, "sort": 2 },
+    { "id": "d-common-2", "category": "daily", "title": "Common Ground", "description": "Collect 2 Common treasures today.", "difficulty": "easy", "metric": "treasure_common", "target": 2, "reward_shards": 25, "reward_xp": 40, "sort": 3 },
+    { "id": "d-new-place", "category": "daily", "title": "Somewhere New", "description": "Visit a location you have never explored before.", "difficulty": "easy", "metric": "new_cell", "target": 1, "reward_shards": 20, "reward_xp": 30, "sort": 4 },
+    { "id": "w-discover-15", "category": "weekly", "title": "Relentless", "description": "Discover 15 treasures this week.", "difficulty": "hard", "metric": "treasure", "target": 15, "reward_shards": 250, "reward_xp": 400, "reward_item_id": "coin-wayfarer", "reward_item_qty": 2, "sort": 1 },
+    { "id": "w-npc-5", "category": "weekly", "title": "Friend of the Guild", "description": "Complete 5 NPC missions this week.", "difficulty": "hard", "metric": "mission", "target": 5, "reward_shards": 200, "reward_xp": 300, "sort": 2 },
+    { "id": "w-rare-1", "category": "weekly", "title": "Rare Sighting", "description": "Find a Rare or better treasure this week.", "difficulty": "medium", "metric": "treasure_rare_plus", "target": 1, "reward_shards": 120, "reward_xp": 180, "reward_item_id": "relic-compass", "sort": 3 },
+    { "id": "w-streak-5", "category": "weekly", "title": "Unbroken", "description": "Maintain a 5-day exploration streak.", "difficulty": "medium", "metric": "streak", "target": 5, "reward_shards": 150, "reward_xp": 250, "sort": 4 },
+    { "id": "s-harvest-moon", "category": "special", "title": "Harvest Moon Hunt", "description": "Limited-time: find 5 treasures during the Harvest Moon event. Entry costs 100 Shards.", "difficulty": "hard", "metric": "treasure", "target": 5, "reward_shards": 300, "reward_xp": 300, "reward_item_id": "token-harvest-moon", "entry_cost": 100, "starts_at": "2026-11-01T00:00:00Z", "ends_at": "2026-12-01T00:00:00Z", "sort": 1 },
+    { "id": "s-community-2500", "category": "special", "title": "Community Challenge: 2,500 Finds", "description": "All TREZO players together discover 2,500 treasures this season. Contribute at least 3 finds to share the reward.", "difficulty": "medium", "metric": "community_treasure", "target": 2500, "reward_shards": 200, "reward_xp": 200, "starts_at": "2026-11-01T00:00:00Z", "ends_at": "2027-01-01T00:00:00Z", "sort": 2 },
+    { "id": "s-legend-hunt", "category": "special", "title": "Rare Collectible Hunt: Ember Egg", "description": "Find a Legendary treasure this season to claim one of only 50 Ember Eggs.", "difficulty": "epic", "metric": "treasure_legendary", "target": 1, "reward_shards": 300, "reward_xp": 500, "reward_item_id": "egg-ember", "starts_at": "2026-11-01T00:00:00Z", "ends_at": "2027-01-01T00:00:00Z", "sort": 3 },
+    { "id": "s-season-1", "category": "special", "title": "Season 1: First Light", "description": "Reach level 8 before the season ends.", "difficulty": "hard", "metric": "level", "target": 8, "reward_shards": 400, "reward_xp": 0, "reward_item_id": "frame-aurora", "starts_at": "2026-11-01T00:00:00Z", "ends_at": "2027-01-01T00:00:00Z", "sort": 4 }
+  ],
+
+  "shop": [
+    { "id": "frame-gold", "name": "Gilded Frame", "description": "Gold-trim profile frame.", "kind": "frame", "value": "gold", "price": 300, "stock": null },
+    { "id": "frame-teal", "name": "Tidal Frame", "description": "Cool teal profile frame.", "kind": "frame", "value": "teal", "price": 150, "stock": null },
+    { "id": "frame-violet", "name": "Nebula Frame", "description": "Violet profile frame. Limited to 500.", "kind": "frame", "value": "violet", "price": 450, "stock": 500 },
+    { "id": "boost-radar", "name": "Radar Pulse", "description": "Doubles your claim radius for the next 30 minutes.", "kind": "boost", "value": "radar:1800", "price": 80, "stock": null }
+  ]
+}

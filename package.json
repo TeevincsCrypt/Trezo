@@ -1,0 +1,51 @@
+{
+  "name": "trezo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TREZO — a real-world treasure hunting game powered by NEAR Protocol",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:contract": "cd contracts/trezo && cargo test",
+    "test:e2e": "node scripts/e2e-smoke.mjs",
+    "db:reset": "node scripts/db-reset.mjs",
+    "oracle:keygen": "node scripts/oracle-keygen.mjs",
+    "contract:build": "cd contracts/trezo && cargo near build non-reproducible-wasm"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/sora": "^5.3.0",
+    "@hot-labs/near-connect": "^0.12.0",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "better-sqlite3": "^13.0.3",
+    "bs58": "^6.0.0",
+    "framer-motion": "^14.9.1",
+    "lucide-react": "^1.68.0",
+    "maplibre-gl": "^6.16.0",
+    "near-api-js": "^7.4.0",
+    "next": "^16.4.5",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.4",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.4",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

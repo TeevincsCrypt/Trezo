@@ -1,0 +1,27 @@
+[package]
+name = "trezo-game"
+description = "TREZO on-chain game state: oracle-verified treasure claims, NEP-245 collectibles, player marketplace and NPC treasuries"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/teevincscrypt/trezo"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5.30"
+serde_json = "1"
+
+[dev-dependencies]
+near-sdk = { version = "5.30", features = ["unit-testing"] }
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand = "0.8"
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true

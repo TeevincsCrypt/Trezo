@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+data/*.db
+data/*.db-*
+contracts/trezo/target/
+contracts/trezo/neardev/
+*.log
+.DS_Store
+test-results/
+screenshots/tmp/
