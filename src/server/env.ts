@@ -3,18 +3,26 @@ import crypto from "node:crypto";
 
 const isProd = process.env.NODE_ENV === "production";
 
+let cachedSecret: string | null = null;
 function sessionSecret(): string {
+  if (cachedSecret) return cachedSecret;
   const s = process.env.TREZO_SESSION_SECRET;
-  if (s && s.length >= 16) return s;
-  if (isProd) throw new Error("TREZO_SESSION_SECRET (>=16 chars) is required in production");
-  // Development fallback: stable per process. Documented in README.
-  return "dev-only-insecure-session-secret";
+  if (s && s.length >= 16) cachedSecret = s;
+  else if (isProd) {
+    // Never fall back to a known value in production: use an unguessable
+    // per-process secret (sessions reset on restart) and warn loudly.
+    console.warn("[trezo] TREZO_SESSION_SECRET is not set — using a random per-process secret. Set it in production.");
+    cachedSecret = crypto.randomBytes(32).toString("base64url");
+  } else cachedSecret = "dev-only-insecure-session-secret"; // documented in README
+  return cachedSecret;
 }
 
 export const serverEnv = {
   isProd,
   dbPath: process.env.TREZO_DB_PATH || "data/trezo.db",
-  sessionSecret: sessionSecret(),
+  get sessionSecret() {
+    return sessionSecret();
+  },
   /**
    * Admin access: either a NEAR account listed here (wallet-authenticated)
    * or the shared ADMIN_TOKEN. In development a default token is used when

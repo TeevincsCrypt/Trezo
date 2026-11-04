@@ -14,3 +14,4 @@ contracts/trezo/neardev/
 .DS_Store
 test-results/
 screenshots/tmp/
+public/maplibre/

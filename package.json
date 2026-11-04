@@ -2,7 +2,7 @@
   "name": "trezo",
   "version": "0.1.0",
   "private": true,
-  "description": "TREZO — a real-world treasure hunting game powered by NEAR Protocol",
+  "description": "TREZO \u2014 a real-world treasure hunting game powered by NEAR Protocol",
   "license": "MIT",
   "engines": {
     "node": ">=20.9"
@@ -15,10 +15,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:contract": "cd contracts/trezo && cargo test",
-    "test:e2e": "node scripts/e2e-smoke.mjs",
+    "test:e2e": "node scripts/e2e-smoke.cjs",
     "db:reset": "node scripts/db-reset.mjs",
     "oracle:keygen": "node scripts/oracle-keygen.mjs",
-    "contract:build": "cd contracts/trezo && cargo near build non-reproducible-wasm"
+    "contract:build": "cd contracts/trezo && cargo near build non-reproducible-wasm",
+    "postinstall": "node scripts/copy-maplibre-worker.mjs",
+    "predev": "node scripts/copy-maplibre-worker.mjs",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
