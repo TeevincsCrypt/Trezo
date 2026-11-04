@@ -20,9 +20,7 @@
 
 use near_sdk::json_types::{Base64VecU8, U128, U64};
 use near_sdk::store::{IterableMap, LookupMap, LookupSet};
-use near_sdk::{
-    env, near, require, AccountId, BorshStorageKey, NearToken, PanicOnDefault, Promise,
-};
+use near_sdk::{env, near, require, AccountId, BorshStorageKey, NearToken, PanicOnDefault};
 
 mod market;
 mod mt;
@@ -597,9 +595,13 @@ impl Contract {
         emit_event("nep245", "1.0.0", "mt_burn", serde_json::json!([log]));
     }
 
+    /// NEAR transfer via the low-level promise API. (The high-level
+    /// `near_sdk::Promise` links host functions for every action kind,
+    /// including ones newer than some deployed protocol versions.)
     pub(crate) fn pay(&self, to: &AccountId, amount: u128) {
         if amount > 0 {
-            let _ = Promise::new(to.clone()).transfer(NearToken::from_yoctonear(amount));
+            let p = env::promise_batch_create(to);
+            env::promise_batch_action_transfer(p, NearToken::from_yoctonear(amount));
         }
     }
 }

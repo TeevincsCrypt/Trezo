@@ -5,7 +5,7 @@
 //! instead of silently ignored approvals.
 
 use crate::*;
-use near_sdk::{ext_contract, Gas, PromiseOrValue};
+use near_sdk::Gas;
 
 const GAS_FOR_RESOLVE: Gas = Gas::from_tgas(15);
 const GAS_FOR_MT_TRANSFER_CALL: Gas = Gas::from_tgas(40);
@@ -55,31 +55,6 @@ pub struct MTTokenMetadata {
 pub struct MTTokenMetadataAll {
     pub base: MTBaseTokenMetadata,
     pub token: MTTokenMetadata,
-}
-
-#[allow(dead_code)]
-#[ext_contract(ext_mt_receiver)]
-pub trait MultiTokenReceiver {
-    fn mt_on_transfer(
-        &mut self,
-        sender_id: AccountId,
-        previous_owner_ids: Vec<AccountId>,
-        token_ids: Vec<TokenId>,
-        amounts: Vec<U128>,
-        msg: String,
-    ) -> PromiseOrValue<Vec<U128>>;
-}
-
-#[allow(dead_code)]
-#[ext_contract(ext_self)]
-pub trait MultiTokenResolver {
-    fn mt_resolve_transfer(
-        &mut self,
-        sender_id: AccountId,
-        receiver_id: AccountId,
-        token_ids: Vec<TokenId>,
-        amounts: Vec<U128>,
-    ) -> Vec<U128>;
 }
 
 impl Contract {
@@ -214,7 +189,7 @@ impl Contract {
         approval: Option<(AccountId, u64)>,
         memo: Option<String>,
         msg: String,
-    ) -> PromiseOrValue<Vec<U128>> {
+    ) {
         self.mt_batch_transfer_call(
             receiver_id,
             vec![token_id],
@@ -234,7 +209,9 @@ impl Contract {
         approvals: Option<Vec<Option<(AccountId, u64)>>>,
         memo: Option<String>,
         msg: String,
-    ) -> PromiseOrValue<Vec<U128>> {
+    ) {
+        // Returns (via promise_return) the amounts used by the receiver, as
+        // resolved by `mt_resolve_transfer`.
         assert_one_yocto();
         self.assert_not_paused();
         if let Some(a) = &approvals {
@@ -247,15 +224,35 @@ impl Contract {
         let sender = env::predecessor_account_id();
         self.internal_transfer_batch(&sender, &receiver_id, &token_ids, &amounts, memo);
         let previous_owner_ids = vec![sender.clone(); token_ids.len()];
-        ext_mt_receiver::ext(receiver_id.clone())
-            .with_static_gas(GAS_FOR_MT_TRANSFER_CALL)
-            .mt_on_transfer(sender.clone(), previous_owner_ids, token_ids.clone(), amounts.clone(), msg)
-            .then(
-                ext_self::ext(env::current_account_id())
-                    .with_static_gas(GAS_FOR_RESOLVE)
-                    .mt_resolve_transfer(sender, receiver_id, token_ids, amounts),
-            )
-            .into()
+        let on_transfer = serde_json::json!({
+            "sender_id": sender,
+            "previous_owner_ids": previous_owner_ids,
+            "token_ids": token_ids,
+            "amounts": amounts,
+            "msg": msg,
+        });
+        let resolve = serde_json::json!({
+            "sender_id": sender,
+            "receiver_id": receiver_id,
+            "token_ids": token_ids,
+            "amounts": amounts,
+        });
+        let p = env::promise_create(
+            receiver_id,
+            "mt_on_transfer",
+            on_transfer.to_string(),
+            NearToken::from_yoctonear(0),
+            GAS_FOR_MT_TRANSFER_CALL,
+        );
+        let cb = env::promise_then(
+            p,
+            env::current_account_id(),
+            "mt_resolve_transfer",
+            resolve.to_string(),
+            NearToken::from_yoctonear(0),
+            GAS_FOR_RESOLVE,
+        );
+        env::promise_return(cb);
     }
 
     /// Returns the amounts actually used by the receiver; refunds the rest.
