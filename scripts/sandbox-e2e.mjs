@@ -268,6 +268,13 @@ try {
 
   const final = await view("get_stats");
   console.log(`\nContract stats: ${final.players} players, ${final.claims} claims, volume ${Number(BigInt(final.total_market_volume)) / 1e24} NEAR`);
+
+  if (process.argv.includes("--keep")) {
+    // Leave a live listing and keep everything running for manual/UI inspection.
+    await tx(acc.alice, ids.trezo, "list_item", { token_id: t.rewardItemId, amount: "1", price: (NEAR / 4n).toString() }, 1n);
+    console.log(`\n--keep: app ${APP} ↔ sandbox ${sandbox.rpcUrl} (contract ${ids.trezo}). Ctrl-C to stop.`);
+    await new Promise((resolve) => process.on("SIGINT", resolve).on("SIGTERM", resolve));
+  }
 } catch (e) {
   fail("unexpected error", e.stack || e.message);
 } finally {
