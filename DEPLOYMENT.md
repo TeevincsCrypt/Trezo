@@ -2,7 +2,7 @@
 
 TREZO has two deployable parts: the **NEAR contract** (`contracts/trezo`) and the **Next.js app** (game server and UI).
 
-> **Status:** the contract has **not** been deployed to testnet or mainnet yet. The build environment had no network route to NEAR RPC or faucets. The procedure below runs the same `scripts/deploy-contract.mjs` that `npm run test:sandbox` already exercises end to end against a local `neard` 2.13.4 node, so it is tested. After you run it, record the real values in the table at the bottom.
+> **Status:** deployed to **testnet** at [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) on 2026-11-07 using exactly this procedure (record at the bottom). **Mainnet is not deployed.** The app is not hosted yet.
 
 ## 0. Prerequisites
 
@@ -74,6 +74,10 @@ near contract call-function as-read-only trezo-<yourname>.testnet get_stats json
 near contract call-function as-read-only trezo-<yourname>.testnet mt_metadata_contract json-args {} network-config testnet now
 ```
 
+## 4b. Optional: scripted on-chain demo
+
+`node scripts/testnet-demo.mjs` creates two faucet-funded players and plays claim → mint → list → buy → Merchant buy/sell with real transactions, writing `deployments/testnet-demo.json`. (In a proxied container, run Node with `NODE_USE_ENV_PROXY=1` so `fetch` uses the proxy.)
+
 ## 5. Run the app against it
 
 `NEXT_PUBLIC_*` variables are compiled in at build time:
@@ -115,13 +119,15 @@ Do not claim a mainnet deployment until the `deployments/mainnet.json` transacti
 
 ## Deployment record
 
-Fill this in after running step 4 (copy from `deployments/<network>.json`):
+From `deployments/testnet.json` and `deployments/testnet-demo.json`:
 
 | Field | Value |
 |---|---|
 | Network | testnet |
-| Contract account | _not yet deployed_ |
-| Deploy + init transaction | _pending_ |
-| Explorer | `https://testnet.nearblocks.io/address/<contract>` |
-| Oracle public key | `GET /api/config` → `oraclePublicKey` |
-| App URL | _pending_ |
+| Contract account | [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) (owner: same account) |
+| Deploy + init transaction | [`BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe`](https://testnet.nearblocks.io/txns/BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe) |
+| Configuration | 6 more txs (13 item types, 4 NPCs, 10 offers, 0.5 NEAR Merchant seed); see `deployments/testnet.json` |
+| Wasm SHA-256 | `487492eb0c069f9634bbbfd20cc6ba9d0ccebf0cb52e0396448388f08fed494b` (non-reproducible build) |
+| Demo transactions | claim/mint, list, buy, Merchant sale and buyback: `deployments/testnet-demo.json` (`node scripts/testnet-demo.mjs`) |
+| Oracle public key (base64) | `wSJv/MHX/IarrEaF3ql7EFsYXiamREGAt53joFU76ks=` |
+| App URL | not hosted yet |

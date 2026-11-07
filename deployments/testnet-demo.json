@@ -1,0 +1,59 @@
+{
+  "network": "testnet",
+  "contract": "trezo-game-0e8b06.testnet",
+  "ranAt": "2026-11-07T11:40:34.609Z",
+  "steps": [
+    {
+      "step": "created faucet-funded players trezo-alice-418679.testnet, trezo-bob-339ab1.testnet",
+      "url": null
+    },
+    {
+      "step": "alice signed in with NEP-413 (key verified against testnet)",
+      "url": null
+    },
+    {
+      "step": "server validated claim: Silver Cache (rare) → relic-compass",
+      "hash": null,
+      "url": null
+    },
+    {
+      "step": "alice minted relic-compass (NEP-245) via oracle-signed claim ticket",
+      "hash": "H2XzxyUgRgEPbHEbGVLYCcvqveCdn9gQkFPZn82jmXQy",
+      "url": "https://testnet.nearblocks.io/txns/H2XzxyUgRgEPbHEbGVLYCcvqveCdn9gQkFPZn82jmXQy"
+    },
+    {
+      "step": "game server confirmed settlement by reading get_claim on-chain",
+      "url": null
+    },
+    {
+      "step": "alice listed 1 × relic-compass for 0.1 NEAR (escrowed, listing #1)",
+      "hash": "53ptwbeJ9a6zVyp91cq8yWoyGFYSG9AD7mW6hHch5GV2",
+      "url": "https://testnet.nearblocks.io/txns/53ptwbeJ9a6zVyp91cq8yWoyGFYSG9AD7mW6hHch5GV2"
+    },
+    {
+      "step": "bob bought it: payment, 2.5% fee to Merchant treasury and delivery in one receipt",
+      "hash": "GNTJm3AbXzwTwimNfY8xWqqwwExFMT217hAAWdn1jTMj",
+      "url": "https://testnet.nearblocks.io/txns/GNTJm3AbXzwTwimNfY8xWqqwwExFMT217hAAWdn1jTMj"
+    },
+    {
+      "step": "bob bought a Glimmer Shard from the Merchant at 0.01 NEAR (price now 0.0108)",
+      "hash": "HY6EMDnA1bFw8sLPzrJBamfbRX5huY6dMwhJQqtfJsjJ",
+      "url": "https://testnet.nearblocks.io/txns/HY6EMDnA1bFw8sLPzrJBamfbRX5huY6dMwhJQqtfJsjJ"
+    },
+    {
+      "step": "bob sold it back; Merchant paid 0.006 NEAR from its on-chain treasury",
+      "hash": "KnSyraBwGhjRzYuqT1gWbL9SoPUW5GkhjeMc5aXxCof",
+      "url": "https://testnet.nearblocks.io/txns/KnSyraBwGhjRzYuqT1gWbL9SoPUW5GkhjeMc5aXxCof"
+    }
+  ],
+  "players": [
+    "trezo-alice-418679.testnet",
+    "trezo-bob-339ab1.testnet"
+  ],
+  "final": {
+    "players": 2,
+    "claims": 1,
+    "volumeYocto": "100000000000000000000000",
+    "merchantTreasuryYocto": "506500000000000000000000"
+  }
+}

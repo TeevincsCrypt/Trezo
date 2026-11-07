@@ -1,5 +1,10 @@
 # Development log
 
+## 2026-11-07: testnet deployment
+- NEAR RPC and the faucet were allowed in the environment. Created `trezo-game-0e8b06.testnet` via the faucet and deployed with `npm run contract:deploy` (7 txs, all succeeded first try, thanks to the earlier sandbox fix for wasm host imports).
+- Added `scripts/testnet-demo.mjs`, which ran the full loop on testnet: NEP-413 login, claim → mint, settlement, listing, purchase, Merchant sale and buyback. Links are in the README and `deployments/testnet-demo.json`.
+- Note: Node's built-in `fetch` ignores `HTTPS_PROXY`; in proxied containers run with `NODE_USE_ENV_PROXY=1`.
+
 ## 2026-11-04: initial build
 
 ### Reconnaissance
@@ -33,7 +38,7 @@
 | Sandbox test reused a stale app server (killing `npx` didn't kill `next`) | sandbox test | spawn detached, kill the process group, fail if the port is busy |
 
 ### Remaining work / not done
-- **Deploy to NEAR testnet** and record the contract account and tx links ([DEPLOYMENT.md](DEPLOYMENT.md)). This was blocked in the build environment by the network policy.
+- ~~Deploy to NEAR testnet~~ (done 2026-11-07). Still to do: a recorded browser-wallet (NEAR Connect) run on testnet.
 - Host the app on a platform with a persistent volume, and set `TREZO_APP_URL` for NEP-245 media URLs.
 - Optional: NEAR Intents (cross-chain payment for Merchant items), NEP-245 Approval Management, an embedded social-login provider (Privy/Web3Auth), device attestation for anti-spoofing, and Postgres/Redis for horizontal scaling.
 

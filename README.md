@@ -12,6 +12,20 @@ Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economi
 
 <sub>Screenshots come from automated test runs inside a network-restricted container. Map tiles were blocked there, so the map shows TREZO's built-in offline grid. With normal internet access, the OpenStreetMap-based dark map renders underneath. The market and NPC screenshots were taken against a local NEAR sandbox node (`npm run test:sandbox -- --keep`).</sub>
 
+## Live on NEAR testnet
+
+| | |
+|---|---|
+| **Contract** | [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) (deployed 2026-11-07, near-sdk 5.30 wasm, SHA-256 `487492eb…8444b`) |
+| Deploy + init | [`BHJzHKfY…`](https://testnet.nearblocks.io/txns/BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe), then 13 item types, 4 NPCs, 10 NPC offers, 0.5 NEAR Merchant seed ([all 7 txs](deployments/testnet.json)) |
+| Claim → mint (NEP-245, oracle ticket) | [`H2XzxyUg…`](https://testnet.nearblocks.io/txns/H2XzxyUgRgEPbHEbGVLYCcvqveCdn9gQkFPZn82jmXQy) |
+| Player listing (escrow) | [`53ptwbeJ…`](https://testnet.nearblocks.io/txns/53ptwbeJ9a6zVyp91cq8yWoyGFYSG9AD7mW6hHch5GV2) |
+| Player purchase (pay seller + fee to Merchant + deliver) | [`GNTJm3Ab…`](https://testnet.nearblocks.io/txns/GNTJm3AbXzwTwimNfY8xWqqwwExFMT217hAAWdn1jTMj) |
+| Merchant NPC sale (price 0.01 → 0.0108 NEAR) | [`HY6EMDnA…`](https://testnet.nearblocks.io/txns/HY6EMDnA1bFw8sLPzrJBamfbRX5huY6dMwhJQqtfJsjJ) |
+| Merchant NPC buyback (paid from its treasury) | [`KnSyraBw…`](https://testnet.nearblocks.io/txns/KnSyraBwGhjRzYuqT1gWbL9SoPUW5GkhjeMc5aXxCof) |
+
+These come from `scripts/testnet-demo.mjs` ([record](deployments/testnet-demo.json)): two faucet-funded players (`trezo-alice-418679.testnet`, `trezo-bob-339ab1.testnet`) signing with their own keys, against the real game server. The claim was made in the demo zone, so its on-chain record says `demo: true`. The app itself isn't hosted yet; run it locally against this contract by putting `NEXT_PUBLIC_TREZO_CONTRACT_ID=trezo-game-0e8b06.testnet` in `.env.local` (plus an oracle key; see [DEPLOYMENT.md](DEPLOYMENT.md)).
+
 ---
 
 ## 60-second judge quickstart
@@ -36,7 +50,7 @@ Automated version of the steps above: `npm run test:e2e` (needs the dev server r
 
 ### Enabling the blockchain parts
 
-On-chain features (wallet login, minting, market, NPC treasuries) need a deployed contract. See **[DEPLOYMENT.md](DEPLOYMENT.md)**; it takes about five commands. To see every on-chain path working without testnet, run the full-stack local-chain test:
+On-chain features (wallet login, minting, market, NPC treasuries) need a deployed contract: use the live testnet one above, or deploy your own with **[DEPLOYMENT.md](DEPLOYMENT.md)** (about five commands). Note that ticket signing needs the oracle key the contract trusts, so minting against `trezo-game-0e8b06.testnet` only works with that deployment's server key; for your own end-to-end runs, deploy your own contract. To see every on-chain path working on a local chain, run:
 
 ```bash
 npm run contract:build     # needs Rust + cargo-near (see DEPLOYMENT.md)
@@ -105,7 +119,7 @@ Details: **[ARCHITECTURE.md](ARCHITECTURE.md)**. Security model: **[SECURITY.md]
 | **Social login** | NEAR Connect wallet list | ⚠️ via wallets that offer email/social sign-in inside NEAR Connect (e.g. HOT, Meteor). A Privy/Web3Auth integration was *not* added: it needs third-party app IDs, and FastAuth is deprecated per the NEAR docs. |
 | **NEP-171 (NFT)** | not used | Deliberate: TREZO items are editions (many identical copies), which NEP-245 models natively. Badges are NEP-245 tokens marked soulbound. |
 | **NEAR Intents** | not implemented | Investigated only (see [Known limitations](#known-limitations)). |
-| **Testnet / mainnet deployment** | `scripts/deploy-contract.mjs` | ⏳ **Not deployed yet.** The build environment could not reach NEAR RPC. The deploy script is tested end to end against a local `neard` 2.13.4 sandbox. Follow [DEPLOYMENT.md](DEPLOYMENT.md). |
+| **Testnet deployment** | `scripts/deploy-contract.mjs`, `scripts/testnet-demo.mjs` | ✅ [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet), with real claim, market and NPC transactions (see [Live on NEAR testnet](#live-on-near-testnet)). **Mainnet: not deployed.** |
 
 ### Contract methods
 
@@ -182,7 +196,7 @@ See **[TESTING.md](TESTING.md)**.
 
 ## Known limitations
 
-- **Not deployed to testnet or mainnet yet.** The development container had no network route to NEAR RPC or faucets, so no testnet transactions exist and none are claimed. All on-chain behaviour was verified on a local `neard` sandbox. Deploying is a scripted, idempotent step ([DEPLOYMENT.md](DEPLOYMENT.md)).
+- **Testnet only; the app isn't hosted yet.** The contract is live on testnet. Mainnet is not deployed. The testnet transactions were signed by script-held player keys (exactly what a wallet signs after approval); a browser wallet flow through NEAR Connect has not been recorded on testnet yet.
 - **GPS cannot prove physical presence.** TREZO uses server-side distance checks, GPS-accuracy limits, impossible-speed detection, cooldowns, rate limits and per-player duplicate prevention. A determined spoofer with a fake-GPS app can still claim. The oracle can only attest that *the server's rules passed*. Demo-zone claims are explicitly flagged `demo: true` on-chain.
 - **SQLite needs a persistent disk.** Host TREZO on a Node server or container with a volume (Railway, Fly.io, Render, a VM). Serverless platforms with ephemeral filesystems (e.g. Vercel) would lose game state. Rate limits are in-memory, which suits a single instance.
 - **NEAR Intents is not integrated.** Paying for Merchant items with assets from other chains is a natural extension (the 1Click API quotes a swap that settles in NEAR), but the APIs and settlement flow could not be verified from the build environment. Per the brief, a working NEAR-native economy took priority.
