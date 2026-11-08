@@ -19,7 +19,10 @@ function sessionSecret(): string {
 
 export const serverEnv = {
   isProd,
-  dbPath: process.env.TREZO_DB_PATH || "data/trezo.db",
+  // Built at runtime on purpose: Turbopack traces static file paths passed to
+  // node:sqlite as build dependencies, so a literal "data/trezo.db" made every DB
+  // write trigger a dev rebuild/reload loop.
+  dbPath: process.env.TREZO_DB_PATH || ["data", "trezo.db"].join("/"),
   get sessionSecret() {
     return sessionSecret();
   },

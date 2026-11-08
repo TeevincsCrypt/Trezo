@@ -49,6 +49,15 @@ Needs Playwright with Chromium (`npm i -D playwright && npx playwright install c
 
 Real GPS mode was also checked by granting geolocation to the browser: the device location was moved step by step to a procedurally spawned treasure, and the claim succeeded with the live-GPS banner shown.
 
+## 3b. GPS behaviour test: 6 checks
+
+```bash
+npm run dev                  # terminal 1
+npm run test:e2e:gps         # terminal 2
+```
+
+Emulates a player's GPS feed in Chromium and walks it around: the first fix centres the map, the camera follows a 300 m walk, dragging pauses follow mode, Recenter re-locks it, and walking into a spawned treasure's radius triggers vibration, a toast, the auto-opened treasure sheet and a bouncing marker.
+
 ## 4. Full-stack local-chain test: 30 checks
 
 ```bash

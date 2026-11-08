@@ -98,7 +98,7 @@ Storage uses `near_sdk::store` collections. Balances are keyed `(token_id, accou
 
 ## Database driver
 
-TREZO uses Node's built-in `node:sqlite` through a small adapter (`src/server/sqlite.ts`) that provides the better-sqlite3-style API the game uses: `prepare().get/all/run`, and `transaction()` nested via savepoints. The earlier `better-sqlite3` native addon segfaulted on Railway's build image; the built-in module needs no compilation. The database uses the classic rollback journal (not WAL), which avoids shared-memory mmap on container volumes.
+TREZO uses Node's built-in `node:sqlite` through a small adapter (`src/server/sqlite.ts`) that provides the better-sqlite3-style API the game uses: `prepare().get/all/run`, and `transaction()` nested via savepoints. The earlier `better-sqlite3` native addon segfaulted on Railway's build image; the built-in module needs no compilation. It runs in WAL mode. The default path is built at runtime, because Turbopack traces static file paths passed to `node:sqlite` and would otherwise rebuild (and reload the page) on every database write in `next dev`.
 
 ## Scaling notes
 

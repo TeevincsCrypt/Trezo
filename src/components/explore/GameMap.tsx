@@ -34,10 +34,18 @@ export interface GameMapProps {
   onSelect: (id: string) => void;
   onMapClick?: (p: LatLng) => void;
   recenterKey: number;
+  /** Keep the camera on the player as they move. */
+  follow: boolean;
+  /** Called when the player drags the map (follow mode should pause). */
+  onUserPan?: () => void;
+  /** Direction of travel in degrees (from GPS), or null when unknown/stationary. */
+  heading: number | null;
+  /** Treasures the player is currently close enough to open. */
+  inRangeIds: Set<string>;
 }
 
 export function GameMap(props: GameMapProps) {
-  const { center, player, demo, accuracy, treasures, selectedId, onSelect, onMapClick, recenterKey } = props;
+  const { center, player, demo, accuracy, treasures, selectedId, onSelect, onMapClick, recenterKey, follow, onUserPan, heading, inRangeIds } = props;
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
   const markers = useRef<Map<string, Marker>>(new Map());
@@ -48,6 +56,8 @@ export function GameMap(props: GameMapProps) {
   clickRef.current = onMapClick;
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
+  const panRef = useRef(onUserPan);
+  panRef.current = onUserPan;
 
   // Init
   useEffect(() => {
@@ -95,6 +105,8 @@ export function GameMap(props: GameMapProps) {
         setReady(true);
       });
       m.on("click", (e: { lngLat: { lat: number; lng: number } }) => clickRef.current?.({ lat: e.lngLat.lat, lng: e.lngLat.lng }));
+      // dragstart only fires for user gestures (not for easeTo), so it cleanly pauses follow mode.
+      m.on("dragstart", () => panRef.current?.());
     })();
     return () => {
       disposed = true;
@@ -106,12 +118,20 @@ export function GameMap(props: GameMapProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Recenter
+  // Explicit recenter (button, search result, mode switch)
   useEffect(() => {
     if (!map.current) return;
-    map.current.easeTo({ center: [center.lng, center.lat], duration: 800 });
+    const target = follow && player ? player : center;
+    map.current.easeTo({ center: [target.lng, target.lat], duration: 800 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recenterKey, ready]);
+
+  // Follow mode: keep the camera on the player as they walk (including the first GPS fix).
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready || !follow || !player) return;
+    m.easeTo({ center: [player.lng, player.lat], duration: 650 });
+  }, [player, follow, ready]);
 
   // Player marker
   useEffect(() => {
@@ -127,14 +147,22 @@ export function GameMap(props: GameMapProps) {
       if (!playerMarker.current) {
         // MapLibre owns the outer element's classes/positioning; we style the inner dot.
         const d = document.createElement("div");
+        d.className = "trz-player-wrap";
+        const arrow = document.createElement("div");
+        arrow.className = "trz-heading";
+        d.appendChild(arrow);
         d.appendChild(document.createElement("div"));
         playerMarker.current = new ml.Marker({ element: d }).setLngLat([player.lng, player.lat]).addTo(m);
       }
       const pm = playerMarker.current!;
-      (pm.getElement().firstChild as HTMLElement).className = `trz-player${demo ? " demo" : ""}`;
+      const wrap = pm.getElement();
+      (wrap.lastChild as HTMLElement).className = `trz-player${demo ? " demo" : ""}`;
+      const arrow = wrap.firstChild as HTMLElement;
+      arrow.style.display = heading == null || demo ? "none" : "block";
+      if (heading != null) arrow.style.transform = `rotate(${heading}deg)`;
       pm.setLngLat([player.lng, player.lat]);
     })();
-  }, [player, demo, ready]);
+  }, [player, demo, ready, heading]);
 
   // Treasure markers (diffed)
   useEffect(() => {
@@ -163,7 +191,7 @@ export function GameMap(props: GameMapProps) {
         const outer = mk!.getElement();
         const e = outer.firstChild as HTMLElement;
         outer.style.zIndex = selectedId === t.id ? "5" : String({ common: 1, rare: 2, epic: 3, legendary: 4 }[t.rarity]);
-        e.className = `trz-marker ${t.rarity}${t.claimedByMe || t.remaining === 0 ? " claimed" : ""}${selectedId === t.id ? " selected" : ""}`;
+        e.className = `trz-marker ${t.rarity}${t.claimedByMe || t.remaining === 0 ? " claimed" : ""}${selectedId === t.id ? " selected" : ""}${inRangeIds.has(t.id) ? " inrange" : ""}`;
         e.style.setProperty("--c", RARITY[t.rarity].color);
       }
       for (const [id, mk] of markers.current) {
@@ -173,7 +201,7 @@ export function GameMap(props: GameMapProps) {
         }
       }
     })();
-  }, [treasures, selectedId, ready]);
+  }, [treasures, selectedId, ready, inRangeIds]);
 
   // Claim radius of the selected treasure + accuracy ring
   useEffect(() => {

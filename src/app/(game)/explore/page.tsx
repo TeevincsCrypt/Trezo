@@ -27,6 +27,9 @@ export default function ExplorePage() {
   const [view, setView] = useState<"map" | "list">("map");
   const [recenterKey, setRecenterKey] = useState(0);
   const [browseCenter, setBrowseCenter] = useState<LatLng | null>(null);
+  // Follow mode: camera tracks the player; dragging the map pauses it, Recenter resumes.
+  const [follow, setFollow] = useState(true);
+  const arrived = useRef<Set<string>>(new Set());
   const [claiming, setClaiming] = useState(false);
   const [reveal, setReveal] = useState<RevealData | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -63,6 +66,8 @@ export default function ExplorePage() {
     lastFetch.current = null;
     setSelectedId(null);
     setBrowseCenter(null);
+    setFollow(true);
+    arrived.current.clear();
     setRecenterKey((k) => k + 1);
   }, [loc.mode]);
   useEffect(() => {
@@ -81,6 +86,24 @@ export default function ExplorePage() {
   const available = withDist.filter((t) => !t.claimedByMe && t.remaining > 0);
   const selected = withDist.find((t) => t.id === selectedId) ?? null;
   const nearest = available[0] ?? null;
+
+  // Arrival: entering a treasure's claim radius buzzes the phone, highlights the
+  // marker and opens the treasure once, so it can be opened with one tap.
+  const inRangeIds = useMemo(() => new Set(available.filter((t) => t.distanceM <= t.claimRadiusM).map((t) => t.id)), [available]);
+  useEffect(() => {
+    for (const id of inRangeIds) {
+      if (arrived.current.has(id)) continue;
+      arrived.current.add(id);
+      const t = available.find((x) => x.id === id);
+      if (!t) continue;
+      try {
+        navigator.vibrate?.([90, 60, 140]);
+      } catch {}
+      notify({ title: "You're in range!", body: `${t.name} is right here. Open it!`, tone: t.rarity === "common" ? "success" : t.rarity });
+      if (!selectedId && !reveal && !claiming && view === "map") setSelectedId(id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inRangeIds]);
 
   // Floating discovery notifications
   useEffect(() => {
@@ -116,6 +139,7 @@ export default function ExplorePage() {
   const onMapClick = useCallback((p: LatLng) => (demo ? loc.setDemoPosition(p) : undefined), [demo, loc]);
   const recenter = () => {
     setBrowseCenter(null);
+    setFollow(true);
     setRecenterKey((k) => k + 1);
   };
 
@@ -142,6 +166,10 @@ export default function ExplorePage() {
           onSelect={setSelectedId}
           onMapClick={onMapClick}
           recenterKey={recenterKey}
+          follow={follow && !browseCenter}
+          onUserPan={() => setFollow(false)}
+          heading={loc.heading}
+          inRangeIds={inRangeIds}
         />
       )}
       {view === "list" && <div className="absolute inset-0 bg-bg" />}
@@ -156,7 +184,7 @@ export default function ExplorePage() {
         <CtrlButton label={view === "map" ? "List view" : "Map view"} onClick={() => setView(view === "map" ? "list" : "map")}>
           {view === "map" ? <List size={19} /> : <MapIcon size={19} />}
         </CtrlButton>
-        <CtrlButton label="Recenter" onClick={recenter}>
+        <CtrlButton label={follow && !browseCenter ? "Following you" : "Recenter and follow me"} onClick={recenter} active={follow && !browseCenter && !!loc.position}>
           <LocateFixed size={19} />
         </CtrlButton>
         <CtrlButton label="Search places" onClick={() => setSearchOpen(true)}>
@@ -232,6 +260,7 @@ export default function ExplorePage() {
         onClose={() => setSearchOpen(false)}
         onPick={(p) => {
           setBrowseCenter(p);
+          setFollow(false);
           setRecenterKey((k) => k + 1);
           setSearchOpen(false);
         }}
@@ -240,9 +269,9 @@ export default function ExplorePage() {
   );
 }
 
-function CtrlButton({ children, label, onClick }: { children: React.ReactNode; label: string; onClick: () => void }) {
+function CtrlButton({ children, label, onClick, active }: { children: React.ReactNode; label: string; onClick: () => void; active?: boolean }) {
   return (
-    <button onClick={onClick} aria-label={label} title={label} className="orb h-12 w-12">
+    <button onClick={onClick} aria-label={label} title={label} aria-pressed={active} className={cx("orb h-12 w-12", active && "!bg-ink !text-white")}>
       {children}
     </button>
   );

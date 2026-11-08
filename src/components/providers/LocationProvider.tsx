@@ -13,6 +13,8 @@ interface LocationCtx {
   gpsState: GpsState;
   position: LatLng | null;
   accuracy: number | null;
+  /** Direction of travel in degrees from GPS (only while moving), else null. */
+  heading: number | null;
   /** Ask for permission and start watching real GPS. */
   startGps: () => void;
   /** Switch to the clearly-labelled demo zone with a simulated position. */
@@ -31,6 +33,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [gpsState, setGpsState] = useState<GpsState>("idle");
   const [position, setPosition] = useState<LatLng | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [heading, setHeading] = useState<number | null>(null);
+  const headingAt = useRef(0);
   const [lastFixAt, setLastFixAt] = useState<number | null>(null);
   const watchId = useRef<number | null>(null);
   const lastSent = useRef<{ pos: LatLng; at: number } | null>(null);
@@ -57,6 +61,12 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         setGpsState("watching");
         setPosition({ lat: p.coords.latitude, lng: p.coords.longitude });
         setAccuracy(p.coords.accuracy ?? null);
+        // GPS heading is only meaningful while moving; keep the last value for 10 s.
+        const h = p.coords.heading;
+        if (h != null && Number.isFinite(h) && (p.coords.speed ?? 1) > 0.4) {
+          setHeading(h);
+          headingAt.current = Date.now();
+        } else if (Date.now() - headingAt.current > 10_000) setHeading(null);
         setLastFixAt(Date.now());
       },
       (err) => {
@@ -113,8 +123,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   }, [me, position, accuracy, mode, notify]);
 
   const value = useMemo(
-    () => ({ mode, gpsState, position, accuracy, startGps, enterDemo, setDemoPosition, lastFixAt }),
-    [mode, gpsState, position, accuracy, startGps, enterDemo, setDemoPosition, lastFixAt],
+    () => ({ mode, gpsState, position, accuracy, heading, startGps, enterDemo, setDemoPosition, lastFixAt }),
+    [mode, gpsState, position, accuracy, heading, startGps, enterDemo, setDemoPosition, lastFixAt],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

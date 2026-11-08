@@ -281,9 +281,10 @@ const g = globalThis as unknown as { __trezoDb?: DB };
 export function openDatabase(file: string): DB {
   if (file !== ":memory:") fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
   const db = new Database(file);
-  // Rollback journal (not WAL): WAL needs shared-memory mmap, which some
-  // container volumes handle poorly. Single-process writes make WAL unnecessary.
-  db.pragma("journal_mode = DELETE");
+  // WAL keeps the main database file untouched between checkpoints. That also
+  // matters in `next dev`: rewriting data/trezo.db (or creating a -journal file)
+  // on every write makes the dev file-watcher reload the page in a loop.
+  db.pragma("journal_mode = WAL");
   db.pragma("synchronous = NORMAL");
   db.pragma("busy_timeout = 5000");
   db.exec(SCHEMA);

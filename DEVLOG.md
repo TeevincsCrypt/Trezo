@@ -1,5 +1,13 @@
 # Development log
 
+## 2026-11-08: map usability
+- **Follow mode:** the camera tracks the player as they walk; dragging pauses it and ⌖ re-locks it (black when following).
+- **First GPS fix** now centres the map. Before, it could stay on the default demo area until Recenter was tapped.
+- **Arrival:** entering a treasure's radius vibrates the phone, shows a toast, bounces the marker and auto-opens the treasure once.
+- **Heading:** a direction-of-travel arrow on the player dot when GPS reports a heading (while moving).
+- **Fixed a dev-only reload loop** introduced by the `node:sqlite` switch: Turbopack traced the literal DB path as a build dependency, so every write reloaded the page. The path is now built at runtime, and WAL mode is back.
+- New `scripts/e2e-gps.cjs` (6 checks). The smoke test still passes 14/14 on dev and production builds.
+
 ## 2026-11-08: live deployment fix
 - Railway crashed with `Segmentation fault` on every database request. The `better-sqlite3` native addon was incompatible with the host image.
 - Replaced it with Node's built-in `node:sqlite` behind `src/server/sqlite.ts`, which keeps the same API with lenient parameter binding and savepoint-nested transactions, plus 3 new adapter tests (32 server tests total). Switched to the rollback journal, pinned Node 22, and removed the native dependency.

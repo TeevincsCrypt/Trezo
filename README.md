@@ -78,7 +78,7 @@ Most "crypto games" bolt a token onto a game loop, and the economy dies once spe
 
 | Loop | What happens |
 |---|---|
-| **Explore** | The map shows your position and nearby treasures in four rarities (Common, Rare, Epic, Legendary). Each rarity has its own colour and marker, and Epic/Legendary markers pulse. A list view, place search, recenter control and floating "RARE TREASURE DETECTED" alerts are included. |
+| **Explore** | The camera follows you as you walk (drag to look around, ⌖ to re-lock), with a direction-of-travel arrow on your dot. Arriving within a treasure's radius vibrates the phone, bounces its marker and opens it for a one-tap claim. The map shows your position and nearby treasures in four rarities (Common, Rare, Epic, Legendary). Each rarity has its own colour and marker, and Epic/Legendary markers pulse. A list view, place search, recenter control and floating "RARE TREASURE DETECTED" alerts are included. |
 | **Seeding** | Every ~1.1 km grid cell you enter gets a deterministic daily treasure field: 9 treasures with weighted rarity, limited claims, and a 24 h expiry. TREZO is playable anywhere, with bounded supply. Admins can place hand-made treasures as well. |
 | **Claim** | When you get within the radius (default 40 m), the server checks: availability, expiry, zone/mode, duplicates, a 15 s cooldown, GPS accuracy, impossible-speed jumps and distance. All checks run in one DB transaction. |
 | **Reward** | Shards (capped per day), XP and level-ups, and sometimes a collectible in your **vault**. Wallet players can **mint** it to their NEAR account. |
@@ -195,6 +195,7 @@ Copy `.env.example` to `.env.local`. Every variable is optional for local play.
 | `npm run test:contract` | 34 contract unit tests: claims (forgery, replay, expiry, wrong account/contract, supply), NEP-245, soulbound, market, NPC curve and limits, access control | 34/34 ✅ |
 | `npm test` | 32 server tests (incl. the SQLite adapter): proximity, duplicates, cooldown, supply races, GPS quality, jump detection, zone separation, daily cap, spawning, quests, missions, exchanges, shop, ticket signing, settlement, real NEP-413 verification | 32/32 ✅ |
 | `npm run test:e2e` | Browser walkthrough (iPhone viewport + desktop) of the landing page, core loop, admin authorisation and duplicate rejection | 14/14 ✅ |
+| `npm run test:e2e:gps` | Emulated GPS walk: first-fix centring, follow mode, drag-to-pause, Recenter, arrival (vibration, toast, auto-open) | 6/6 ✅ |
 | `npm run test:sandbox` | Local NEAR node: real deploy, wallet login, claim tx, settlement, forgery/replay/theft, NPC allocation, escrow market, fee, curve, buyback, `mt_transfer_call` refund, auth | 30/30 ✅ |
 | `npm run typecheck`, `npm run build` | TypeScript and production build | ✅ |
 
