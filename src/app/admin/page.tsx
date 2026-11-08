@@ -128,7 +128,7 @@ function AdminLogin({ onDone }: { onDone: () => void }) {
     <div className="grid min-h-dvh place-items-center px-4">
       <div className="card-raised w-full max-w-sm p-6">
         <Logo />
-        <h1 className="font-display mt-5 text-xl font-bold">Admin access</h1>
+        <h1 className="font-display mt-5 text-xl">Admin access</h1>
         <p className="mt-1 text-[13px] text-muted">Enter the server&apos;s admin token, or sign in to the game with a NEAR account listed in TREZO_ADMIN_ACCOUNTS.</p>
         <input className="input mt-4" type="password" placeholder="Admin token" value={token} onChange={(e) => setToken(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} />
         {err && <p className="mt-2 text-sm text-danger">{err}</p>}
@@ -159,7 +159,7 @@ function OverviewTab({ d }: { d: Overview }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {cards.map(([l, v]) => (
           <div key={l} className="card p-4">
-            <p className="font-display text-2xl font-bold tabular">{(v ?? 0).toLocaleString()}</p>
+            <p className="font-display text-2xl tabular">{(v ?? 0).toLocaleString()}</p>
             <p className="text-[12px] text-muted">{l}</p>
           </div>
         ))}
@@ -168,7 +168,7 @@ function OverviewTab({ d }: { d: Overview }) {
         Network <b className="text-ink">{publicConfig.network}</b> · Contract <b className="text-ink">{publicConfig.contractId || "not configured"}</b>. Item supply, NPC allocations and treasure claim caps
         are enforced on-chain too: editing them here changes game-side issuance, while on-chain caps can only be changed by the contract owner (and supply caps can only be lowered).
       </div>
-      <h3 className="mt-6 font-display text-lg font-semibold">Admin log</h3>
+      <h3 className="mt-6 font-display text-lg">Admin log</h3>
       <Table rows={d.log} cols={["created_at", "actor", "action", "detail"]} />
     </>
   );
@@ -225,7 +225,7 @@ function TreasuresTab({ d, act }: { d: Overview; act: (fn: () => Promise<unknown
   return (
     <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
       <div className="card h-fit space-y-2.5 p-4">
-        <h3 className="flex items-center gap-2 font-display font-semibold">
+        <h3 className="flex items-center gap-2 font-display">
           <Plus size={16} /> {editing ? `Edit ${editing}` : "Create treasure"}
         </h3>
         <F label="Name"><input className="input" value={String(form.name)} onChange={(e) => set("name", e.target.value)} /></F>
@@ -306,7 +306,7 @@ function JsonishForm({ title, fields, initial, onSubmit, hint }: { title: string
   useEffect(() => setForm(initial), [initial]);
   return (
     <div className="card h-fit space-y-2 p-4">
-      <h3 className="font-display font-semibold">{title}</h3>
+      <h3 className="font-display">{title}</h3>
       <p className="text-[11px] text-muted">{hint}</p>
       <div className="grid grid-cols-2 gap-2">
         {fields.map((f) => (

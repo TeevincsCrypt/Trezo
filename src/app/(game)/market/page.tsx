@@ -114,7 +114,7 @@ function PlayerMarket() {
                   </div>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="font-display text-lg font-bold tabular">{formatNear(l.price)} Ⓝ</p>
+                  <p className="font-display text-lg tabular">{formatNear(l.price)} Ⓝ</p>
                   {own ? (
                     <OnchainAction label="Cancel" method="cancel_listing" args={{ listing_id: l.id }} deposit="1" event="cancel" className="btn-ghost mt-1 px-3 py-1.5 text-xs" onDone={load} />
                   ) : (
@@ -153,7 +153,7 @@ function Merchant() {
         <div className="flex items-center gap-3">
           <div className="grid h-14 w-14 place-items-center rounded-2xl bg-legendary/15 text-3xl">⚖️</div>
           <div>
-            <p className="font-display text-lg font-semibold">Bram&apos;s Exchange</p>
+            <p className="font-display text-lg">Bram&apos;s Exchange</p>
             <p className="text-[13px] text-muted">Prices follow an on-chain curve: each sale raises the price 8%, each buyback lowers it.</p>
           </div>
         </div>
@@ -178,7 +178,7 @@ function Merchant() {
                 <p className="text-[12px] text-muted">Buys back at {formatNear(o.buyback_price)} Ⓝ</p>
               </div>
               <div className="shrink-0 text-right">
-                <p className="font-display text-lg font-bold tabular">{formatNear(o.current_price)} Ⓝ</p>
+                <p className="font-display text-lg tabular">{formatNear(o.current_price)} Ⓝ</p>
                 <OnchainAction label="Buy 1" icon={<Store size={13} />} method="npc_buy" args={{ npc_id: "merchant", token_id: o.offer.token_id }} deposit={maxPay} event="npc_buy" className="btn-primary mt-1 px-3 py-1.5 text-xs" onDone={load} />
               </div>
             </div>
@@ -254,7 +254,7 @@ function ShardShop() {
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="card px-2 py-2.5">
-      <p className="font-display text-lg font-bold tabular">{value}</p>
+      <p className="font-display text-lg tabular">{value}</p>
       <p className="text-[11px] text-muted">{label}</p>
     </div>
   );

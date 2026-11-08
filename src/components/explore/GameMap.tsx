@@ -10,7 +10,7 @@ import type { NearbyTreasure } from "@/server/game";
 const OFFLINE_STYLE: StyleSpecification = {
   version: 8,
   sources: {},
-  layers: [{ id: "bg", type: "background", paint: { "background-color": "#0a0f17" } }],
+  layers: [{ id: "bg", type: "background", paint: { "background-color": "#eceae6" } }],
 };
 
 function circlePolygon(c: LatLng, radiusM: number, steps = 48) {
@@ -90,7 +90,7 @@ export function GameMap(props: GameMapProps) {
         if (!m.getSource("radius")) {
           m.addSource("radius", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
           m.addLayer({ id: "radius-fill", type: "fill", source: "radius", paint: { "fill-color": ["get", "color"], "fill-opacity": 0.12 } });
-          m.addLayer({ id: "radius-line", type: "line", source: "radius", paint: { "line-color": ["get", "color"], "line-width": 1.5, "line-dasharray": [2, 2] } });
+          m.addLayer({ id: "radius-line", type: "line", source: "radius", paint: { "line-color": ["get", "color"], "line-width": 2, "line-dasharray": [2, 2] } });
         }
         setReady(true);
       });
@@ -183,7 +183,7 @@ export function GameMap(props: GameMapProps) {
     const sel = treasures.find((t) => t.id === selectedId);
     const features = [];
     if (sel) features.push({ ...circlePolygon(sel, sel.claimRadiusM), properties: { color: RARITY[sel.rarity].color } });
-    if (player && accuracy && !demo && accuracy < 500) features.push({ ...circlePolygon(player, accuracy), properties: { color: "#3DDCB4" } });
+    if (player && accuracy && !demo && accuracy < 500) features.push({ ...circlePolygon(player, accuracy), properties: { color: "#0E0E10" } });
     src?.setData?.({ type: "FeatureCollection", features });
   }, [selectedId, treasures, player, accuracy, demo, ready]);
 
@@ -196,11 +196,11 @@ export function GameMap(props: GameMapProps) {
           <div
             className="pointer-events-none absolute inset-0 opacity-60"
             style={{
-              backgroundImage: "linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
+              backgroundImage: "radial-gradient(rgba(14,14,16,.22) 1px, transparent 1.4px)",
+              backgroundSize: "22px 22px",
             }}
           />
-          <div className="pointer-events-none absolute left-3 top-[calc(var(--safe-top)+112px)] max-w-[62%] rounded-xl bg-black/60 px-3 py-1.5 text-[11px] leading-snug text-muted">
+          <div className="pointer-events-none absolute left-4 top-[calc(var(--safe-top)+128px)] max-w-[60%] rounded-2xl bg-white/80 px-3 py-1.5 text-[11px] leading-snug text-muted">
             Map tiles unreachable — offline grid. Treasures still work.
           </div>
         </>

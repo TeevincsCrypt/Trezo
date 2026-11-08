@@ -65,7 +65,7 @@ export default function LeaderboardPage() {
                   <p className="text-[11px] text-muted">
                     {e.score.toLocaleString()} {unit}
                   </p>
-                  <motion.div initial={{ height: 0 }} animate={{ height: h }} transition={{ delay: 0.1 * i, type: "spring", stiffness: 120 }} className="mt-2 grid w-full place-items-start justify-center overflow-hidden rounded-t-2xl pt-2 font-display text-2xl font-bold" style={{ background: `linear-gradient(180deg, ${MEDAL[i]}33, transparent)`, color: MEDAL[i], borderTop: `2px solid ${MEDAL[i]}` }}>
+                  <motion.div initial={{ height: 0 }} animate={{ height: h }} transition={{ delay: 0.1 * i, type: "spring", stiffness: 120 }} className="mt-2 grid w-full place-items-start justify-center overflow-hidden rounded-t-2xl pt-2 font-display text-2xl" style={{ background: `linear-gradient(180deg, ${MEDAL[i]}33, transparent)`, color: MEDAL[i], borderTop: `2px solid ${MEDAL[i]}` }}>
                     {i + 1}
                   </motion.div>
                 </Link>
@@ -79,16 +79,16 @@ export default function LeaderboardPage() {
               return (
                 <motion.div key={e.player.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(idx, 12) * 0.025 }}>
                   <Link href={`/players/${e.player.username}`} className={cx("card flex items-center gap-3 p-2.5 pr-4", isMe && "border-gold/50 bg-gold/[0.06]")}>
-                    <span className="w-8 text-center font-display font-bold tabular text-muted">{e.rank}</span>
+                    <span className="w-8 text-center font-display tabular text-muted">{e.rank}</span>
                     <Avatar avatar={e.player.avatar} frame={e.player.frame} size={40} />
                     <div className="min-w-0 flex-1">
                       <p className="flex items-center gap-1.5 truncate font-semibold">
                         {e.player.username} {isMe && <span className="text-[11px] text-gold">(you)</span>}
-                        {e.player.isSample && <span className="rounded bg-white/5 px-1 text-[9px] font-semibold uppercase text-faint">sample</span>}
+                        {e.player.isSample && <span className="rounded bg-ink/5 px-1 text-[9px] font-semibold uppercase text-faint">sample</span>}
                       </p>
                       <p className="text-[12px] text-muted">Level {e.player.level}</p>
                     </div>
-                    <p className="font-display font-bold tabular">{e.score.toLocaleString()}</p>
+                    <p className="font-display tabular">{e.score.toLocaleString()}</p>
                   </Link>
                 </motion.div>
               );

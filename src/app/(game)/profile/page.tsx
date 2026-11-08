@@ -55,7 +55,7 @@ export default function ProfilePage() {
       />
 
       <section className="card p-4">
-        <h2 className="font-display text-lg font-semibold">NEAR account</h2>
+        <h2 className="font-display text-lg">NEAR account</h2>
         {me.accountId ? (
           <div className="mt-2 space-y-2 text-sm">
             <p className="flex flex-wrap items-center gap-2">
@@ -88,7 +88,7 @@ export default function ProfilePage() {
 
       <section>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold">Collection</h2>
+          <h2 className="font-display text-lg">Collection</h2>
           <Link href="/inventory" className="text-[13px] text-gold">
             View all
           </Link>
@@ -97,7 +97,7 @@ export default function ProfilePage() {
       </section>
 
       <section>
-        <h2 className="mb-2 font-display text-lg font-semibold">Achievements</h2>
+        <h2 className="mb-2 font-display text-lg">Achievements</h2>
         {prof.data ? <Achievements list={prof.data.achievements} /> : <div className="skeleton h-32" />}
       </section>
 
@@ -140,7 +140,7 @@ function EditSheet({ open, onClose, me, onSaved }: { open: boolean; onClose: () 
     }
   };
   return (
-    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg font-semibold">Edit profile</p>}>
+    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg">Edit profile</p>}>
       <label className="block text-xs font-semibold uppercase tracking-wider text-muted">Username</label>
       <input className="input mt-1.5" value={username} maxLength={20} onChange={(e) => setUsername(e.target.value.replace(/\s/g, "_"))} />
       <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-muted">Avatar</p>

@@ -21,7 +21,7 @@ export const publicConfig = {
    */
   mapStyles: (
     process.env.NEXT_PUBLIC_MAP_STYLE_URLS ||
-    "https://tiles.openfreemap.org/styles/dark,https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+    "https://tiles.openfreemap.org/styles/positron,https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
   )
     .split(",")
     .map((s) => s.trim())

@@ -1,38 +1,48 @@
 @import "tailwindcss";
-@import "@fontsource-variable/sora";
+@import "@fontsource-variable/unbounded";
 @import "@fontsource-variable/inter";
 @import "maplibre-gl/dist/maplibre-gl.css";
 
+/*
+ * TREZO design system — "daylight expedition".
+ * Warm paper canvas, soft porcelain cards, ink-black primary surfaces and a
+ * single ember-orange accent. Wide geometric display type for headlines and
+ * numbers, Inter for reading.
+ */
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "Sora Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Unbounded Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 
-  --color-bg: #06080c;
-  --color-surface: #0d121a;
-  --color-surface-2: #131a25;
-  --color-surface-3: #1a2331;
-  --color-line: rgb(255 255 255 / 0.07);
-  --color-line-strong: rgb(255 255 255 / 0.13);
-  --color-ink: #edf1f7;
-  --color-muted: #8794a7;
-  --color-faint: #566275;
+  --color-bg: #e9e8e5;
+  --color-surface: #f8f7f5;
+  --color-surface-2: #f1f0ed;
+  --color-surface-3: #e6e5e1;
+  --color-line: rgb(14 14 16 / 0.07);
+  --color-line-strong: rgb(14 14 16 / 0.14);
+  --color-ink: #0e0e10;
+  --color-ink-2: #1c1c20;
+  --color-muted: #77767c;
+  --color-faint: #a7a6ab;
 
-  --color-gold: #f4c567;
-  --color-gold-deep: #c99a3c;
-  --color-teal: #3ddcb4;
-  --color-danger: #ff6b6b;
+  /* `gold` is the brand accent token (ember orange) used across the app. */
+  --color-gold: #ff6a1a;
+  --color-gold-deep: #e8560b;
+  /* `teal` is the positive / success token (gains, confirmations). */
+  --color-teal: #10a877;
+  --color-danger: #e5484d;
 
-  --color-common: #9db7cc;
-  --color-rare: #4aa8ff;
-  --color-epic: #b07cff;
-  --color-legendary: #ffb547;
+  --color-common: #6f8499;
+  --color-rare: #2f7fe0;
+  --color-epic: #8a55f0;
+  --color-legendary: #e59a0c;
 
-  --radius-card: 20px;
-  --shadow-float: 0 12px 40px -12px rgb(0 0 0 / 0.7);
+  --radius-card: 28px;
+  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 18px 40px -22px rgb(20 16 10 / 0.28);
+  --shadow-soft: 0 10px 30px -18px rgb(20 16 10 / 0.25);
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -52,75 +62,135 @@ body {
 }
 
 ::selection {
-  background: rgb(244 197 103 / 0.35);
+  background: rgb(255 106 26 / 0.25);
 }
 
-.font-display {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
+    font-weight: 500;
+  }
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* Cards */
+/* ---------------------------------------------------------------- surfaces */
 .card {
   background: var(--color-surface);
-  border: 1px solid var(--color-line);
+  border: 1px solid rgb(255 255 255 / 0.9);
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
 }
 
 .card-raised {
-  background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface));
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-card);
+  background: linear-gradient(180deg, #fbfaf8, var(--color-surface));
+  border: 1px solid rgb(255 255 255 / 0.95);
+  border-radius: calc(var(--radius-card) + 4px);
   box-shadow: var(--shadow-float);
 }
 
-.hud-glass {
-  background: rgb(10 14 20 / 0.95);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid var(--color-line);
+/* Ink card: the black hero surface */
+.card-ink {
+  background: var(--color-ink);
+  color: #f6f5f2;
+  border-radius: calc(var(--radius-card) + 4px);
 }
 
-/* Buttons */
+/* Frosted porcelain used for floating map controls / HUD */
+.hud-glass {
+  background: rgb(250 249 247 / 0.95);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow: 0 10px 30px -16px rgb(20 16 10 / 0.35);
+}
+
+/* Soft orange halo behind hero elements */
+.ember-glow {
+  background: radial-gradient(closest-side, rgb(255 122 48 / 0.38), rgb(255 160 90 / 0.14) 55%, transparent);
+  filter: blur(8px);
+}
+
+/* Dot-grid texture */
+.dot-grid {
+  background-image: radial-gradient(rgb(14 14 16 / 0.32) 1px, transparent 1.3px);
+  background-size: 18px 18px;
+}
+.dot-grid-light {
+  background-image: radial-gradient(rgb(255 255 255 / 0.18) 1px, transparent 1.3px);
+  background-size: 18px 18px;
+}
+
+/* ---------------------------------------------------------------- buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 14px;
+  border-radius: 999px;
   font-weight: 600;
   font-size: 0.9rem;
-  padding: 0.7rem 1.1rem;
-  transition: transform 0.12s ease, background 0.2s ease, opacity 0.2s ease;
+  padding: 0.75rem 1.25rem;
+  transition: transform 0.12s ease, background 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
 }
 .btn:active:not(:disabled) {
   transform: scale(0.97);
 }
 .btn:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
+/* Primary = ink pill */
 .btn-primary {
-  background: linear-gradient(180deg, #f8d27f, var(--color-gold));
-  color: #1b1405;
-  box-shadow: 0 6px 20px -8px rgb(244 197 103 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.5);
+  background: var(--color-ink);
+  color: #fff;
+  box-shadow: 0 10px 22px -12px rgb(14 14 16 / 0.6);
 }
+.btn-primary:hover:not(:disabled) {
+  background: #26262b;
+}
+/* Accent = ember pill (used sparingly, for the key moment on a screen) */
+.btn-accent {
+  background: var(--color-gold);
+  color: #fff;
+  box-shadow: 0 12px 26px -12px rgb(255 106 26 / 0.8);
+}
+.btn-accent:hover:not(:disabled) {
+  background: var(--color-gold-deep);
+}
+/* Positive (connect / mint) */
 .btn-teal {
   background: var(--color-teal);
-  color: #04241c;
+  color: #fff;
+  box-shadow: 0 10px 22px -12px rgb(16 168 119 / 0.7);
 }
 .btn-ghost {
-  background: var(--color-surface-2);
+  background: #fff;
   color: var(--color-ink);
   border: 1px solid var(--color-line);
+  box-shadow: 0 6px 16px -12px rgb(20 16 10 / 0.35);
 }
-.btn-ghost:hover {
-  background: var(--color-surface-3);
+.btn-ghost:hover:not(:disabled) {
+  background: var(--color-surface-2);
+}
+
+/* Round frosted icon button (map controls, quick actions) */
+.orb {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: radial-gradient(120% 120% at 30% 20%, #fff, #f1f0ed);
+  border: 1px solid rgb(255 255 255 / 0.95);
+  box-shadow: 0 1px 0 #fff inset, 0 12px 26px -16px rgb(20 16 10 / 0.45);
+  color: var(--color-ink);
+  transition: transform 0.12s ease;
+}
+.orb:active {
+  transform: scale(0.95);
 }
 
 .chip {
@@ -129,27 +199,28 @@ body {
   gap: 0.3rem;
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 0.22rem 0.55rem;
+  letter-spacing: 0.01em;
+  padding: 0.25rem 0.6rem;
   border-radius: 999px;
   border: 1px solid var(--color-line);
-  background: var(--color-surface-2);
+  background: #fff;
   color: var(--color-muted);
   white-space: nowrap;
 }
 
 .input {
   width: 100%;
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-line);
-  border-radius: 12px;
-  padding: 0.7rem 0.9rem;
+  background: #fff;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
   font-size: 0.95rem;
   color: var(--color-ink);
   outline: none;
 }
 .input:focus {
-  border-color: rgb(244 197 103 / 0.5);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 4px rgb(255 106 26 / 0.12);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -159,11 +230,11 @@ body {
   scrollbar-width: none;
 }
 
-/* Map markers */
+/* ---------------------------------------------------------------- map */
 .trz-marker {
   position: relative;
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   cursor: pointer;
   display: grid;
   place-items: center;
@@ -174,10 +245,10 @@ body {
 }
 .trz-marker .halo {
   position: absolute;
-  inset: 3px;
+  inset: 2px;
   border-radius: 50%;
   background: radial-gradient(circle, var(--c) 0%, transparent 70%);
-  opacity: 0.45;
+  opacity: 0.35;
 }
 .trz-marker.legendary .halo,
 .trz-marker.epic .halo {
@@ -185,53 +256,53 @@ body {
 }
 .trz-marker .glyph {
   position: relative;
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  background: #0b1018;
-  border: 2px solid var(--c);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid var(--c);
   display: grid;
   place-items: center;
-  box-shadow: 0 6px 16px -6px #000, 0 0 18px -6px var(--c);
+  box-shadow: 0 8px 18px -8px rgb(20 16 10 / 0.55);
 }
 .trz-marker .glyph svg {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
 }
 .trz-marker.claimed {
   opacity: 0.45;
-  filter: grayscale(0.8);
+  filter: grayscale(0.9);
 }
 .trz-marker.selected .glyph {
   transform: scale(1.15);
-  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.15), 0 0 24px -2px var(--c);
+  box-shadow: 0 0 0 5px rgb(255 255 255 / 0.9), 0 10px 24px -8px var(--c);
 }
 .trz-player {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--color-teal);
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 6px rgb(61 220 180 / 0.25), 0 4px 10px rgb(0 0 0 / 0.5);
+  background: var(--color-ink);
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 8px rgb(14 14 16 / 0.12), 0 6px 14px rgb(0 0 0 / 0.3);
 }
 .trz-player.demo {
   background: var(--color-gold);
-  box-shadow: 0 0 0 6px rgb(244 197 103 / 0.25), 0 4px 10px rgb(0 0 0 / 0.5);
+  box-shadow: 0 0 0 8px rgb(255 106 26 / 0.2), 0 6px 14px rgb(0 0 0 / 0.3);
 }
 
 @keyframes trz-pulse {
   0% {
     transform: scale(0.8);
-    opacity: 0.6;
+    opacity: 0.55;
   }
   100% {
-    transform: scale(1.7);
+    transform: scale(1.75);
     opacity: 0;
   }
 }
 
 .maplibregl-ctrl-attrib {
-  background: rgb(6 8 12 / 0.6) !important;
+  background: rgb(250 249 247 / 0.7) !important;
   color: var(--color-faint) !important;
   font-size: 10px !important;
 }
@@ -239,12 +310,12 @@ body {
   color: var(--color-muted) !important;
 }
 
-/* Shimmer skeleton */
+/* ---------------------------------------------------------------- misc */
 .skeleton {
-  background: linear-gradient(90deg, var(--color-surface-2) 0%, var(--color-surface-3) 50%, var(--color-surface-2) 100%);
+  background: linear-gradient(90deg, var(--color-surface-2) 0%, #fbfaf8 50%, var(--color-surface-2) 100%);
   background-size: 200% 100%;
   animation: trz-shimmer 1.4s linear infinite;
-  border-radius: 12px;
+  border-radius: 20px;
 }
 @keyframes trz-shimmer {
   to {

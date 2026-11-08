@@ -56,7 +56,7 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
         </motion.div>
         <div>
           <RarityBadge rarity={it.rarity as Rarity} size="lg" />
-          <h1 className="font-display mt-3 text-3xl font-bold">{it.name}</h1>
+          <h1 className="font-display mt-3 text-3xl">{it.name}</h1>
           <p className="mt-2 text-muted">{it.description}</p>
 
           <dl className="mt-5 grid grid-cols-2 gap-2 text-sm">
@@ -136,7 +136,7 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
 function Holding({ n, label, accent }: { n: number; label: string; accent?: string }) {
   return (
     <div>
-      <p className={cx("font-display text-2xl font-bold tabular", n > 0 && accent)}>{n}</p>
+      <p className={cx("font-display text-2xl tabular", n > 0 && accent)}>{n}</p>
       <p className="text-[11px] text-muted">{label}</p>
     </div>
   );
@@ -153,7 +153,7 @@ function ListSheet({ open, onClose, tokenId, max, onDone }: { open: boolean; onC
     priceYocto = null;
   }
   return (
-    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg font-semibold">List on the player market</p>}>
+    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg">List on the player market</p>}>
       <p className="text-[13px] text-muted">Your items move into contract escrow until sold or cancelled. Buyers pay you directly; a 2.5% fee funds the Merchant&apos;s treasury.</p>
       <label className="mt-4 block text-xs font-semibold uppercase tracking-wider text-muted">Quantity (max {max})</label>
       <input className="input mt-1.5" type="number" min={1} max={max} value={qty} onChange={(e) => setQty(Math.max(1, Math.min(max, Number(e.target.value) || 1)))} />
@@ -183,7 +183,7 @@ function TransferSheet({ open, onClose, tokenId, max, onDone }: { open: boolean;
   const [qty, setQty] = useState(1);
   const valid = /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/.test(to) && to.length >= 2;
   return (
-    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg font-semibold">Transfer (NEP-245 mt_transfer)</p>}>
+    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg">Transfer (NEP-245 mt_transfer)</p>}>
       <label className="block text-xs font-semibold uppercase tracking-wider text-muted">Recipient NEAR account</label>
       <input className="input mt-1.5" placeholder={`friend.${publicConfig.network === "mainnet" ? "near" : "testnet"}`} value={to} onChange={(e) => setTo(e.target.value.trim().toLowerCase())} />
       <label className="mt-3 block text-xs font-semibold uppercase tracking-wider text-muted">Quantity (max {max})</label>

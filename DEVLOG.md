@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-11-08: UI redesign
+- New light visual system, inspired by a reference shot the team supplied: warm paper canvas, porcelain cards, ink primary surfaces, a single ember accent, Unbounded display type, and a concentric-ring logo.
+- New public landing page at `/` (it previously redirected to `/explore`), with live server stats and the testnet contract link.
+- Floating ink dock with a white active pill, plus an orange Hunt button that focuses the nearest treasure. Onboarding was reworked as a "boarding pass". Explore gained orb controls and a Nearby panel. The reveal moved to a bright stage.
+- Map styles switched to light OSM styles (OpenFreeMap Positron → CARTO Positron → dot-grid fallback).
+- E2E smoke test now covers the landing page and the Hunt button (14 checks, all passing).
+
 ## 2026-11-07: testnet deployment
 - NEAR RPC and the faucet were allowed in the environment. Created `trezo-game-0e8b06.testnet` via the faucet and deployed with `npm run contract:deploy` (7 txs, all succeeded first try, thanks to the earlier sandbox fix for wasm host imports).
 - Added `scripts/testnet-demo.mjs`, which ran the full loop on testnet: NEP-413 login, claim → mint, settlement, listing, purchase, Merchant sale and buyback. Links are in the README and `deployments/testnet-demo.json`.

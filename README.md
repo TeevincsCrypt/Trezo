@@ -6,11 +6,15 @@ TREZO is a location-based treasure-hunting game built on **NEAR Protocol**. Play
 
 Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economies**. It covers NPCs with wallets, player-owned markets, an economy that adjusts without developer intervention, and NEP-245.
 
-| Explore (demo zone) | Treasure in range (real GPS) | Opening | Guild NPC + on-chain treasury | Player market (on-chain) |
-|---|---|---|---|---|
-| ![](docs/screenshots/explore-demo.png) | ![](docs/screenshots/gps-in-range.png) | ![](docs/screenshots/reveal.png) | ![](docs/screenshots/npc-treasury.png) | ![](docs/screenshots/market.png) |
+![TREZO landing page](docs/screenshots/landing.png)
 
-<sub>Screenshots come from automated test runs inside a network-restricted container. Map tiles were blocked there, so the map shows TREZO's built-in offline grid. With normal internet access, the OpenStreetMap-based dark map renders underneath. The market and NPC screenshots were taken against a local NEAR sandbox node (`npm run test:sandbox -- --keep`).</sub>
+| Onboarding | Explore (demo zone) | Treasure in range | Opening | Guild NPC + live on-chain treasury | Quests |
+|---|---|---|---|---|---|
+| ![](docs/screenshots/onboarding.png) | ![](docs/screenshots/explore.png) | ![](docs/screenshots/treasure.png) | ![](docs/screenshots/reveal.png) | ![](docs/screenshots/npc-treasury.png) | ![](docs/screenshots/quests.png) |
+
+<sub>Screenshots come from automated test runs of a local server configured against the live testnet contract (the Merchant treasury panel shows real testnet state). The test container blocked map-tile hosts, so the map shows TREZO's built-in dot-grid fallback. With normal internet access, a light OpenStreetMap-based map (OpenFreeMap / CARTO Positron) renders underneath.</sub>
+
+**Design.** A light "daylight expedition" system: a warm paper canvas, porcelain cards with large radii, ink-black primary surfaces and a single ember-orange accent. Headlines and numbers use the wide geometric Unbounded face; body text is Inter. Navigation is a floating ink dock with a white active pill, plus an orange **Hunt** button that jumps straight to the nearest treasure. The concentric-ring logo is a compass seen from above, or a radar ping. Design tokens are in `src/app/globals.css`.
 
 ## Live on NEAR testnet
 
@@ -38,9 +42,9 @@ npm run dev            # http://localhost:3000
 
 No `.env` is needed to play. The SQLite database is created and seeded on first request.
 
-1. Open **http://localhost:3000**, choose **Create explorer profile**, pick an avatar and a username, then **Start exploring**.
+1. Open **http://localhost:3000** (the landing page), press **Start exploring**, then choose **Create explorer profile**, pick an avatar and a username, then **Start exploring**.
 2. On the map, choose **Demo zone**. This is a clearly labelled demo area (Central Park, NYC) where your position is *simulated*. Choose **Use my location** instead to hunt for real around you.
-3. Tap the **nearest-treasure card** at the bottom. You'll see the distance and claim radius ("Get within 50 m…").
+3. Tap the orange **Hunt** button next to the dock (or any treasure in the **Nearby** panel). You'll see the distance and claim radius ("Get within 50 m…").
 4. Tap **Demo: walk to this treasure**, then **Open treasure**. The **server** validates proximity and anti-cheat rules, and the opening animation reveals Shards, XP and any collectible.
 5. Open **Quests**. *Treasure Trail* now shows **1 / 3**. Open **Guild → The Cartographer → Accept** to start an NPC mission.
 6. Open **Inventory → Rewards** to see the reward. With an on-chain deployment configured, the **Mint on NEAR** button appears here.
@@ -188,7 +192,7 @@ Copy `.env.example` to `.env.local`. Every variable is optional for local play.
 |---|---|---|
 | `npm run test:contract` | 34 contract unit tests: claims (forgery, replay, expiry, wrong account/contract, supply), NEP-245, soulbound, market, NPC curve and limits, access control | 34/34 ✅ |
 | `npm test` | 29 server tests: proximity, duplicates, cooldown, supply races, GPS quality, jump detection, zone separation, daily cap, spawning, quests, missions, exchanges, shop, ticket signing, settlement, real NEP-413 verification | 29/29 ✅ |
-| `npm run test:e2e` | Browser walkthrough (iPhone viewport + desktop) of the core loop, admin authorisation and duplicate rejection | 13/13 ✅ (dev and production builds) |
+| `npm run test:e2e` | Browser walkthrough (iPhone viewport + desktop) of the landing page, core loop, admin authorisation and duplicate rejection | 14/14 ✅ |
 | `npm run test:sandbox` | Local NEAR node: real deploy, wallet login, claim tx, settlement, forgery/replay/theft, NPC allocation, escrow market, fee, curve, buyback, `mt_transfer_call` refund, auth | 30/30 ✅ |
 | `npm run typecheck`, `npm run build` | TypeScript and production build | ✅ |
 

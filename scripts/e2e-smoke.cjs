@@ -34,6 +34,12 @@ async function shot(page, name) {
 
   console.log(`TREZO e2e smoke against ${BASE}`);
 
+  // 0. Landing page renders with live stats
+  await page.goto(`${BASE}/`, { waitUntil: "load" });
+  await page.getByText("Treasures opened").waitFor();
+  ok("landing page renders with live stats");
+  await shot(page, "landing");
+
   // 1. Onboarding → guest profile
   await page.goto(`${BASE}/explore`, { waitUntil: "load" });
   await page.getByText("Create explorer profile").click();
@@ -51,8 +57,8 @@ async function shot(page, name) {
   await page.waitForTimeout(2500);
   await shot(page, "demo-map");
 
-  // 3. Select nearest treasure, walk to it (demo), open it
-  await page.locator("button", { hasText: "nearby" }).first().click();
+  // 3. Hunt (dock button) selects the nearest treasure; walk to it (demo), open it
+  await page.getByRole("button", { name: /Hunt/ }).click();
   await page.getByText(/treasure (detected|in range)/i).first().waitFor();
   await shot(page, "treasure-sheet");
   const walk = page.getByText("Demo: walk to this treasure");

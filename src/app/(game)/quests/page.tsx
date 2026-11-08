@@ -89,7 +89,7 @@ function QuestCard({ q, reload }: { q: QuestView; reload: () => void }) {
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-display text-[1.02rem] font-semibold">{q.title}</h3>
+            <h3 className="font-display text-[1.02rem]">{q.title}</h3>
             <span className={cx("text-[10px] font-bold uppercase tracking-wider", DIFF[q.difficulty])}>{q.difficulty}</span>
           </div>
           <p className="mt-0.5 text-[13px] text-muted">{q.description}</p>
@@ -167,7 +167,7 @@ function Guild({ data, reload, reloadQuests }: { data: NpcView[] | null; reload:
               <p className="mt-3 text-[11px] font-bold uppercase tracking-wider" style={{ color: n.color }}>
                 {n.title}
               </p>
-              <p className="font-display font-semibold">{n.name}</p>
+              <p className="font-display">{n.name}</p>
               <p className="mt-1 text-[12px] text-muted">
                 {ready > 0 ? <span className="font-semibold text-gold">{ready} ready to turn in</span> : active > 0 ? `${active} in progress` : `${n.missions.length} missions`}
               </p>
@@ -210,7 +210,7 @@ function NpcSheet({ npc, onClose, reload }: { npc: NpcView | null; onClose: () =
               {npc.avatar}
             </div>
             <div className="min-w-0">
-              <h2 className="font-display text-2xl font-bold">{npc.name}</h2>
+              <h2 className="font-display text-2xl">{npc.name}</h2>
               <p className="text-[13px] text-muted">{npc.personality}</p>
             </div>
           </div>
@@ -228,7 +228,7 @@ function NpcSheet({ npc, onClose, reload }: { npc: NpcView | null; onClose: () =
 
           <NpcTreasury npcId={npc.id} color={npc.color} />
 
-          <h3 className="mt-5 font-display text-lg font-semibold">Missions</h3>
+          <h3 className="mt-5 font-display text-lg">Missions</h3>
           <div className="mt-2 space-y-2.5 pb-2">
             {npc.missions.map((m) => (
               <MissionCard key={m.id} m={m} color={npc.color} onDone={(text) => { setLine(text); reload(); }} />

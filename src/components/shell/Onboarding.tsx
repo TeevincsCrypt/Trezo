@@ -6,7 +6,7 @@ import { api, ApiError } from "@/lib/api";
 import { AVATARS, USERNAME_RE } from "@/lib/rules";
 import { useGame, type Me } from "../providers/GameProvider";
 import { useWallet } from "../providers/WalletProvider";
-import { Logo, Spinner, cx } from "../ui";
+import { Logo, Spark, Spinner, cx } from "../ui";
 
 const SEEN_KEY = "trezo.onboarded";
 
@@ -59,65 +59,77 @@ export function Onboarding() {
   return (
     <AnimatePresence>
       {onboardingOpen && !me && (
-        <motion.div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/70 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <motion.div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#1a1714]/40 backdrop-blur-[4px] sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 40, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative w-full overflow-hidden rounded-t-[32px] border border-line bg-surface pb-[calc(var(--safe-bottom)+20px)] sm:max-w-md sm:rounded-[32px]"
+            className="relative max-h-[94dvh] w-full overflow-y-auto rounded-t-[36px] bg-surface sm:max-w-[420px] sm:rounded-[36px]"
           >
-            <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-gold/20 blur-3xl" />
             {step === "intro" ? (
-              <div className="relative px-6 pt-8">
-                <Logo size={36} />
-                <h2 className="font-display mt-6 text-[2rem] font-bold leading-[1.1]">
-                  The world is your <span className="text-gold">playground.</span>
-                </h2>
-                <p className="mt-2 text-[15px] text-muted">Walk your city, open hidden treasures, take on missions and collect artifacts you truly own.</p>
-                <ul className="mt-6 space-y-3 text-sm">
-                  {[
-                    { i: Map, t: "Real-world hunting", d: "Treasures spawn around you. Get close to open them." },
-                    { i: Swords, t: "Missions & quests", d: "Four guild NPCs with their own goals and treasuries." },
-                    { i: Gem, t: "Owned collectibles", d: "Mint finds to your NEAR account and trade them." },
-                  ].map(({ i: I, t, d }) => (
-                    <li key={t} className="flex gap-3">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-2 text-gold">
-                        <I size={18} />
-                      </span>
-                      <span>
-                        <span className="block font-semibold">{t}</span>
-                        <span className="text-muted">{d}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-7 space-y-2.5">
-                  <button className="btn btn-primary w-full py-3.5 text-[15px]" onClick={() => setStep("profile")}>
-                    Create explorer profile
-                  </button>
-                  <button className="btn btn-ghost w-full py-3" onClick={wallet} disabled={busy}>
-                    {busy ? <Spinner /> : <Wallet size={17} />} Continue with NEAR wallet
-                  </button>
-                  <button className="w-full py-2 text-sm text-muted hover:text-ink" onClick={close}>
-                    Just look around
-                  </button>
+              <>
+                {/* Dot-grid "map" top */}
+                <div className="relative h-36 overflow-hidden rounded-t-[36px]">
+                  <div className="dot-grid absolute inset-0 opacity-50" />
+                  <div className="ember-glow absolute -right-10 -top-16 h-56 w-56" />
+                  <div className="absolute left-6 top-6">
+                    <Logo size={30} />
+                  </div>
                 </div>
-                <p className="mt-2 text-center text-[11px] text-faint">TREZO never asks for your seed phrase or private keys.</p>
-              </div>
+                {/* Ink card */}
+                <div className="card-ink relative -mt-4 px-7 pb-[calc(var(--safe-bottom)+24px)] pt-8">
+                  <div className="dot-grid-light pointer-events-none absolute inset-0 rounded-[32px] opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_45%)]" />
+                  <h2 className="font-display relative text-[2.15rem] font-light leading-[1.08]">
+                    The world
+                    <br />
+                    is your
+                    <br />
+                    playground <Spark size={26} className="inline-block align-[-2px] text-gold" />
+                  </h2>
+                  <p className="relative mt-4 text-[14.5px] leading-relaxed text-white/60">Walk your city, open hidden treasures, take on guild missions and own the artifacts you find.</p>
+                  <ul className="relative mt-6 space-y-3 text-[13.5px]">
+                    {[
+                      { i: Map, t: "Treasures spawn around you, so get close to open them" },
+                      { i: Swords, t: "Four guild NPCs with their own on-chain treasuries" },
+                      { i: Gem, t: "Mint finds to your NEAR account and trade them" },
+                    ].map(({ i: I, t }) => (
+                      <li key={t} className="flex items-center gap-3 text-white/80">
+                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 text-gold">
+                          <I size={15} />
+                        </span>
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="relative mt-8 space-y-2.5">
+                    <button className="btn w-full bg-white py-4 text-[15px] text-ink" onClick={() => setStep("profile")}>
+                      Create explorer profile
+                    </button>
+                    <button className="btn w-full border border-white/15 py-3.5 text-white" onClick={wallet} disabled={busy}>
+                      {busy ? <Spinner /> : <Wallet size={17} />} Continue with NEAR wallet
+                    </button>
+                    <button className="w-full py-2 text-sm text-white/50 hover:text-white" onClick={close}>
+                      Just look around
+                    </button>
+                  </div>
+                  <p className="relative mt-1 text-center text-[11px] text-white/35">TREZO never asks for your seed phrase or private keys.</p>
+                </div>
+              </>
             ) : (
-              <div className="relative px-6 pt-6">
-                <button onClick={() => setStep("intro")} className="mb-4 flex items-center gap-1 text-sm text-muted">
-                  <ArrowLeft size={16} /> Back
+              <div className="relative px-6 pb-[calc(var(--safe-bottom)+24px)] pt-6">
+                <button onClick={() => setStep("intro")} className="orb mb-5 h-10 w-10" aria-label="Back">
+                  <ArrowLeft size={17} />
                 </button>
-                <h2 className="font-display text-2xl font-bold">Choose your explorer</h2>
-                <p className="mt-1 text-sm text-muted">You can connect a wallet later — your progress comes with you.</p>
-                <div className="mt-5 grid grid-cols-4 gap-2.5">
+                <h2 className="font-display text-[1.6rem] leading-tight">Choose your explorer</h2>
+                <p className="mt-2 text-sm text-muted">You can connect a wallet later, and your progress comes with you.</p>
+                <div className="mt-6 grid grid-cols-4 gap-2.5">
                   {AVATARS.map((a) => (
                     <button
                       key={a.id}
                       onClick={() => setAvatar(a.id)}
-                      className={cx("grid aspect-square place-items-center rounded-2xl border text-3xl transition", avatar === a.id ? "border-gold bg-gold/10" : "border-line bg-surface-2")}
+                      className={cx("grid aspect-square place-items-center rounded-full text-3xl transition", avatar === a.id ? "ring-2 ring-ink ring-offset-2 ring-offset-surface" : "opacity-80 hover:opacity-100")}
+                      style={{ background: a.bg }}
                       aria-label={a.label}
                       aria-pressed={avatar === a.id}
                     >
@@ -125,12 +137,12 @@ export function Onboarding() {
                     </button>
                   ))}
                 </div>
-                <label className="mt-5 block text-xs font-semibold uppercase tracking-wider text-muted" htmlFor="uname">
+                <label className="mt-6 block text-xs font-semibold uppercase tracking-wider text-muted" htmlFor="uname">
                   Username
                 </label>
                 <input
                   id="uname"
-                  className="input mt-1.5"
+                  className="input mt-2"
                   value={username}
                   maxLength={20}
                   autoComplete="off"
@@ -139,7 +151,7 @@ export function Onboarding() {
                   onKeyDown={(e) => e.key === "Enter" && createGuest()}
                 />
                 {err && <p className="mt-2 text-sm text-danger">{err}</p>}
-                <button className="btn btn-primary mt-6 w-full py-3.5 text-[15px]" onClick={createGuest} disabled={saving}>
+                <button className="btn btn-primary mt-7 w-full py-4 text-[15px]" onClick={createGuest} disabled={saving}>
                   {saving ? <Spinner /> : "Start exploring"}
                 </button>
               </div>

@@ -23,10 +23,10 @@ export const RARITY: Record<
     itemDropChance: number;
   }
 > = {
-  common: { label: "Common", color: "#9DB7CC", glow: "rgba(157,183,204,0.45)", shards: 10, xp: 20, maxClaims: 25, spawnWeight: 62, itemDropChance: 0.25 },
-  rare: { label: "Rare", color: "#4AA8FF", glow: "rgba(74,168,255,0.5)", shards: 30, xp: 60, maxClaims: 10, spawnWeight: 27, itemDropChance: 0.6 },
-  epic: { label: "Epic", color: "#B07CFF", glow: "rgba(176,124,255,0.55)", shards: 75, xp: 150, maxClaims: 5, spawnWeight: 9, itemDropChance: 0.9 },
-  legendary: { label: "Legendary", color: "#FFB547", glow: "rgba(255,181,71,0.6)", shards: 200, xp: 400, maxClaims: 1, spawnWeight: 2, itemDropChance: 1 },
+  common: { label: "Common", color: "#6F8499", glow: "rgba(111,132,153,0.35)", shards: 10, xp: 20, maxClaims: 25, spawnWeight: 62, itemDropChance: 0.25 },
+  rare: { label: "Rare", color: "#2F7FE0", glow: "rgba(47,127,224,0.35)", shards: 30, xp: 60, maxClaims: 10, spawnWeight: 27, itemDropChance: 0.6 },
+  epic: { label: "Epic", color: "#8A55F0", glow: "rgba(138,85,240,0.35)", shards: 75, xp: 150, maxClaims: 5, spawnWeight: 9, itemDropChance: 0.9 },
+  legendary: { label: "Legendary", color: "#E59A0C", glow: "rgba(229,154,12,0.4)", shards: 200, xp: 400, maxClaims: 1, spawnWeight: 2, itemDropChance: 1 },
 };
 
 export const ECONOMY = {
@@ -70,14 +70,14 @@ export function levelProgress(xp: number) {
 }
 
 export const AVATARS = [
-  { id: "fox", label: "Fox", emoji: "🦊", bg: "#3A2414" },
-  { id: "owl", label: "Owl", emoji: "🦉", bg: "#2A2238" },
-  { id: "wolf", label: "Wolf", emoji: "🐺", bg: "#1E2A36" },
-  { id: "octopus", label: "Octopus", emoji: "🐙", bg: "#371E2E" },
-  { id: "dragon", label: "Dragon", emoji: "🐉", bg: "#14301F" },
-  { id: "tiger", label: "Tiger", emoji: "🐯", bg: "#3A2A10" },
-  { id: "panda", label: "Panda", emoji: "🐼", bg: "#252A2E" },
-  { id: "eagle", label: "Eagle", emoji: "🦅", bg: "#2E2416" },
+  { id: "fox", label: "Fox", emoji: "🦊", bg: "#FFE3D1" },
+  { id: "owl", label: "Owl", emoji: "🦉", bg: "#E7E1F7" },
+  { id: "wolf", label: "Wolf", emoji: "🐺", bg: "#DDE6EE" },
+  { id: "octopus", label: "Octopus", emoji: "🐙", bg: "#F6DDE7" },
+  { id: "dragon", label: "Dragon", emoji: "🐉", bg: "#D9EEDF" },
+  { id: "tiger", label: "Tiger", emoji: "🐯", bg: "#FCEBC9" },
+  { id: "panda", label: "Panda", emoji: "🐼", bg: "#E6E6E3" },
+  { id: "eagle", label: "Eagle", emoji: "🦅", bg: "#F1E5D3" },
 ] as const;
 
 export type AvatarId = (typeof AVATARS)[number]["id"];

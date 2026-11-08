@@ -14,6 +14,8 @@ import { useGame, type Me } from "@/components/providers/GameProvider";
 import { useLocation } from "@/components/providers/LocationProvider";
 import { useItems } from "@/components/hooks";
 import { ItemImage, RarityBadge, Sheet, ShardIcon, Spinner, cx, timeLeft } from "@/components/ui";
+import { HUNT_EVENT } from "@/components/shell/AppShell";
+import { chestSvg } from "@/lib/art";
 
 export default function ExplorePage() {
   const { me, notify, setMe, openOnboarding } = useGame();
@@ -117,8 +119,18 @@ export default function ExplorePage() {
     setRecenterKey((k) => k + 1);
   };
 
+  // Hunt button in the dock: focus the nearest unopened treasure.
+  useEffect(() => {
+    const h = () => {
+      if (nearest) setSelectedId(nearest.id);
+      else notify({ title: "Nothing to hunt here yet", body: loc.position ? "All nearby treasures are opened. Explore further!" : "Turn on your location or try the demo zone." });
+    };
+    window.addEventListener(HUNT_EVENT, h);
+    return () => window.removeEventListener(HUNT_EVENT, h);
+  }, [nearest, notify, loc.position]);
+
   return (
-    <div className="fixed inset-0 overflow-hidden md:left-[max(92px,calc(50%-508px))] md:right-[max(0px,calc(50%-600px))]">
+    <div className="fixed inset-0 overflow-hidden">
       {view === "map" && (
         <GameMap
           center={mapCenter}
@@ -135,12 +147,12 @@ export default function ExplorePage() {
       {view === "list" && <div className="absolute inset-0 bg-bg" />}
 
       {/* Mode banner */}
-      <div className="absolute inset-x-0 top-[calc(var(--safe-top)+66px)] z-30 flex justify-center px-3">
+      <div className="absolute inset-x-0 top-[calc(var(--safe-top)+76px)] z-30 flex justify-center px-4">
         <ModeBanner browse={!!browseCenter} onExitBrowse={recenter} />
       </div>
 
       {/* Right controls */}
-      <div className="absolute right-3 top-[calc(var(--safe-top)+112px)] z-30 flex flex-col gap-2">
+      <div className="absolute right-4 top-[calc(var(--safe-top)+128px)] z-30 flex flex-col gap-2.5">
         <CtrlButton label={view === "map" ? "List view" : "Map view"} onClick={() => setView(view === "map" ? "list" : "map")}>
           {view === "map" ? <List size={19} /> : <MapIcon size={19} />}
         </CtrlButton>
@@ -153,13 +165,16 @@ export default function ExplorePage() {
       </div>
 
       {view === "list" && (
-        <div className="absolute inset-0 z-20 overflow-y-auto px-3 pb-44 pt-[calc(var(--safe-top)+156px)]">
-          <div className="mx-auto max-w-lg space-y-2">
-            {loadingT && withDist.length === 0 && Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-20" />)}
-            {!loadingT && withDist.length === 0 && <p className="py-10 text-center text-muted">No treasures nearby yet.</p>}
-            {withDist.map((t) => (
-              <TreasureRow key={t.id} t={t} onClick={() => setSelectedId(t.id)} itemName={t.rewardItemId ? items[t.rewardItemId]?.name : undefined} />
-            ))}
+        <div className="absolute inset-0 z-20 overflow-y-auto px-4 pb-44 pt-[calc(var(--safe-top)+128px)]">
+          <div className="mx-auto max-w-lg pr-14 sm:pr-0">
+            <p className="font-display mb-4 text-[1.5rem]">Nearby</p>
+            <div className="card divide-y divide-line overflow-hidden px-1">
+              {loadingT && withDist.length === 0 && Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton m-3 h-12" />)}
+              {!loadingT && withDist.length === 0 && <p className="py-10 text-center text-muted">No treasures nearby yet.</p>}
+              {withDist.map((t) => (
+                <TreasureRow key={t.id} t={t} onClick={() => setSelectedId(t.id)} itemName={t.rewardItemId ? items[t.rewardItemId]?.name : undefined} />
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -167,35 +182,44 @@ export default function ExplorePage() {
       {/* Location gate */}
       {!loc.position && <LocationGate />}
 
-      {/* Bottom: nearest + missions */}
-      {loc.position && !selected && (
-        <div className="absolute inset-x-0 bottom-[calc(var(--safe-bottom)+92px)] z-30 px-3 md:bottom-6">
-          <div className="mx-auto max-w-md space-y-2">
-            {me && (
-              <Link href="/quests" className="hud-glass flex items-center gap-2 rounded-2xl px-3 py-2 text-[12.5px] text-muted">
-                <ScrollText size={15} className="text-gold" /> Daily quests & NPC missions are waiting
-                <span className="ml-auto text-gold">Open</span>
+      {/* Bottom: nearby panel */}
+      {loc.position && !selected && view === "map" && (
+        <div className="absolute inset-x-0 bottom-[calc(var(--safe-bottom)+92px)] z-30 px-4">
+          <div className="hud-glass mx-auto max-w-[460px] rounded-[30px] p-2">
+            <div className="flex items-center justify-between px-3 pb-1.5 pt-2">
+              <p className="text-[15px] font-semibold">
+                Nearby <span className="font-normal text-muted">· {available.length} to open</span>
+              </p>
+              <Link href="/quests" className="flex items-center gap-1.5 text-[12.5px] font-semibold text-muted hover:text-ink">
+                <span className="h-1.5 w-1.5 rounded-full bg-gold" /> Quests
               </Link>
-            )}
+            </div>
             {nearest ? (
-              <button onClick={() => setSelectedId(nearest.id)} className="hud-glass flex w-full items-center gap-3 rounded-[22px] p-3 text-left shadow-2xl">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl" style={{ background: `${RARITY[nearest.rarity].color}22`, color: RARITY[nearest.rarity].color }}>
-                  <Navigation size={22} style={{ transform: `rotate(${loc.position ? bearingDeg(loc.position, nearest) : 0}deg)` }} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <RarityBadge rarity={nearest.rarity} />
-                    <span className="text-[11px] text-muted">{available.length} nearby</span>
-                  </div>
-                  <p className="mt-1 truncate font-semibold">{nearest.name}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-display text-lg font-bold tabular">{formatDistance(nearest.distanceM)}</p>
-                  <p className="text-[11px] text-muted">{nearest.distanceM <= nearest.claimRadiusM ? "In range!" : "away"}</p>
-                </div>
-              </button>
+              <div className="space-y-1">
+                {available.slice(0, 2).map((t, i) => (
+                  <button key={t.id} onClick={() => setSelectedId(t.id)} className={cx("flex w-full items-center gap-3 rounded-[22px] p-2.5 text-left transition-colors hover:bg-white", i === 0 && "bg-white shadow-[0_8px_20px_-16px_rgba(0,0,0,0.4)]")}>
+                    <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white shadow-[0_6px_14px_-8px_rgba(0,0,0,0.35)]" style={{ boxShadow: `inset 0 0 0 2px ${RARITY[t.rarity].color}` }}>
+                      {i === 0 ? (
+                        <Navigation size={19} style={{ color: RARITY[t.rarity].color, transform: `rotate(${bearingDeg(loc.position!, t)}deg)` }} />
+                      ) : (
+                        <span className="h-6 w-6" dangerouslySetInnerHTML={{ __html: chestSvg(t.rarity).replace('width="48" height="48"', 'width="24" height="24"') }} />
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14.5px] font-semibold">{t.name}</span>
+                      <span className="text-[12px] font-semibold" style={{ color: RARITY[t.rarity].color }}>
+                        {RARITY[t.rarity].label}
+                      </span>
+                    </span>
+                    <span className="text-right">
+                      <span className="font-display block text-[15px] tabular">{formatDistance(t.distanceM)}</span>
+                      <span className={cx("text-[11.5px]", t.distanceM <= t.claimRadiusM ? "font-semibold text-teal" : "text-muted")}>{t.distanceM <= t.claimRadiusM ? "In range" : `+${t.rewardShards} Shards`}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
             ) : (
-              <div className="hud-glass rounded-[22px] p-4 text-center text-sm text-muted">{loadingT ? "Scanning for treasures…" : "All nearby treasures opened. Explore further or come back tomorrow."}</div>
+              <p className="px-3 pb-3 pt-1 text-sm text-muted">{loadingT ? "Scanning for treasures…" : "All nearby treasures opened. Explore further or come back tomorrow."}</p>
             )}
           </div>
         </div>
@@ -218,7 +242,7 @@ export default function ExplorePage() {
 
 function CtrlButton({ children, label, onClick }: { children: React.ReactNode; label: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} aria-label={label} title={label} className="hud-glass grid h-11 w-11 place-items-center rounded-2xl text-ink active:scale-95">
+    <button onClick={onClick} aria-label={label} title={label} className="orb h-12 w-12">
       {children}
     </button>
   );
@@ -228,24 +252,24 @@ function ModeBanner({ browse, onExitBrowse }: { browse: boolean; onExitBrowse: (
   const loc = useLocation();
   if (browse)
     return (
-      <button onClick={onExitBrowse} className="hud-glass flex items-center gap-2 rounded-full px-3 py-1.5 text-[12px]">
+      <button onClick={onExitBrowse} className="hud-glass flex items-center gap-2 rounded-full px-4 py-2 text-[12px]">
         <Search size={13} className="text-gold" /> Browsing another area — treasures can only be opened in person
         <X size={13} />
       </button>
     );
   if (loc.mode === "demo")
     return (
-      <div className="hud-glass flex items-center gap-2 rounded-full border-gold/40 px-3 py-1.5 text-[12px]">
-        <span className="rounded-full bg-gold px-1.5 text-[10px] font-bold text-black">DEMO</span>
-        <span className="text-muted">Simulated location · tap the map to move</span>
-        <button className="font-semibold text-teal" onClick={loc.startGps}>
+      <div className="hud-glass flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4 text-[12px]">
+        <span className="rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold tracking-wider text-white">DEMO</span>
+        <span className="whitespace-nowrap text-muted">Simulated · tap map to move</span>
+        <button className="whitespace-nowrap font-semibold text-ink underline decoration-ink/20 underline-offset-2" onClick={loc.startGps}>
           Use GPS
         </button>
       </div>
     );
   if (!loc.position) return null;
   return (
-    <div className="hud-glass flex items-center gap-2 rounded-full px-3 py-1.5 text-[12px]">
+    <div className="hud-glass flex items-center gap-2 rounded-full px-4 py-2 text-[12px]">
       <span className="relative flex h-2 w-2">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-60" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
@@ -264,14 +288,15 @@ function LocationGate() {
   const failed = loc.gpsState === "unavailable" || loc.gpsState === "error";
   const waiting = loc.gpsState === "prompt";
   return (
-    <div className="absolute inset-x-0 bottom-[calc(var(--safe-bottom)+92px)] z-30 px-3 md:bottom-8">
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="card-raised mx-auto max-w-md p-5">
-        <div className="flex items-start gap-3">
-          <div className={cx("grid h-11 w-11 shrink-0 place-items-center rounded-2xl", denied || failed ? "bg-danger/15 text-danger" : "bg-teal/15 text-teal")}>
+    <div className="absolute inset-x-0 bottom-[calc(var(--safe-bottom)+92px)] z-30 px-4">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="card-raised relative mx-auto max-w-[460px] overflow-hidden p-6">
+        <div className="ember-glow pointer-events-none absolute -right-16 -top-20 h-56 w-56" />
+        <div className="relative flex items-start gap-3.5">
+          <div className={cx("orb h-12 w-12 shrink-0", denied || failed ? "text-danger" : "text-gold")}>
             {denied || failed ? <TriangleAlert size={21} /> : <MapPin size={21} />}
           </div>
           <div>
-            <p className="font-display text-lg font-semibold">{denied ? "Location access is off" : failed ? "Can't find your location" : "Find treasures around you"}</p>
+            <p className="font-display text-[1.15rem] leading-snug">{denied ? "Location access is off" : failed ? "Can't find your location" : "Find treasures around you"}</p>
             <p className="mt-1 text-[13.5px] text-muted">
               {denied
                 ? "Enable location for this site in your browser settings to hunt near you, or explore the demo zone."
@@ -281,15 +306,15 @@ function LocationGate() {
             </p>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <button className="btn btn-teal" onClick={loc.startGps} disabled={waiting}>
+        <div className="relative mt-5 grid grid-cols-2 gap-2">
+          <button className="btn btn-primary" onClick={loc.startGps} disabled={waiting}>
             {waiting ? <Spinner /> : <Crosshair size={17} />} {waiting ? "Locating…" : denied || failed ? "Retry GPS" : "Use my location"}
           </button>
           <button className="btn btn-ghost" onClick={() => loc.enterDemo()}>
             <Sparkles size={16} className="text-gold" /> Demo zone
           </button>
         </div>
-        <p className="mt-3 text-[11px] text-faint">Demo zone: {publicConfig.demoCenter.name} with a simulated, clearly labelled position.</p>
+        <p className="relative mt-3 text-[11px] text-faint">Demo zone: {publicConfig.demoCenter.name} with a simulated, clearly labelled position.</p>
       </motion.div>
     </div>
   );
@@ -299,21 +324,23 @@ function TreasureRow({ t, onClick, itemName }: { t: NearbyTreasure; onClick: () 
   const c = RARITY[t.rarity].color;
   const done = t.claimedByMe || t.remaining === 0;
   return (
-    <button onClick={onClick} className={cx("card flex w-full items-center gap-3 p-3 text-left", done && "opacity-50")}>
-      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-xl" style={{ background: `${c}1f`, color: c }}>
-        <Sparkles size={20} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <RarityBadge rarity={t.rarity} />
-          {t.claimedByMe && <span className="text-[11px] text-teal">Opened</span>}
-        </div>
-        <p className="mt-1 truncate font-semibold">{t.name}</p>
-        <p className="truncate text-[12px] text-muted">
-          +{t.rewardShards} Shards · +{t.rewardXp} XP{itemName ? ` · ${itemName}` : ""}
-        </p>
-      </div>
-      <p className="font-display font-bold tabular">{formatDistance(t.distanceM)}</p>
+    <button onClick={onClick} className={cx("flex w-full items-center gap-3 px-3 py-3.5 text-left transition-colors hover:bg-white", done && "opacity-45")}>
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white" style={{ boxShadow: `inset 0 0 0 2px ${c}` }}>
+        <span className="h-6 w-6" dangerouslySetInnerHTML={{ __html: chestSvg(t.rarity, t.claimedByMe).replace('width="48" height="48"', 'width="24" height="24"') }} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[14.5px] font-semibold">{t.name}</span>
+        <span className="text-[12px] font-semibold" style={{ color: c }}>
+          {RARITY[t.rarity].label}
+          {t.claimedByMe && <span className="ml-1.5 font-normal text-muted">· opened</span>}
+        </span>
+      </span>
+      <span className="text-right">
+        <span className="font-display block text-[15px] tabular">{formatDistance(t.distanceM)}</span>
+        <span className="text-[11.5px] text-muted">
+          +{t.rewardShards} Shards{itemName ? " · item" : ""}
+        </span>
+      </span>
     </button>
   );
 }
@@ -333,16 +360,18 @@ function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { 
 
   return (
     <Sheet open={!!t} onClose={onClose} title={<RarityBadge rarity={tr.rarity} size="lg" />}>
-      <h2 className="font-display text-2xl font-bold">{tr.name}</h2>
-      <p className="mt-1 text-sm text-muted">{tr.description}</p>
+      <h2 className="font-display text-[1.6rem] leading-tight">{tr.name}</h2>
+      <p className="mt-1.5 text-sm text-muted">{tr.description}</p>
 
-      <div className="mt-5 overflow-hidden rounded-2xl border p-4" style={{ borderColor: `${c}55`, background: `linear-gradient(135deg, ${c}18, transparent 60%)` }}>
-        <p className="font-display text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: c }}>
+      <div className="card-ink relative mt-5 overflow-hidden p-5">
+        <div className="dot-grid-light pointer-events-none absolute inset-0 opacity-30" />
+        <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full blur-2xl" style={{ background: `${c}55` }} />
+        <p className="relative text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: c }}>
           {unavailable ? (tr.claimedByMe ? "Already opened" : "Fully claimed") : inRange ? `${RARITY[tr.rarity].label} treasure in range` : `${RARITY[tr.rarity].label} treasure detected`}
         </p>
-        <p className="font-display mt-1 text-3xl font-bold tabular">{formatDistance(tr.distanceM)}</p>
-        <p className="text-[13px] text-muted">{inRange ? "You're close enough. Open it!" : `Get within ${tr.claimRadiusM} m to unlock your reward.`}</p>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+        <p className="font-display relative mt-2 text-[2.6rem] leading-none tabular">{formatDistance(tr.distanceM)}</p>
+        <p className="relative mt-2 text-[13px] text-white/60">{inRange ? "You're close enough. Open it!" : `Get within ${tr.claimRadiusM} m to unlock your reward.`}</p>
+        <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-white/12">
           <motion.div className="h-full rounded-full" style={{ background: c }} animate={{ width: `${(inRange ? 1 : pct) * 100}%` }} />
         </div>
       </div>
@@ -353,8 +382,8 @@ function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { 
         <Stat label="Left" value={`${tr.remaining}/${tr.maxClaims}`} />
       </div>
       {tr.rewardItemId && (
-        <div className="card mt-2 flex items-center gap-3 p-3">
-          <ItemImage id={tr.rewardItemId} size={40} className="rounded-lg" />
+        <div className="mt-2 flex items-center gap-3 rounded-[22px] bg-white p-2.5 pr-4">
+          <ItemImage id={tr.rewardItemId} size={44} className="rounded-2xl" />
           <p className="text-sm">
             Contains <span className="font-semibold">{itemName ?? "a collectible"}</span>
           </p>
@@ -366,13 +395,13 @@ function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { 
         {wrongMode ? (
           <p className="rounded-xl bg-surface-2 p-3 text-center text-sm text-muted">{tr.zone === "demo" ? "Switch to the demo zone to open demo treasures." : "Use real GPS to open this treasure."}</p>
         ) : (
-          <button className="btn btn-primary w-full py-3.5 text-[15px]" disabled={!inRange || unavailable || claiming} onClick={() => onClaim(tr)}>
+          <button className={cx("btn w-full py-4 text-[15px]", inRange && !unavailable ? "btn-accent" : "btn-primary")} disabled={!inRange || unavailable || claiming} onClick={() => onClaim(tr)}>
             {claiming ? <Spinner /> : null}
             {!me ? "Create a profile to open" : unavailable ? (tr.claimedByMe ? "Opened" : "No rewards left") : inRange ? "Open treasure" : "Get closer to open"}
           </button>
         )}
         {loc.mode === "demo" && !inRange && !unavailable && !wrongMode && (
-          <button className="mt-2 w-full text-center text-[13px] text-gold" onClick={() => loc.setDemoPosition({ lat: tr.lat + 0.00008, lng: tr.lng })}>
+          <button className="mt-2.5 w-full text-center text-[13px] font-semibold text-gold-deep" onClick={() => loc.setDemoPosition({ lat: tr.lat + 0.00008, lng: tr.lng })}>
             Demo: walk to this treasure
           </button>
         )}
@@ -383,9 +412,9 @@ function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { 
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-line bg-surface-2 px-2 py-2.5">
-      <div className="font-display text-[15px] font-bold tabular">{value}</div>
-      <div className="text-[11px] text-muted">{label}</div>
+    <div className="rounded-[22px] bg-white px-2 py-3 shadow-[0_6px_16px_-14px_rgba(0,0,0,0.5)]">
+      <div className="font-display text-[15px] tabular">{value}</div>
+      <div className="mt-0.5 text-[11px] text-muted">{label}</div>
     </div>
   );
 }
@@ -413,7 +442,7 @@ function SearchSheet({ open, onClose, onPick }: { open: boolean; onClose: () => 
     }
   };
   return (
-    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg font-semibold">Look around</p>}>
+    <Sheet open={open} onClose={onClose} title={<p className="font-display text-lg">Look around</p>}>
       <div className="flex gap-2">
         <input className="input" placeholder="Search a city or place" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Enter" && search()} />
         <button className="btn btn-ghost" onClick={search} disabled={busy} aria-label="Search">
@@ -421,11 +450,11 @@ function SearchSheet({ open, onClose, onPick }: { open: boolean; onClose: () => 
         </button>
       </div>
       <div className="mt-3 space-y-1.5">
-        <button className="card flex w-full items-center gap-3 p-3 text-left text-sm" onClick={() => { loc.enterDemo(); onClose(); }}>
+        <button className="flex w-full items-center gap-3 rounded-[20px] bg-white p-3.5 text-left text-sm" onClick={() => { loc.enterDemo(); onClose(); }}>
           <Sparkles size={17} className="text-gold" /> Jump to the demo zone ({publicConfig.demoCenter.name})
         </button>
         {results.map((r) => (
-          <button key={`${r.lat},${r.lng}`} className="card w-full p-3 text-left text-sm" onClick={() => onPick({ lat: r.lat, lng: r.lng })}>
+          <button key={`${r.lat},${r.lng}`} className="w-full rounded-[20px] bg-white p-3.5 text-left text-sm" onClick={() => onPick({ lat: r.lat, lng: r.lng })}>
             {r.name}
           </button>
         ))}

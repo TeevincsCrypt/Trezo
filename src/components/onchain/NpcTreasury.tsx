@@ -40,15 +40,15 @@ export function NpcTreasury({ npcId, color }: { npcId: string; color: string }) 
         <>
           <div className="mt-2 grid grid-cols-3 gap-2 text-center">
             <div>
-              <p className="font-display text-lg font-bold tabular">{formatNear(data.npc.treasury)}</p>
+              <p className="font-display text-lg tabular">{formatNear(data.npc.treasury)}</p>
               <p className="text-[11px] text-muted">NEAR held</p>
             </div>
             <div>
-              <p className="font-display text-lg font-bold tabular">{formatNear(data.npc.daily_spend_limit)}</p>
+              <p className="font-display text-lg tabular">{formatNear(data.npc.daily_spend_limit)}</p>
               <p className="text-[11px] text-muted">Daily limit</p>
             </div>
             <div>
-              <p className="font-display text-lg font-bold tabular">{formatNear(data.npc.total_spent)}</p>
+              <p className="font-display text-lg tabular">{formatNear(data.npc.total_spent)}</p>
               <p className="text-[11px] text-muted">Paid out</p>
             </div>
           </div>

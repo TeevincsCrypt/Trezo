@@ -32,11 +32,11 @@ export function RevealModal({ data, onClose }: { data: RevealData | null; onClos
     <Portal>
     <AnimatePresence>
       {data && (
-        <motion.div className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-[#05070b]/95 px-4 py-10 backdrop-blur-md" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <motion.div className="pointer-events-none absolute left-1/2 top-[30%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: `radial-gradient(circle, ${c}55 0%, transparent 60%)` }} animate={stage === "open" ? { scale: [0.6, 1.25, 1], opacity: [0.4, 1, 0.7] } : { scale: [0.8, 0.9, 0.8], opacity: 0.5 }} transition={{ duration: stage === "open" ? 0.9 : 1.2, repeat: stage === "open" ? 0 : Infinity }} />
+        <motion.div className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-bg/95 px-4 py-10 backdrop-blur-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div className="pointer-events-none absolute left-1/2 top-[30%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: `radial-gradient(circle, ${c}66 0%, rgba(255,122,48,0.22) 35%, transparent 62%)` }} animate={stage === "open" ? { scale: [0.6, 1.25, 1], opacity: [0.4, 1, 0.7] } : { scale: [0.8, 0.9, 0.8], opacity: 0.5 }} transition={{ duration: stage === "open" ? 0.9 : 1.2, repeat: stage === "open" ? 0 : Infinity }} />
 
           <div className="relative w-full max-w-sm text-center">
-            <motion.p className="font-display text-[11px] font-bold uppercase tracking-[0.35em]" style={{ color: c }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+            <motion.p className="text-[11px] font-bold uppercase tracking-[0.32em]" style={{ color: c }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
               {stage === "shake" ? "Unlocking…" : `${RARITY[data.treasure.rarity].label} treasure opened`}
             </motion.p>
 
@@ -46,7 +46,7 @@ export function RevealModal({ data, onClose }: { data: RevealData | null; onClos
                   <motion.span
                     key={i}
                     className="absolute left-1/2 top-1/2 h-2 w-2 rounded-full"
-                    style={{ background: i % 3 === 0 ? "#fff" : c }}
+                    style={{ background: i % 3 === 0 ? "#FF6A1A" : c }}
                     initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                     animate={{ x: Math.cos((i / 14) * Math.PI * 2) * 140, y: Math.sin((i / 14) * Math.PI * 2) * 140, opacity: 0, scale: 0.4 }}
                     transition={{ duration: 0.9, ease: "easeOut" }}
@@ -67,20 +67,20 @@ export function RevealModal({ data, onClose }: { data: RevealData | null; onClos
 
             {stage === "open" && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
-                <h2 className="font-display mt-2 text-2xl font-bold">{data.treasure.name}</h2>
+                <h2 className="font-display mt-2 text-[1.7rem] leading-tight">{data.treasure.name}</h2>
                 <div className="mt-2 flex justify-center">
                   <RarityBadge rarity={data.treasure.rarity} size="lg" />
                 </div>
 
                 <div className="mt-6 grid grid-cols-2 gap-2.5">
                   <motion.div className="card p-3" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.6 }}>
-                    <div className="flex items-center justify-center gap-1.5 font-display text-2xl font-bold">
+                    <div className="flex items-center justify-center gap-1.5 font-display text-2xl">
                       <ShardIcon size={20} />+{data.reward.shards}
                     </div>
                     <p className="text-[11px] text-muted">{data.reward.shardsCapped ? "Shards (daily cap hit)" : "Shards"}</p>
                   </motion.div>
                   <motion.div className="card p-3" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.7 }}>
-                    <div className="font-display text-2xl font-bold text-gold">+{data.reward.xp}</div>
+                    <div className="font-display text-2xl text-gold">+{data.reward.xp}</div>
                     <p className="text-[11px] text-muted">XP</p>
                   </motion.div>
                 </div>
@@ -106,7 +106,7 @@ export function RevealModal({ data, onClose }: { data: RevealData | null; onClos
                   <MintButton rewardId={data.reward.id} status="none" />
                 </div>
 
-                <button className="btn btn-primary mt-3 w-full py-3.5" onClick={onClose}>
+                <button className="btn btn-primary mt-3 w-full py-4" onClick={onClose}>
                   Keep exploring
                 </button>
               </motion.div>

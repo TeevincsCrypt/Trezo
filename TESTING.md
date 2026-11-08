@@ -38,14 +38,14 @@ These run in-memory SQLite (`TREZO_DB_PATH=:memory:`) against the real game modu
 - **Oracle and settlement:** wallet required; ticket JSON matches the contract schema and its signature verifies against the oracle public key; settlement only after `get_claim` returns a record for the right account (mocked RPC).
 - **NEP-413:** a real signature from a near-api-js `KeyPairSigner` verifies; a wrong message fails; a function-call key is rejected.
 
-## 3. Browser end-to-end smoke test: 13 checks
+## 3. Browser end-to-end smoke test: 14 checks
 
 ```bash
 npm run dev                  # terminal 1
 npm run test:e2e             # terminal 2 (SHOTS=dir to save screenshots, BASE_URL=… to target another host)
 ```
 
-Needs Playwright with Chromium (`npm i -D playwright && npx playwright install chromium`). It drives an iPhone 14 viewport through onboarding, the demo zone, the treasure sheet, a proximity claim and the reveal, quest progress, accepting an NPC mission, inventory rewards, the Shard Shop, the leaderboard and the profile. It also checks that a duplicate claim is rejected via the API, that `/api/admin/*` returns 403 to non-admins, and that admin token login works. A desktop viewport check runs at the end. The test fails on any page error or 5xx response. It ran green against both `next dev` and the production build (`npm run build && npm start`).
+Needs Playwright with Chromium (`npm i -D playwright && npx playwright install chromium`). It drives an iPhone 14 viewport through the landing page, onboarding, the demo zone, the treasure sheet, a proximity claim and the reveal, quest progress, accepting an NPC mission, inventory rewards, the Shard Shop, the leaderboard and the profile. It also checks that a duplicate claim is rejected via the API, that `/api/admin/*` returns 403 to non-admins, and that admin token login works. A desktop viewport check runs at the end. The test fails on any page error or 5xx response. It ran green against both `next dev` and the production build (`npm run build && npm start`).
 
 Real GPS mode was also checked by granting geolocation to the browser: the device location was moved step by step to a procedurally spawned treasure, and the claim succeeded with the live-GPS banner shown.
 

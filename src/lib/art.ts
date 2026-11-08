@@ -132,13 +132,15 @@ export function itemSvg(art: string, rarity: Rarity): string {
 </svg>`;
 }
 
-/** Map marker glyph for treasures (chest). */
+/** Map marker glyph for treasures (chest), drawn for a white marker disc. */
 export function chestSvg(rarity: Rarity, opened = false): string {
   const c = RARITY[rarity].color;
+  const body = opened ? "#D9D8D4" : c;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <path d="M8 22 h32 v16 a4 4 0 0 1 -4 4 h-24 a4 4 0 0 1 -4 -4z" fill="${opened ? "#2A3445" : "#3B2A1A"}" stroke="${c}" stroke-width="2.5"/>
-  <path d="M8 22 c0 -10 6 -14 16 -14 s16 4 16 14z" fill="${opened ? "#1E2633" : "#5A3D22"}" stroke="${c}" stroke-width="2.5"/>
-  <rect x="20" y="20" width="8" height="10" rx="2" fill="${c}"/>
-  <line x1="8" y1="30" x2="40" y2="30" stroke="${c}" stroke-opacity=".6" stroke-width="1.5"/>
+  <path d="M8 22 h32 v15 a5 5 0 0 1 -5 5 h-22 a5 5 0 0 1 -5 -5z" fill="${body}"/>
+  <path d="M8 22 c0 -10 6 -14 16 -14 s16 4 16 14z" fill="${body}" opacity=".72"/>
+  <rect x="8" y="21" width="32" height="3.5" fill="#0E0E10" opacity=".85"/>
+  <rect x="20.5" y="19" width="7" height="11" rx="3.5" fill="#0E0E10"/>
+  <circle cx="24" cy="25" r="1.6" fill="${opened ? "#D9D8D4" : "#FFB27A"}"/>
 </svg>`;
 }

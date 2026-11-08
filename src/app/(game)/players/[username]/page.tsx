@@ -32,16 +32,16 @@ export default function PlayerPage({ params }: { params: Promise<{ username: str
         <>
           <ProfileHeader player={data.player} />
           <section>
-            <h2 className="mb-2 font-display text-lg font-semibold">Collection</h2>
+            <h2 className="mb-2 font-display text-lg">Collection</h2>
             <CollectionStrip items={data.collection} />
           </section>
           <section>
-            <h2 className="mb-2 font-display text-lg font-semibold">Achievements</h2>
+            <h2 className="mb-2 font-display text-lg">Achievements</h2>
             <Achievements list={data.achievements} />
           </section>
           {data.recent.length > 0 && (
             <section>
-              <h2 className="mb-2 font-display text-lg font-semibold">Recent activity</h2>
+              <h2 className="mb-2 font-display text-lg">Recent activity</h2>
               <div className="space-y-1.5">
                 {data.recent.map((r, i) => (
                   <div key={i} className="card flex items-center justify-between gap-2 p-3 text-sm">

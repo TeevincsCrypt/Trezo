@@ -26,13 +26,13 @@ export function ProfileHeader({ player, extra }: { player: PublicPlayer; extra?:
         <Avatar avatar={player.avatar} frame={player.frame} size={76} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h1 className="font-display truncate text-2xl font-bold">{player.username}</h1>
+            <h1 className="font-display truncate text-2xl">{player.username}</h1>
             {player.isSample && <span className="chip">sample</span>}
           </div>
           <p className="text-[13px] text-muted">{player.accountId ?? (player.isGuest ? "Guest explorer" : "Explorer")}</p>
           <div className="mt-2 flex items-center gap-2">
             <span className="rounded-md bg-gold/15 px-2 py-0.5 text-[12px] font-bold text-gold">Level {lp.level}</span>
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10">
               <div className="h-full rounded-full bg-gradient-to-r from-gold-deep to-gold" style={{ width: `${lp.pct * 100}%` }} />
             </div>
             <span className="text-[11px] tabular text-muted">
@@ -57,7 +57,7 @@ export function ProfileHeader({ player, extra }: { player: PublicPlayer; extra?:
 function S({ v, l }: { v: React.ReactNode; l: string }) {
   return (
     <div className="rounded-xl border border-line bg-surface/60 py-2">
-      <p className="font-display text-[1.05rem] font-bold tabular">{v}</p>
+      <p className="font-display text-[1.05rem] tabular">{v}</p>
       <p className="text-[11px] text-muted">{l}</p>
     </div>
   );
