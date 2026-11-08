@@ -158,7 +158,9 @@ impl Contract {
         self.assert_not_paused();
         Self::reject_approvals(&approval);
         let sender = env::predecessor_account_id();
+        let before = env::storage_usage();
         self.internal_transfer_batch(&sender, &receiver_id, &[token_id], &[amount], memo);
+        self.charge_storage(&sender, before);
     }
 
     #[payable]
@@ -177,7 +179,9 @@ impl Contract {
             require!(a.iter().all(|x| x.is_none()), "Approval Management is not supported by this contract");
         }
         let sender = env::predecessor_account_id();
+        let before = env::storage_usage();
         self.internal_transfer_batch(&sender, &receiver_id, &token_ids, &amounts, memo);
+        self.charge_storage(&sender, before);
     }
 
     #[payable]
@@ -222,7 +226,9 @@ impl Contract {
             "More gas is required"
         );
         let sender = env::predecessor_account_id();
+        let before = env::storage_usage();
         self.internal_transfer_batch(&sender, &receiver_id, &token_ids, &amounts, memo);
+        self.charge_storage(&sender, before);
         let previous_owner_ids = vec![sender.clone(); token_ids.len()];
         let on_transfer = serde_json::json!({
             "sender_id": sender,

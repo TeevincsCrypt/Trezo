@@ -148,6 +148,12 @@ try {
   if (!settled.settled) die("settlement");
   record("game server confirmed settlement by reading get_claim on-chain");
 
+  // Players prepay their own storage (the contract never pays for state they create)
+  const sd = await tx(alice.acc, "storage_deposit", {}, NEAR / 50n);
+  record("alice prepaid 0.02 NEAR storage deposit (withdrawable)", sd.hash);
+  const sdb = await tx(bob.acc, "storage_deposit", {}, NEAR / 50n);
+  record("bob prepaid 0.02 NEAR storage deposit (withdrawable)", sdb.hash);
+
   const price = NEAR / 10n; // 0.1 NEAR
   const l = await tx(alice.acc, "list_item", { token_id: t.rewardItemId, amount: "1", price: price.toString() }, 1n);
   record(`alice listed 1 × ${t.rewardItemId} for 0.1 NEAR (escrowed, listing #${l.value.id})`, l.hash);
@@ -165,6 +171,7 @@ try {
   record(`bob sold it back; Merchant paid ${Number(BigInt(ns.value)) / 1e24} NEAR from its on-chain treasury`, ns.hash);
 
   const stats = await view("get_stats");
+  if (stats.economy_locked) record("economy is locked: NPC prices, allocations and the market fee can no longer be changed by anyone", null);
   const merchant = (await view("get_npc", { npc_id: "merchant" })).npc;
   log.final = { players: stats.players, claims: stats.claims, volumeYocto: stats.total_market_volume, merchantTreasuryYocto: merchant.treasury };
   console.log(`\n  contract: ${stats.players} players, ${stats.claims} claims, volume ${Number(BigInt(stats.total_market_volume)) / 1e24} NEAR, Merchant treasury ${Number(BigInt(merchant.treasury)) / 1e24} NEAR`);

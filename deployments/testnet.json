@@ -1,47 +1,52 @@
 {
   "network": "testnet",
-  "contractId": "trezo-game-0e8b06.testnet",
+  "contractId": "trezo-v2-f8ff97.testnet",
   "rpcUrl": "https://test.rpc.fastnear.com",
-  "deployedAt": "2026-11-07T11:39:23.733Z",
+  "deployedAt": "2026-11-08T15:17:04.739Z",
   "transactions": [
     {
       "label": "deploy + init",
-      "hash": "BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe",
-      "url": "https://testnet.nearblocks.io/txns/BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe"
+      "hash": "9k1QRNGopudL7gsux7TUXASZmgCByTdhfBWjXH58fzbv",
+      "url": "https://testnet.nearblocks.io/txns/9k1QRNGopudL7gsux7TUXASZmgCByTdhfBWjXH58fzbv"
     },
     {
       "label": "add_item_type ×8",
-      "hash": "CKo9Fi5Yf32aqvZ7MfHTsBapvKxRgBo4w5azQtfSptXE",
-      "url": "https://testnet.nearblocks.io/txns/CKo9Fi5Yf32aqvZ7MfHTsBapvKxRgBo4w5azQtfSptXE"
+      "hash": "4rXkCsptY5Ymn9eZmPSD1rSsN5R86zX6NQHt2u6bgsy5",
+      "url": "https://testnet.nearblocks.io/txns/4rXkCsptY5Ymn9eZmPSD1rSsN5R86zX6NQHt2u6bgsy5"
     },
     {
       "label": "add_item_type ×5",
-      "hash": "2LGQqaqGEXyymecgzzEyQ1nLoekGtD7t8zxtWYdUd1fp",
-      "url": "https://testnet.nearblocks.io/txns/2LGQqaqGEXyymecgzzEyQ1nLoekGtD7t8zxtWYdUd1fp"
+      "hash": "29n5eYukr62Xxb2ZFQygyicwhTzSuDVeZVvhGnKNYrVf",
+      "url": "https://testnet.nearblocks.io/txns/29n5eYukr62Xxb2ZFQygyicwhTzSuDVeZVvhGnKNYrVf"
     },
     {
       "label": "upsert NPCs",
-      "hash": "FvkLSvPssQAETEPDqbR7nd17WoW3sfSv41KVY6kjzLzZ",
-      "url": "https://testnet.nearblocks.io/txns/FvkLSvPssQAETEPDqbR7nd17WoW3sfSv41KVY6kjzLzZ"
+      "hash": "HQSYTK1iWSp3cVzw1fAqKB6hKVn9vytNSewBnmNgLs9Y",
+      "url": "https://testnet.nearblocks.io/txns/HQSYTK1iWSp3cVzw1fAqKB6hKVn9vytNSewBnmNgLs9Y"
     },
     {
       "label": "set_npc_offer ×8",
-      "hash": "6aunbXZFE8A4izHdFES3Vot77Wu35dZavbPHTcmwcEfN",
-      "url": "https://testnet.nearblocks.io/txns/6aunbXZFE8A4izHdFES3Vot77Wu35dZavbPHTcmwcEfN"
+      "hash": "ABFJQBDsdUmndWiJ8fjKWArZ178AZCANQt6JrSfsD35n",
+      "url": "https://testnet.nearblocks.io/txns/ABFJQBDsdUmndWiJ8fjKWArZ178AZCANQt6JrSfsD35n"
     },
     {
       "label": "set_npc_offer ×2",
-      "hash": "kr1NYpjo1GthUJX3TecHNY7iqpsiQWxeP1FSiwvEMJ9",
-      "url": "https://testnet.nearblocks.io/txns/kr1NYpjo1GthUJX3TecHNY7iqpsiQWxeP1FSiwvEMJ9"
+      "hash": "9cgk9A2tDAjp3qob4N6WSG61heR2iYP3boRY9rFXHvez",
+      "url": "https://testnet.nearblocks.io/txns/9cgk9A2tDAjp3qob4N6WSG61heR2iYP3boRY9rFXHvez"
     },
     {
       "label": "fund_npc merchant (0.5 NEAR)",
-      "hash": "DiejiswYidHVhZFze3WNV982sfjawehMckyxFfAThDv2",
-      "url": "https://testnet.nearblocks.io/txns/DiejiswYidHVhZFze3WNV982sfjawehMckyxFfAThDv2"
+      "hash": "Bg4pwhwQTU6DanbCkry7bKwhaBAfbzc1EiXoiw9BcFZs",
+      "url": "https://testnet.nearblocks.io/txns/Bg4pwhwQTU6DanbCkry7bKwhaBAfbzc1EiXoiw9BcFZs"
+    },
+    {
+      "label": "lock_economy (irreversible)",
+      "hash": "GrDm7dDBBdJ8PVvLoFPvwCegndob3zw6eL7KdX4WirM",
+      "url": "https://testnet.nearblocks.io/txns/GrDm7dDBBdJ8PVvLoFPvwCegndob3zw6eL7KdX4WirM"
     }
   ],
   "stats": {
-    "owner_id": "trezo-game-0e8b06.testnet",
+    "owner_id": "trezo-v2-f8ff97.testnet",
     "oracle_public_key": "wSJv/MHX/IarrEaF3ql7EFsYXiamREGAt53joFU76ks=",
     "paused": false,
     "players": 0,
@@ -49,6 +54,7 @@
     "item_types": 13,
     "active_listings": 0,
     "market_fee_bps": 250,
-    "total_market_volume": "0"
+    "total_market_volume": "0",
+    "economy_locked": true
   }
 }

@@ -42,6 +42,11 @@ pub const MAX_ID_LEN: usize = 64;
 pub const MAX_USERNAME_LEN: usize = 24;
 /// Tickets may not be valid for longer than this (server should use ~10 min).
 pub const MAX_TICKET_LIFETIME_MS: u64 = 60 * 60 * 1000;
+/// Oracle damage limits (bound the impact of a leaked oracle key).
+pub const MAX_TICKETS_PER_ACCOUNT_PER_DAY: u32 = 50;
+pub const MAX_ORACLE_ITEMS_PER_HOUR: u128 = 5_000;
+pub(crate) const DAY_MS: u64 = 24 * 60 * 60 * 1000;
+const HOUR_MS: u64 = 60 * 60 * 1000;
 
 #[derive(BorshStorageKey)]
 #[near]
@@ -58,6 +63,8 @@ enum StorageKey {
     Npcs,
     NpcOffers,
     ClaimRecords,
+    StorageBalances,
+    TicketQuota,
 }
 
 #[near(serializers = [borsh, json])]
@@ -156,6 +163,7 @@ pub struct ContractStats {
     pub active_listings: u32,
     pub market_fee_bps: u16,
     pub total_market_volume: U128,
+    pub economy_locked: bool,
 }
 
 #[near(contract_state)]
@@ -192,6 +200,16 @@ pub struct Contract {
     pub npcs: IterableMap<String, Npc>,
     /// key: (npc_id, token_id)
     pub npc_offers: IterableMap<(String, TokenId), NpcOffer>,
+
+    /// Prepaid storage per account (NEP-145 style). Player-initiated calls that
+    /// grow state are charged here, so nobody can make the contract pay for it.
+    pub storage_balances: LookupMap<AccountId, u128>,
+    /// (day, tickets used) per account.
+    pub ticket_quota: LookupMap<AccountId, (u64, u32)>,
+    pub mint_hour: u64,
+    pub mint_hour_count: u128,
+    /// One-way switch: once set, NPCs, offers and the market fee are frozen.
+    pub economy_locked: bool,
 }
 
 pub(crate) fn emit_event(standard: &str, version: &str, event: &str, data: serde_json::Value) {
@@ -247,6 +265,11 @@ impl Contract {
             total_market_volume: 0,
             npcs: IterableMap::new(StorageKey::Npcs),
             npc_offers: IterableMap::new(StorageKey::NpcOffers),
+            storage_balances: LookupMap::new(StorageKey::StorageBalances),
+            ticket_quota: LookupMap::new(StorageKey::TicketQuota),
+            mint_hour: 0,
+            mint_hour_count: 0,
+            economy_locked: false,
         }
     }
 
@@ -279,6 +302,7 @@ impl Contract {
 
     pub fn set_market_fee_bps(&mut self, fee_bps: u16) {
         self.assert_owner();
+        self.assert_economy_unlocked();
         require!(fee_bps <= 1000, "Fee cannot exceed 10%");
         self.market_fee_bps = fee_bps;
     }
@@ -330,6 +354,55 @@ impl Contract {
         require!(max_supply.0 <= item.max_supply.0, "Supply cap can only be reduced");
         require!(max_supply.0 >= item.minted.0 - item.burned.0, "Cap below circulating supply");
         item.max_supply = max_supply;
+    }
+
+    /// Irreversibly freeze the economy: NPCs, NPC offers/allocations/prices and
+    /// the market fee can never be changed again, so NPC treasuries are governed
+    /// only by the contract's rules.
+    pub fn lock_economy(&mut self) {
+        self.assert_owner();
+        self.economy_locked = true;
+        emit_event("trezo", "1.0.0", "economy_locked", serde_json::json!([{ "by": env::predecessor_account_id() }]));
+    }
+
+    pub(crate) fn assert_economy_unlocked(&self) {
+        require!(!self.economy_locked, "Economy is locked: NPCs, offers and fees can no longer be changed");
+    }
+
+    // ---------------------------------------------------------------------
+    // Storage (NEP-145 style)
+    // ---------------------------------------------------------------------
+
+    /// Prepay storage for an account (default: the caller). Returns the new balance.
+    #[payable]
+    pub fn storage_deposit(&mut self, account_id: Option<AccountId>) -> U128 {
+        let amount = env::attached_deposit().as_yoctonear();
+        require!(amount > 0, "Attach NEAR to deposit for storage");
+        let account = account_id.unwrap_or_else(env::predecessor_account_id);
+        let bal = self.storage_balances.get(&account).copied().unwrap_or(0) + amount;
+        self.storage_balances.insert(account, bal);
+        U128(bal)
+    }
+
+    pub fn storage_balance_of(&self, account_id: AccountId) -> U128 {
+        U128(self.storage_balances.get(&account_id).copied().unwrap_or(0))
+    }
+
+    /// Withdraw unused storage deposit (all of it by default).
+    #[payable]
+    pub fn storage_withdraw(&mut self, amount: Option<U128>) -> U128 {
+        assert_one_yocto();
+        let account = env::predecessor_account_id();
+        let bal = self.storage_balances.get(&account).copied().unwrap_or(0);
+        let amt = amount.map(|a| a.0).unwrap_or(bal);
+        require!(amt <= bal, "Amount exceeds storage balance");
+        if bal - amt == 0 {
+            self.storage_balances.remove(&account);
+        } else {
+            self.storage_balances.insert(account.clone(), bal - amt);
+        }
+        self.pay(&account, amt);
+        U128(bal - amt)
     }
 
     // ---------------------------------------------------------------------
@@ -408,6 +481,21 @@ impl Contract {
         require!(valid_id(&t.id) && valid_id(&t.ref_id), "Invalid ticket id");
         require!(!self.used_tickets.contains(&t.id), "Ticket already used");
         require!(t.items.len() <= MAX_ITEMS_PER_TICKET, "Too many items in ticket");
+
+        // Oracle damage limits: per-account daily tickets, global hourly items.
+        let day = now / DAY_MS;
+        let (qd, qn) = self.ticket_quota.get(&caller).copied().unwrap_or((day, 0));
+        let used = if qd == day { qn } else { 0 };
+        require!(used < MAX_TICKETS_PER_ACCOUNT_PER_DAY, "Daily claim limit reached for this account");
+        self.ticket_quota.insert(caller.clone(), (day, used + 1));
+        let hour = now / HOUR_MS;
+        if self.mint_hour != hour {
+            self.mint_hour = hour;
+            self.mint_hour_count = 0;
+        }
+        let ticket_items: u128 = t.items.iter().map(|(_, a)| a.0).sum();
+        require!(self.mint_hour_count + ticket_items <= MAX_ORACLE_ITEMS_PER_HOUR, "Global hourly mint ceiling reached");
+        self.mint_hour_count += ticket_items;
 
         // 3. Kind-specific rules
         let mut player = self.ensure_player(&caller);
@@ -515,6 +603,7 @@ impl Contract {
             active_listings: self.listings.len(),
             market_fee_bps: self.market_fee_bps,
             total_market_volume: U128(self.total_market_volume),
+            economy_locked: self.economy_locked,
         }
     }
 }
@@ -598,6 +687,36 @@ impl Contract {
     /// NEAR transfer via the low-level promise API. (The high-level
     /// `near_sdk::Promise` links host functions for every action kind,
     /// including ones newer than some deployed protocol versions.)
+    /// Flush cached collection writes so `env::storage_usage()` is accurate.
+    pub(crate) fn flush_state(&mut self) {
+        self.players.flush();
+        self.balances.flush();
+        self.owner_tokens.flush();
+        self.listings.flush();
+        self.seller_listing_count.flush();
+        self.item_types.flush();
+        self.npcs.flush();
+        self.npc_offers.flush();
+        self.storage_balances.flush();
+    }
+
+    /// Charge `payer` for any storage growth since `before` (bytes). Freed
+    /// storage is not refunded, because it may have been paid by the contract.
+    pub(crate) fn charge_storage(&mut self, payer: &AccountId, before: u64) {
+        self.flush_state();
+        let after = env::storage_usage();
+        if after <= before {
+            return;
+        }
+        let cost = (after - before) as u128 * env::storage_byte_cost().as_yoctonear();
+        let bal = self.storage_balances.get(payer).copied().unwrap_or(0);
+        require!(
+            bal >= cost,
+            format!("Storage deposit required: call storage_deposit (needs {} yoctoNEAR, have {})", cost, bal)
+        );
+        self.storage_balances.insert(payer.clone(), bal - cost);
+    }
+
     pub(crate) fn pay(&self, to: &AccountId, amount: u128) {
         if amount > 0 {
             let p = env::promise_batch_create(to);

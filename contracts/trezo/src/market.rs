@@ -36,6 +36,7 @@ impl Contract {
         require!(amount.0 > 0, "Amount must be positive");
         require!(price.0 >= MIN_PRICE, "Minimum price is 0.01 NEAR");
         let seller = env::predecessor_account_id();
+        let before = env::storage_usage();
         let item = self.item_types.get(&token_id).unwrap_or_else(|| env::panic_str("Unknown token_id"));
         require!(item.transferable, "This item is soulbound and cannot be listed");
         let count = self.seller_listing_count.get(&seller).copied().unwrap_or(0);
@@ -58,8 +59,9 @@ impl Contract {
             created_at_ms: U64(env::block_timestamp_ms()),
         };
         self.listings.insert(id, listing.clone());
-        self.seller_listing_count.insert(seller, count + 1);
+        self.seller_listing_count.insert(seller.clone(), count + 1);
         emit_event("trezo", "1.0.0", "market_list", serde_json::json!([listing]));
+        self.charge_storage(&seller, before);
         listing
     }
 
@@ -68,12 +70,14 @@ impl Contract {
         assert_one_yocto();
         let listing = self.listings.get(&listing_id).cloned().unwrap_or_else(|| env::panic_str("Listing not found"));
         require!(listing.seller_id == env::predecessor_account_id(), "Only the seller can cancel");
+        let before = env::storage_usage();
         self.remove_listing(&listing);
         let escrow = env::current_account_id();
         self.sub_balance(&listing.token_id, &escrow, listing.amount.0);
         self.add_balance(&listing.token_id, &listing.seller_id, listing.amount.0);
         Self::emit_transfer(&escrow, &listing.seller_id, &[listing.token_id.clone()], &[listing.amount], Some("market:cancel".into()));
         emit_event("trezo", "1.0.0", "market_cancel", serde_json::json!([{ "listing_id": listing_id }]));
+        self.charge_storage(&listing.seller_id, before);
     }
 
     /// Buy a listing. Attach at least `price` yoctoNEAR; any excess is refunded.
@@ -86,6 +90,7 @@ impl Contract {
         let deposit = env::attached_deposit().as_yoctonear();
         require!(deposit >= listing.price.0, "Attached deposit is less than the price");
 
+        let before = env::storage_usage();
         // Remove first: guarantees single purchase.
         self.remove_listing(&listing);
 
@@ -103,6 +108,7 @@ impl Contract {
         self.pay(&listing.seller_id, seller_proceeds);
         self.pay(&buyer, deposit - listing.price.0);
         self.ensure_player(&buyer);
+        self.charge_storage(&buyer, before);
         emit_event(
             "trezo",
             "1.0.0",

@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-11-08: security fixes, fresh testnet contract
+- Implemented the [pre-mainnet review](SECURITY_REVIEW.md) fixes. **Contract:** NEP-145-style storage deposits charged on every player call that grows state (C-1), a per-account daily ticket limit and a global hourly mint ceiling (C-4), and an irreversible `lock_economy` that freezes NPCs, offers and the market fee (C-3). **Server:** demo-zone rewards are never minted on mainnet (S-1), the client IP comes from the trusted proxy hop (S-2), sessions rotate on login (S-3), and there are clickjacking/base-uri/object/form-action CSP directives plus HSTS (S-5).
+- **App:** when the prepaid storage balance is low, a 0.02 NEAR `storage_deposit` action is added to the same wallet transaction, so it's still one approval.
+- The state layout changed, so this is a **new contract**: `trezo-v2-f8ff97.testnet` (8 deploy/config txs, the last one `lock_economy`). The full testnet demo was re-run against it (claim, storage deposits, list, buy, Merchant sale and buyback). The old `trezo-game-0e8b06.testnet` is retired.
+- A unit test hit NEAR's 16 KB total-log limit by making 51 claims in one mocked context. The test now resets the context per call, as on-chain each claim is its own transaction.
+- Tests: contract 42, server 37, local chain 34, smoke 14, GPS 6 + 4.
+
 ## 2026-11-08: faster location, wallet guidance
 - Tester feedback: finding the location took very long. Precise GPS is now refined in the background after a **rough Wi-Fi/cell fix shown in ~0.5 s** ("Approximate · sharpening GPS…").
 - A GPS timeout no longer shows "Can't find your location"; it says "Still finding you…" and keeps trying.

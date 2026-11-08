@@ -11,7 +11,7 @@ import { useOnchainHoldings } from "@/components/onchain/useOnchainHoldings";
 import { MintButton } from "@/components/onchain/MintButton";
 import { Empty, ItemImage, PageHeader, RarityBadge, Segmented, ShardIcon, Spinner, cx } from "@/components/ui";
 import { RARITY, type Rarity } from "@/lib/rules";
-import { txUrl } from "@/lib/config";
+import { publicConfig, txUrl } from "@/lib/config";
 
 const CATS = [
   { value: "all", label: "All" },
@@ -141,7 +141,8 @@ function Rewards({ rewards, reload, byName }: { rewards: RewardView[] | null; re
         </button>
       )}
       {rewards.map((r) => {
-        const mintable = r.onchainStatus !== "settled" && r.items.some((i) => i.status === "vault" || i.status === "minting");
+        const demoOffchain = r.demo && publicConfig.network === "mainnet";
+        const mintable = !demoOffchain && r.onchainStatus !== "settled" && r.items.some((i) => i.status === "vault" || i.status === "minting");
         return (
           <div key={r.id} className="card p-3.5">
             <div className="flex items-start justify-between gap-3">
@@ -183,6 +184,8 @@ function Rewards({ rewards, reload, byName }: { rewards: RewardView[] | null; re
               <div className="mt-3">
                 <MintButton rewardId={r.id} status={r.onchainStatus} compact onSettled={reload} />
               </div>
+            ) : demoOffchain ? (
+              <p className="mt-2 text-[12px] text-muted">Demo-zone reward: kept off-chain on mainnet.</p>
             ) : null}
           </div>
         );

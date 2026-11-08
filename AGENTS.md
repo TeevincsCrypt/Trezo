@@ -14,9 +14,9 @@ TREZO is a location-based treasure-hunting game on NEAR (Track 09: Games With Re
 
 ## Run / verify
 - `npm install && npm run dev`, then open http://localhost:3000 (no env needed; SQLite auto-seeds into `data/trezo.db`).
-- `npm test` (32 server tests), `npm run test:contract` (34 Rust tests), `npm run typecheck`, `npm run build`.
+- `npm test` (37 server tests), `npm run test:contract` (42 Rust tests), `npm run typecheck`, `npm run build`.
 - `npm run test:e2e` (browser smoke test, 14 checks) and `npm run test:e2e:gps` (emulated GPS walk, 6 checks); both need a running server and Playwright.
-- `npm run contract:build && npm run test:sandbox` (local NEAR node, 30 on-chain checks).
+- `npm run contract:build && npm run test:sandbox` (local NEAR node, 34 on-chain checks).
 
 ## Where things are
 - Contract: `contracts/trezo/src/{lib,mt,market,npc,tests}.rs` (near-sdk 5.30, NEP-245).

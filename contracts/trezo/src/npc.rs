@@ -19,7 +19,6 @@
 
 use crate::*;
 
-const DAY_MS: u64 = 24 * 60 * 60 * 1000;
 /// Price step per net unit sold, in basis points of the base price (8%).
 pub const PRICE_STEP_BPS: u128 = 800;
 
@@ -86,6 +85,7 @@ impl Contract {
 
     pub fn upsert_npc(&mut self, npc_id: String, name: String, role: String, daily_spend_limit: U128) {
         self.assert_owner();
+        self.assert_economy_unlocked();
         require!(valid_id(&npc_id), "Invalid npc_id");
         require!(name.len() <= 48 && role.len() <= 48, "Name/role too long");
         let npc = match self.npcs.get(&npc_id) {
@@ -109,6 +109,7 @@ impl Contract {
     /// by each item's global `max_supply` at mint time.
     pub fn set_npc_offer(&mut self, npc_id: String, token_id: TokenId, allocation: U128, base_price: U128, buyback_bps: u16) {
         self.assert_owner();
+        self.assert_economy_unlocked();
         require!(self.npcs.get(&npc_id).is_some(), "Unknown NPC");
         require!(self.item_types.get(&token_id).is_some(), "Unknown token_id");
         require!(buyback_bps <= 9_000, "Buyback cannot exceed 90% of price");
@@ -158,8 +159,10 @@ impl Contract {
         self.npc_offers.insert(key, offer);
 
         let buyer = env::predecessor_account_id();
+        let before = env::storage_usage();
         self.ensure_player(&buyer);
         self.internal_mint(&buyer, &[token_id.clone()], &[1], Some(format!("npc_buy:{}", npc_id)));
+        self.charge_storage(&buyer, before);
         self.credit_npc_treasury(&npc_id, price);
         self.pay(&buyer, deposit - price);
         emit_event("trezo", "1.0.0", "npc_sale", serde_json::json!([{ "npc_id": npc_id, "buyer_id": buyer, "token_id": token_id, "price": U128(price) }]));

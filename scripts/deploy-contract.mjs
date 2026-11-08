@@ -13,6 +13,9 @@
  *   TREZO_OWNER_ID                   owner/admin account (default: the contract account)
  *   TREZO_APP_URL                    public app URL, used for NEP-245 media links
  *   TREZO_FUND_MERCHANT_NEAR         seed the Merchant treasury (default 0.5)
+ *   TREZO_LOCK_ECONOMY               1 (default) = call lock_economy at the end, which
+ *                                    IRREVERSIBLY freezes NPCs, offers and the market fee;
+ *                                    0 = leave them editable (development only)
  *   NEAR_RPC_URL                     custom RPC endpoint
  *
  * Usage:  npm run contract:build && node scripts/deploy-contract.mjs
@@ -138,15 +141,17 @@ const call = (method, args, deposit = 0n, gas = 30n) => actions.functionCall(met
   for (let i = 0; i < pending.length; i += 8) await send(`add_item_type ×${pending.slice(i, i + 8).length}`, pending.slice(i, i + 8));
   if (!pending.length) console.log("  • item types already configured");
 
-  // 3. NPCs and their on-chain offers / allocations
-  await send(
+  // 3. NPCs and their on-chain offers / allocations (frozen once locked)
+  const locked = !!(await view("get_stats")).economy_locked;
+  if (locked) console.log("  • economy is locked: NPCs and offers are frozen");
+  else await send(
     "upsert NPCs",
     catalog.npcs.map((n) => call("upsert_npc", { npc_id: n.id, name: n.name, role: n.title, daily_spend_limit: toYocto(n.onchain.daily_spend_limit_near).toString() })),
   );
   const offers = catalog.npc_offers.map((o) =>
     call("set_npc_offer", { npc_id: o.npc_id, token_id: o.token_id, allocation: String(o.allocation), base_price: toYocto(o.base_price_near).toString(), buyback_bps: o.buyback_bps }),
   );
-  for (let i = 0; i < offers.length; i += 8) await send(`set_npc_offer ×${offers.slice(i, i + 8).length}`, offers.slice(i, i + 8));
+  for (let i = 0; i < offers.length && !locked; i += 8) await send(`set_npc_offer ×${offers.slice(i, i + 8).length}`, offers.slice(i, i + 8));
 
   // 4. Seed the Merchant's treasury so buybacks work from day one
   const fund = toYocto(process.env.TREZO_FUND_MERCHANT_NEAR ?? "0.5");
@@ -155,11 +160,15 @@ const call = (method, args, deposit = 0n, gas = 30n) => actions.functionCall(met
     if (BigInt(m.npc.treasury) < fund) await send(`fund_npc merchant (${process.env.TREZO_FUND_MERCHANT_NEAR ?? "0.5"} NEAR)`, [call("fund_npc", { npc_id: "merchant" }, fund)]);
   }
 
+  // 5. Lock the economy (one-way): no one can change NPC prices/allocations
+  //    or the market fee again, so treasuries follow only the contract's rules.
+  if (!locked && (process.env.TREZO_LOCK_ECONOMY ?? "1") !== "0") await send("lock_economy (irreversible)", [call("lock_economy", {})]);
+
   const stats = await view("get_stats");
   log.stats = stats;
   fs.mkdirSync("deployments", { recursive: true });
   fs.writeFileSync(`deployments/${label}.json`, JSON.stringify(log, null, 2));
-  console.log(`\nDone. ${stats.item_types} item types, owner ${stats.owner_id}.`);
+  console.log(`\nDone. ${stats.item_types} item types, owner ${stats.owner_id}, economy ${stats.economy_locked ? "LOCKED" : "unlocked"}.`);
   console.log(`Explorer: ${explorer}/address/${contractId}`);
   console.log(`Saved deployments/${label}.json`);
 })().catch((e) => die(e.message ?? String(e)));

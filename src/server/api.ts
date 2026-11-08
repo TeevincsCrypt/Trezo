@@ -24,8 +24,17 @@ export function rateLimit(key: string, perMinute: number): boolean {
   return true;
 }
 
+/**
+ * Client IP for rate limiting. Proxies append the address they saw to
+ * `X-Forwarded-For`, so the left-most entries are client-controlled. We take
+ * the entry added by the N-th trusted proxy from the right
+ * (`TREZO_TRUSTED_PROXY_HOPS`, default 1 = Railway's edge).
+ */
 export function clientIp(req: Request) {
-  return (req.headers.get("x-forwarded-for")?.split(",")[0] ?? req.headers.get("x-real-ip") ?? "local").trim();
+  const hops = Math.max(0, Number.parseInt(process.env.TREZO_TRUSTED_PROXY_HOPS ?? "1", 10) || 0);
+  const xff = (req.headers.get("x-forwarded-for") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (hops > 0 && xff.length > 0) return xff[Math.max(0, xff.length - hops)];
+  return (req.headers.get("x-real-ip") ?? "local").trim();
 }
 
 export function limit(req: Request, scope: string, perMinute: number, extraKey = "") {

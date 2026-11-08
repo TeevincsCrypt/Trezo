@@ -82,7 +82,7 @@ Quest progress is *derived* from `events` within a time window (day, ISO week, s
 | `mt.rs` | NEP-245 core, `mt_transfer_call` via low-level promises + `mt_resolve_transfer`, metadata, enumeration |
 | `market.rs` | Escrowed listings, atomic buy, cancel, views |
 | `npc.rs` | NPC treasuries, offers/allocations, bonding-curve `npc_buy`, capped `npc_sell`, `fund_npc` |
-| `tests.rs` | 34 unit tests with real ed25519 signatures |
+| `tests.rs` | 42 unit tests with real ed25519 signatures |
 
 Storage uses `near_sdk::store` collections. Balances are keyed `(token_id, account_id)`, and `owner_tokens` provides enumeration. Every mint, burn and transfer emits NEP-297 `nep245` events.
 

@@ -2,7 +2,7 @@
 
 TREZO has two deployable parts: the **NEAR contract** (`contracts/trezo`) and the **Next.js app** (game server and UI).
 
-> **Status:** deployed to **testnet** at [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) on 2026-11-07 using exactly this procedure (record at the bottom). **Mainnet is not deployed.** The app is live on Railway at https://trezo-production-0500.up.railway.app.
+> **Status:** deployed to **testnet** at [`trezo-v2-f8ff97.testnet`](https://testnet.nearblocks.io/address/trezo-v2-f8ff97.testnet) on 2026-11-08 (post-security-review build, economy locked) using exactly this procedure (record at the bottom). **Mainnet is not deployed.** The app is live on Railway at https://trezo-production-0500.up.railway.app.
 
 ## 0. Prerequisites
 
@@ -63,7 +63,8 @@ The script is **idempotent**. It:
 2. registers all 13 NEP-245 item types from `src/data/catalog.json`;
 3. registers the 4 NPCs and their offers/allocations;
 4. seeds the Merchant treasury (`TREZO_FUND_MERCHANT_NEAR`, default 0.5);
-5. prints an explorer link for **every transaction** and writes `deployments/testnet.json`.
+5. calls `lock_economy`, which **irreversibly** freezes NPCs, offers, prices and the market fee (set `TREZO_LOCK_ECONOMY=0` to skip it on a development contract; once locked, steps 3 and 5 are skipped on re-runs);
+6. prints an explorer link for **every transaction** and writes `deployments/testnet.json`.
 
 Re-running only applies what's missing. Use `--upgrade` to redeploy new code while keeping state. If the oracle key in `.env.local` changed, it calls `set_oracle_key`.
 
@@ -134,10 +135,11 @@ From `deployments/testnet.json` and `deployments/testnet-demo.json`:
 | Field | Value |
 |---|---|
 | Network | testnet |
-| Contract account | [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) (owner: same account) |
-| Deploy + init transaction | [`BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe`](https://testnet.nearblocks.io/txns/BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe) |
-| Configuration | 6 more txs (13 item types, 4 NPCs, 10 offers, 0.5 NEAR Merchant seed); see `deployments/testnet.json` |
-| Wasm SHA-256 | `487492eb0c069f9634bbbfd20cc6ba9d0ccebf0cb52e0396448388f08fed494b` (non-reproducible build) |
-| Demo transactions | claim/mint, list, buy, Merchant sale and buyback: `deployments/testnet-demo.json` (`node scripts/testnet-demo.mjs`) |
+| Contract account | [`trezo-v2-f8ff97.testnet`](https://testnet.nearblocks.io/address/trezo-v2-f8ff97.testnet) (owner: same account; testnet only, see C-2) |
+| Deploy + init transaction | [`9k1QRNGopudL7gsux7TUXASZmgCByTdhfBWjXH58fzbv`](https://testnet.nearblocks.io/txns/9k1QRNGopudL7gsux7TUXASZmgCByTdhfBWjXH58fzbv) |
+| Configuration | 7 more txs (13 item types, 4 NPCs, 10 offers, 0.5 NEAR Merchant seed, `lock_economy`); see `deployments/testnet.json` |
+| Wasm SHA-256 | `c22d67932ac6a4f1c4f6d55c318a1a334f2f52e6ff5cbe086631fe4e17374485` (non-reproducible build) |
+| Demo transactions | claim/mint, storage deposits, list, buy, Merchant sale and buyback: `deployments/testnet-demo.json` (`node scripts/testnet-demo.mjs`) |
 | Oracle public key (base64) | `wSJv/MHX/IarrEaF3ql7EFsYXiamREGAt53joFU76ks=` |
+| Previous contract | `trezo-game-0e8b06.testnet` (2026-11-07, pre-review; retired, state layout changed): `deployments/testnet-v1*.json` |
 | App URL | https://trezo-production-0500.up.railway.app (Railway) |

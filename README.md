@@ -22,15 +22,17 @@ Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economi
 
 | | |
 |---|---|
-| **Contract** | [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) (deployed 2026-11-07, near-sdk 5.30 wasm, SHA-256 `487492eb…8444b`) |
-| Deploy + init | [`BHJzHKfY…`](https://testnet.nearblocks.io/txns/BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe), then 13 item types, 4 NPCs, 10 NPC offers, 0.5 NEAR Merchant seed ([all 7 txs](deployments/testnet.json)) |
-| Claim → mint (NEP-245, oracle ticket) | [`H2XzxyUg…`](https://testnet.nearblocks.io/txns/H2XzxyUgRgEPbHEbGVLYCcvqveCdn9gQkFPZn82jmXQy) |
-| Player listing (escrow) | [`53ptwbeJ…`](https://testnet.nearblocks.io/txns/53ptwbeJ9a6zVyp91cq8yWoyGFYSG9AD7mW6hHch5GV2) |
-| Player purchase (pay seller + fee to Merchant + deliver) | [`GNTJm3Ab…`](https://testnet.nearblocks.io/txns/GNTJm3AbXzwTwimNfY8xWqqwwExFMT217hAAWdn1jTMj) |
-| Merchant NPC sale (price 0.01 → 0.0108 NEAR) | [`HY6EMDnA…`](https://testnet.nearblocks.io/txns/HY6EMDnA1bFw8sLPzrJBamfbRX5huY6dMwhJQqtfJsjJ) |
-| Merchant NPC buyback (paid from its treasury) | [`KnSyraBw…`](https://testnet.nearblocks.io/txns/KnSyraBwGhjRzYuqT1gWbL9SoPUW5GkhjeMc5aXxCof) |
+| **Contract** | [`trezo-v2-f8ff97.testnet`](https://testnet.nearblocks.io/address/trezo-v2-f8ff97.testnet) (deployed 2026-11-08 after the [security review](SECURITY_REVIEW.md), near-sdk 5.30 wasm, SHA-256 `c22d6793…74485`, **economy locked**) |
+| Deploy + init | [`9k1QRNGo…`](https://testnet.nearblocks.io/txns/9k1QRNGopudL7gsux7TUXASZmgCByTdhfBWjXH58fzbv), then 13 item types, 4 NPCs, 10 NPC offers, 0.5 NEAR Merchant seed and `lock_economy` ([all 8 txs](deployments/testnet.json)) |
+| Economy locked (irreversible) | [`GrDm7dDB…`](https://testnet.nearblocks.io/txns/GrDm7dDBBdJ8PVvLoFPvwCegndob3zw6eL7KdX4WirM) |
+| Claim → mint (NEP-245, oracle ticket) | [`3PKSyWGz…`](https://testnet.nearblocks.io/txns/3PKSyWGzEpwSRDFXY3DCC9NeRF3yzRoULn2Aj1zEghTx) |
+| Storage deposit (player prepays state) | [`ELhyVvRn…`](https://testnet.nearblocks.io/txns/ELhyVvRnAjqgYPd7ZoaExSEJN6q3gbsmG8aPcuNxCeT) |
+| Player listing (escrow) | [`Gr3LUs5y…`](https://testnet.nearblocks.io/txns/Gr3LUs5yhWsXdJiHymg5CYUTTrRKgvanweWdrkooBVRd) |
+| Player purchase (pay seller + fee to Merchant + deliver) | [`2HFppHfm…`](https://testnet.nearblocks.io/txns/2HFppHfmCv6EKXqnhQWHEWmwKFydunwFdvm2wSM5o61a) |
+| Merchant NPC sale (price 0.01 → 0.0108 NEAR) | [`FvHyyX5d…`](https://testnet.nearblocks.io/txns/FvHyyX5dv9j4vSdgNPDZKrjRZJdmXp1gsUXVR3qYwCyJ) |
+| Merchant NPC buyback (paid from its treasury) | [`9ayGPSmn…`](https://testnet.nearblocks.io/txns/9ayGPSmnWoEVhZh9Ch66ZKUo2BVqp4nV7aTNrytTrPLh) |
 
-These come from `scripts/testnet-demo.mjs` ([record](deployments/testnet-demo.json)): two faucet-funded players (`trezo-alice-418679.testnet`, `trezo-bob-339ab1.testnet`) signing with their own keys, against the real game server. The claim was made in the demo zone, so its on-chain record says `demo: true`.
+These come from `scripts/testnet-demo.mjs` ([record](deployments/testnet-demo.json)): two faucet-funded players (`trezo-alice-2bb9d7.testnet`, `trezo-bob-ef6a55.testnet`) signing with their own keys, against the real game server. The claim was made in the demo zone, so its on-chain record says `demo: true`. The pre-review contract `trezo-game-0e8b06.testnet` (2026-11-07) is retired; its records are kept in `deployments/testnet-v1*.json`.
 
 ---
 
@@ -60,7 +62,7 @@ On-chain features (wallet login, minting, market, NPC treasuries) need a deploye
 
 ```bash
 npm run contract:build     # needs Rust + cargo-near (see DEPLOYMENT.md)
-npm run test:sandbox       # boots a local NEAR node, deploys, plays, trades: 30 checks
+npm run test:sandbox       # boots a local NEAR node, deploys, plays, trades: 34 checks
 ```
 
 ---
@@ -114,7 +116,7 @@ Details: **[ARCHITECTURE.md](ARCHITECTURE.md)**. Security model: **[SECURITY.md]
 
 | Technology | Where | Status |
 |---|---|---|
-| **near-sdk 5.30 (Rust)** + **cargo-near 0.22** | `contracts/trezo` | ✅ 34 unit tests; wasm builds with an embedded ABI |
+| **near-sdk 5.30 (Rust)** + **cargo-near 0.22** | `contracts/trezo` | ✅ 42 unit tests; wasm builds with an embedded ABI |
 | **NEP-245 Multi Token**: core, metadata, enumeration, events (`nep245` 1.0.0) | `contracts/trezo/src/mt.rs` | ✅ incl. `mt_transfer_call` + `mt_resolve_transfer` refunds (sandbox-tested). Approval Management is *not* implemented and rejects non-null approvals explicitly. |
 | **NEP-297 events** | `mt_mint/mt_burn/mt_transfer` + `trezo` events (`claim`, `market_*`, `npc_*`) | ✅ |
 | **NEAR Connect** (`@hot-labs/near-connect` 0.12), the wallet connector currently recommended in the NEAR docs | `src/lib/near-client.ts` | ✅ sign-in, `signMessage`, `signAndSendTransaction` |
@@ -125,13 +127,14 @@ Details: **[ARCHITECTURE.md](ARCHITECTURE.md)**. Security model: **[SECURITY.md]
 | **Social login** | NEAR Connect wallet list | ⚠️ via wallets that offer email/social sign-in inside NEAR Connect (e.g. HOT, Meteor). A Privy/Web3Auth integration was *not* added: it needs third-party app IDs, and FastAuth is deprecated per the NEAR docs. |
 | **NEP-171 (NFT)** | not used | Deliberate: TREZO items are editions (many identical copies), which NEP-245 models natively. Badges are NEP-245 tokens marked soulbound. |
 | **NEAR Intents** | not implemented | Investigated only (see [Known limitations](#known-limitations)). |
-| **Testnet deployment** | `scripts/deploy-contract.mjs`, `scripts/testnet-demo.mjs` | ✅ [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet), with real claim, market and NPC transactions (see [Live on NEAR testnet](#live-on-near-testnet)). **Mainnet: not deployed.** |
+| **Testnet deployment** | `scripts/deploy-contract.mjs`, `scripts/testnet-demo.mjs` | ✅ [`trezo-v2-f8ff97.testnet`](https://testnet.nearblocks.io/address/trezo-v2-f8ff97.testnet), with real claim, market and NPC transactions (see [Live on NEAR testnet](#live-on-near-testnet)). **Mainnet: not deployed.** |
 
 ### Contract methods
 
 | Kind | Methods |
 |---|---|
-| Init/admin (owner only) | `new(owner_id, oracle_public_key)`, `set_oracle_key`, `set_paused`, `transfer_ownership`, `set_market_fee_bps` (≤10%), `add_item_type`, `reduce_max_supply` (can only lower), `upsert_npc`, `set_npc_offer` |
+| Init/admin (owner only) | `new(owner_id, oracle_public_key)`, `set_oracle_key`, `set_paused`, `transfer_ownership`, `set_market_fee_bps` (≤10%), `add_item_type`, `reduce_max_supply` (can only lower), `upsert_npc`, `set_npc_offer` (these three are disabled forever after `lock_economy`), `lock_economy` |
+| Storage | `storage_deposit(account_id?)` (payable), `storage_balance_of`, `storage_withdraw(amount?)` (1 yocto). Transfers, listings, purchases and Merchant buys charge the caller's prepaid balance for any new state; the app adds a 0.02 NEAR top-up to the same transaction when the balance is low. |
 | Players | `register_player(username?)` (0.005 NEAR storage deposit; claiming auto-registers), `claim(ticket, signature)` |
 | NEP-245 | `mt_transfer`, `mt_batch_transfer`, `mt_transfer_call`, `mt_batch_transfer_call`, `mt_resolve_transfer` (private), `mt_token`, `mt_balance_of`, `mt_batch_balance_of`, `mt_supply`, `mt_batch_supply`, `mt_metadata_contract`, `mt_metadata_token_all`, `mt_metadata_token_by_token_id`, `mt_metadata_base_by_token_id`, `mt_metadata_base_by_metadata_id`, `mt_tokens`, `mt_tokens_for_owner`, `mt_tokens_base_metadata_all` |
 | Market | `list_item(token_id, amount, price)` (1 yocto), `cancel_listing(listing_id)` (1 yocto), `buy_listing(listing_id)` (attach price), `get_listing`, `get_listings`, `get_listings_by_seller` |
@@ -154,7 +157,7 @@ Shards are spent (sinks) on: mission unlocks (Keeper's Trial 50, Vault of Echoes
 - *Allocations*: each NPC can only pay mission rewards from its remaining allocation. The Keeper holds 2,500 Ancient Compasses and 500 Aurora Lanterns. When an allocation is gone, it's gone.
 - *Merchant pricing*: `price = base × (1 + 0.08 × net_units_sold)`. Each sale raises the price and each buyback lowers it.
 - *Buybacks*: the Merchant pays `60% × price(previous step)` from its own treasury, so a buy-then-sell round trip always loses value and the treasury can't be drained by arbitrage. A **daily spend limit** applies (2 NEAR by default), and the contract's storage reserve is protected. Bought-back items are **burned** and the Merchant restocks, so supply recirculates.
-- *Funding*: 2.5% of every player-market sale, Merchant sales revenue and voluntary `fund_npc` donations. **Nobody can withdraw an NPC treasury, including the contract owner.**
+- *Funding*: 2.5% of every player-market sale, Merchant sales revenue and voluntary `fund_npc` donations. **Nobody can withdraw an NPC treasury, including the contract owner**, and after `lock_economy` (done on the live testnet contract) nobody can change NPC prices, buyback rates, allocations or the market fee either, so the owner can't drain a treasury indirectly. On testnet the contract account still holds its full-access key (it could redeploy code); the mainnet plan removes it (see [SECURITY_REVIEW.md](SECURITY_REVIEW.md), C-2).
 
 **Player market.** Escrowed listings (min 0.01 NEAR, max 25 per seller). Buying removes the listing first, then pays the seller (price − fee) and delivers the item in the same receipt, which makes double-buys impossible.
 
@@ -192,8 +195,8 @@ Copy `.env.example` to `.env.local`. Every variable is optional for local play.
 
 | Command | What it covers | Result in this repo |
 |---|---|---|
-| `npm run test:contract` | 34 contract unit tests: claims (forgery, replay, expiry, wrong account/contract, supply), NEP-245, soulbound, market, NPC curve and limits, access control | 34/34 ✅ |
-| `npm test` | 32 server tests (incl. the SQLite adapter): proximity, duplicates, cooldown, supply races, GPS quality, jump detection, zone separation, daily cap, spawning, quests, missions, exchanges, shop, ticket signing, settlement, real NEP-413 verification | 32/32 ✅ |
+| `npm run test:contract` | 42 contract unit tests: claims (forgery, replay, expiry, wrong account/contract, supply, daily and hourly limits), NEP-245, soulbound, market, NPC curve and limits, storage deposits, economy lock, access control | 42/42 ✅ |
+| `npm test` | 37 server tests (incl. the SQLite adapter and security checks: proxy-aware client IP, demo rewards refused on mainnet): proximity, duplicates, cooldown, supply races, GPS quality, jump detection, zone separation, daily cap, spawning, quests, missions, exchanges, shop, ticket signing, settlement, real NEP-413 verification | 37/37 ✅ |
 | `npm run test:e2e` | Browser walkthrough (iPhone viewport + desktop) of the landing page, core loop, admin authorisation and duplicate rejection | 14/14 ✅ |
 | `npm run test:e2e:gps` | Emulated GPS walk: first-fix centring, follow mode, drag-to-pause, Recenter, arrival (vibration, toast, auto-open) | 6/6 ✅ |
 | `npm run test:sandbox` | Local NEAR node: real deploy, wallet login, claim tx, settlement, forgery/replay/theft, NPC allocation, escrow market, fee, curve, buyback, `mt_transfer_call` refund, auth | 30/30 ✅ |

@@ -36,8 +36,12 @@ export function playerForToken(token: string | undefined): PlayerRow | null {
 }
 
 export async function startSession(playerId: string) {
+  const jar = await cookies();
+  // Rotate: the previous session token (e.g. a guest session) stops working.
+  const previous = jar.get(SESSION_COOKIE)?.value;
+  if (previous) db().prepare("DELETE FROM sessions WHERE token_hash = ?").run(sha(previous));
   const token = createSessionToken(playerId);
-  (await cookies()).set(SESSION_COOKIE, token, {
+  jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: serverEnv.isProd,

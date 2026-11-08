@@ -21,7 +21,7 @@ No key or secret is committed, and none is bundled into the browser: only `NEXT_
 - **NEP-245:** 1 yoctoNEAR is required on transfers, listing, cancel and sell (full-access key confirmation). Soulbound items can't be transferred or listed. `mt_resolve_transfer` reads promise results with a bounded size, so a hostile receiver can't make it run out of gas, and it refunds at most what the receiver still holds.
 - **Integers:** `u128` balances, `checked_add` on credits, explicit `require!` before subtraction; release profile has `overflow-checks = true`.
 - **Pause switch:** `set_paused` halts claims, transfers and trading.
-- **Tests:** 34 unit tests plus a 30-check integration run on a real `neard` node (forgery, replay, stolen tickets, unauthorized admin calls, double-buy).
+- **Tests:** 42 unit tests plus a 34-check integration run on a real `neard` node (forgery, replay, stolen tickets, unauthorized admin calls, double-buy).
 
 **Residual risks:** the owner can rotate the oracle key, add items and set NPC offers (but not raise supply caps or withdraw treasuries). A compromised oracle key could mint items up to the remaining caps and allocations until it's rotated. No external audit has been done.
 

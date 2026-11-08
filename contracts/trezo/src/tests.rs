@@ -48,6 +48,11 @@ fn setup() -> Contract {
     c.upsert_npc("keeper".into(), "The Treasure Keeper".into(), "guardian".into(), U128(0));
     c.set_npc_offer("keeper".into(), "relic-compass".into(), U128(1), U128(0), 0);
     c.set_npc_offer("merchant".into(), "shard-gem".into(), U128(100), U128(NEAR / 10), 6000);
+    for p in [alice(), bob(), acc("carol.testnet")] {
+        ctx(p, NEAR / 10);
+        c.storage_deposit(None);
+    }
+    ctx(owner(), 0);
     c
 }
 
@@ -497,4 +502,93 @@ fn register_with_deposit() {
     let p = c.register_player(Some("alice_01".into()));
     assert_eq!(p.username.as_deref(), Some("alice_01"));
     assert_eq!(c.get_stats().players, 1);
+}
+
+// ------------------------- storage / limits / lock -------------------------
+
+#[test]
+#[should_panic(expected = "Storage deposit required")]
+fn transfer_to_new_account_requires_storage_deposit() {
+    let mut c = setup();
+    give_alice_gems(&mut c, 3);
+    ctx(alice(), 1);
+    c.storage_withdraw(None);
+    ctx(alice(), 1);
+    c.mt_transfer(acc("fresh1.testnet"), "shard-gem".into(), U128(1), None, None);
+}
+
+#[test]
+fn storage_is_charged_to_sender_and_withdrawable() {
+    let mut c = setup();
+    give_alice_gems(&mut c, 3);
+    let before = c.storage_balance_of(alice()).0;
+    ctx(alice(), 1);
+    c.mt_transfer(acc("fresh1.testnet"), "shard-gem".into(), U128(1), None, None);
+    let after = c.storage_balance_of(alice()).0;
+    assert!(after < before, "sender storage balance should be charged");
+    ctx(alice(), 1);
+    assert_eq!(c.storage_withdraw(None).0, 0);
+    assert_eq!(c.storage_balance_of(alice()).0, 0);
+}
+
+#[test]
+#[should_panic(expected = "Requires attached deposit of exactly 1 yoctoNEAR")]
+fn storage_withdraw_requires_one_yocto() {
+    let mut c = setup();
+    ctx(alice(), 0);
+    c.storage_withdraw(None);
+}
+
+#[test]
+#[should_panic(expected = "Daily claim limit reached")]
+fn claim_daily_limit_per_account() {
+    let mut c = setup();
+    ctx(alice(), 0);
+    let ids: Vec<String> = (0..=MAX_TICKETS_PER_ACCOUNT_PER_DAY).map(|i| format!("tk{}", i)).collect();
+    let refs: Vec<String> = (0..=MAX_TICKETS_PER_ACCOUNT_PER_DAY).map(|i| format!("treasure-{}", i)).collect();
+    for i in 0..=MAX_TICKETS_PER_ACCOUNT_PER_DAY as usize {
+        let id: &'static str = Box::leak(ids[i].clone().into_boxed_str());
+        let r: &'static str = Box::leak(refs[i].clone().into_boxed_str());
+        let (t, s) = T::treasure(id, alice(), r, 5).sign();
+        ctx(alice(), 0);
+        c.claim(t, s);
+    }
+}
+
+#[test]
+#[should_panic(expected = "Global hourly mint ceiling reached")]
+fn claim_global_hourly_ceiling() {
+    let mut c = setup();
+    c.mint_hour = NOW_MS / (60 * 60 * 1000);
+    c.mint_hour_count = MAX_ORACLE_ITEMS_PER_HOUR;
+    ctx(alice(), 0);
+    let (t, s) = T::treasure("tk1", alice(), "treasure-1", 5).sign();
+    c.claim(t, s);
+}
+
+#[test]
+#[should_panic(expected = "Economy is locked")]
+fn lock_economy_freezes_offers() {
+    let mut c = setup();
+    ctx(owner(), 0);
+    c.lock_economy();
+    assert!(c.get_stats().economy_locked);
+    c.set_npc_offer("merchant".into(), "shard-gem".into(), U128(1000), U128(1), 9000);
+}
+
+#[test]
+#[should_panic(expected = "Economy is locked")]
+fn lock_economy_freezes_fee() {
+    let mut c = setup();
+    ctx(owner(), 0);
+    c.lock_economy();
+    c.set_market_fee_bps(1000);
+}
+
+#[test]
+#[should_panic(expected = "Only the contract owner")]
+fn lock_economy_owner_only() {
+    let mut c = setup();
+    ctx(alice(), 0);
+    c.lock_economy();
 }

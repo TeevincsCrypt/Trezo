@@ -63,6 +63,8 @@ export function issueTicket(playerId: string, rewardId: string) {
     if (!p.account_id) fail("wallet_required", "Connect a NEAR wallet to mint rewards on-chain.", 401);
     const r = (db().prepare("SELECT * FROM rewards WHERE id = ? AND player_id = ?").get(rewardId, playerId) as RewardRow | undefined) ?? fail("not_found", "Reward not found", 404);
     if (r.onchain_status === "settled") fail("settled", "This reward is already on-chain.");
+    // Demo-zone rewards use a simulated location: never mint them on mainnet.
+    if (r.demo && publicConfig.network === "mainnet") fail("demo_offchain", "Demo-zone rewards stay off-chain on mainnet. Find a real treasure to mint.", 403);
     const items = db()
       .prepare("SELECT item_id, SUM(qty) AS qty FROM reward_items WHERE reward_id = ? AND status IN ('vault','minting') GROUP BY item_id")
       .all(r.id) as { item_id: string; qty: number }[];

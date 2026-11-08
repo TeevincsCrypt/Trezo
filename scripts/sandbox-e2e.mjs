@@ -219,6 +219,17 @@ try {
   const sb = await tx(acc.alice, ids.trezo, "mt_transfer", { receiver_id: ids.bob, token_id: "badge-pioneer", amount: "1", approval: null, memo: null }, 1n);
   !sb.ok && /soulbound/.test(sb.failure) ? pass("soulbound badge cannot be transferred") : fail("soulbound transfer", sb.failure);
 
+  // Storage deposits (C-1): state growth is paid by the caller, not the contract
+  const noStorage = await tx(acc.alice, ids.trezo, "list_item", { token_id: t.rewardItemId, amount: "1", price: (NEAR / 2n).toString() }, 1n);
+  !noStorage.ok && /Storage deposit required/.test(noStorage.failure) ? pass("listing without a storage deposit is rejected") : fail("storage not enforced", noStorage.failure);
+  for (const who of ["alice", "bob"]) await tx(acc[who], ids.trezo, "storage_deposit", {}, NEAR / 50n);
+  (await view("storage_balance_of", { account_id: ids.alice })) === (NEAR / 50n).toString() ? pass("storage_deposit credited", "0.02 NEAR") : fail("storage_deposit");
+
+  // Economy lock (C-3): deploy script locked it; owner can no longer change offers
+  const st = await view("get_stats");
+  const relock = await tx(acc.trezo, ids.trezo, "set_npc_offer", { npc_id: "merchant", token_id: "gem-glimmer", allocation: "9999", base_price: "1", buyback_bps: 9000 });
+  st.economy_locked && !relock.ok && /Economy is locked/.test(relock.failure) ? pass("economy locked: owner cannot change NPC offers") : fail("economy lock", `${st.economy_locked} ${relock.failure}`);
+
   // Marketplace: list → buy (escrow, payment, fee) → double buy rejected
   const price = NEAR / 2n;
   const l = await tx(acc.alice, ids.trezo, "list_item", { token_id: t.rewardItemId, amount: "1", price: price.toString() }, 1n);
@@ -262,6 +273,10 @@ try {
   const bobNone = await view("mt_balance_of", { account_id: ids.bob, token_id: t.rewardItemId });
   tc.ok && aliceBack === "1" && bobNone === "0" ? pass("mt_transfer_call to non-contract refunded by mt_resolve_transfer") : fail("transfer_call refund", `${tc.failure} alice=${aliceBack} bob=${bobNone}`);
 
+  // Storage withdraw returns unused deposit
+  const sw = await tx(acc.alice, ids.trezo, "storage_withdraw", { amount: null }, 1n);
+  sw.ok && (await view("storage_balance_of", { account_id: ids.alice })) === "0" ? pass("storage_withdraw returned unused deposit") : fail("storage_withdraw", sw.failure);
+
   // Authorization
   const adm = await tx(acc.bob, ids.trezo, "add_item_type", { token_id: "hack", name: "x", description: "", media: null, rarity: "Common", category: "x", transferable: true, max_supply: "1" });
   !adm.ok && /Only the contract owner/.test(adm.failure) ? pass("non-owner cannot call admin methods") : fail("auth", adm.failure);
@@ -271,6 +286,7 @@ try {
 
   if (process.argv.includes("--keep")) {
     // Leave a live listing and keep everything running for manual/UI inspection.
+    await tx(acc.alice, ids.trezo, "storage_deposit", {}, NEAR / 50n);
     await tx(acc.alice, ids.trezo, "list_item", { token_id: t.rewardItemId, amount: "1", price: (NEAR / 4n).toString() }, 1n);
     console.log(`\n--keep: app ${APP} ↔ sandbox ${sandbox.rpcUrl} (contract ${ids.trezo}). Ctrl-C to stop.`);
     await new Promise((resolve) => process.on("SIGINT", resolve).on("SIGTERM", resolve));

@@ -84,14 +84,41 @@ function decodeReturn(status: unknown): unknown {
   return null;
 }
 
+/**
+ * Methods where the caller pays for any new contract storage they create
+ * (see `storage_deposit` in the contract). Claims are contract-paid.
+ */
+const STORAGE_METHODS = new Set(["mt_transfer", "mt_batch_transfer", "mt_transfer_call", "mt_batch_transfer_call", "list_item", "cancel_listing", "buy_listing", "npc_buy"]);
+/** Top up when the prepaid balance is below this (~3 new entries). */
+export const STORAGE_MIN_YOCTO = 10_000_000_000_000_000_000_000n; // 0.01 NEAR
+export const STORAGE_TOPUP_YOCTO = 20_000_000_000_000_000_000_000n; // 0.02 NEAR (withdrawable)
+
+async function storageTopUp(accountId: string): Promise<bigint> {
+  try {
+    const bal = await viewContract<string>("storage_balance_of", { account_id: accountId });
+    return BigInt(bal ?? "0") >= STORAGE_MIN_YOCTO ? 0n : STORAGE_TOPUP_YOCTO;
+  } catch {
+    // Older contract without storage deposits: nothing to add.
+    return 0n;
+  }
+}
+
 /** Call a change method on the TREZO contract through the user's wallet. */
 export async function callContract(method: string, args: Record<string, unknown>, opts: { deposit?: string; gasTgas?: number } = {}): Promise<TxResult> {
   if (!publicConfig.contractId) throw new Error("TREZO contract is not configured");
   const c = await getConnector();
   const wallet = await c.wallet();
+  // Storage top-up rides in the same transaction, so it is still one approval.
+  const pre: { type: "FunctionCall"; params: { methodName: string; args: Record<string, unknown>; gas: string; deposit: string } }[] = [];
+  if (STORAGE_METHODS.has(method)) {
+    const accountId = (await wallet.getAccounts())[0]?.accountId;
+    const topUp = accountId ? await storageTopUp(accountId) : 0n;
+    if (topUp > 0n) pre.push({ type: "FunctionCall", params: { methodName: "storage_deposit", args: {}, gas: "10000000000000", deposit: topUp.toString() } });
+  }
   const outcome = (await wallet.signAndSendTransaction({
     receiverId: publicConfig.contractId,
     actions: [
+      ...pre,
       {
         type: "FunctionCall",
         params: {

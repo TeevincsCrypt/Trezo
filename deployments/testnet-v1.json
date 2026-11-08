@@ -1,0 +1,54 @@
+{
+  "network": "testnet",
+  "contractId": "trezo-game-0e8b06.testnet",
+  "rpcUrl": "https://test.rpc.fastnear.com",
+  "deployedAt": "2026-11-07T11:39:23.733Z",
+  "transactions": [
+    {
+      "label": "deploy + init",
+      "hash": "BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe",
+      "url": "https://testnet.nearblocks.io/txns/BHJzHKfYP9yTNcgn39x3ykTpE5YJZgaCgiQ3wmSihMZe"
+    },
+    {
+      "label": "add_item_type ×8",
+      "hash": "CKo9Fi5Yf32aqvZ7MfHTsBapvKxRgBo4w5azQtfSptXE",
+      "url": "https://testnet.nearblocks.io/txns/CKo9Fi5Yf32aqvZ7MfHTsBapvKxRgBo4w5azQtfSptXE"
+    },
+    {
+      "label": "add_item_type ×5",
+      "hash": "2LGQqaqGEXyymecgzzEyQ1nLoekGtD7t8zxtWYdUd1fp",
+      "url": "https://testnet.nearblocks.io/txns/2LGQqaqGEXyymecgzzEyQ1nLoekGtD7t8zxtWYdUd1fp"
+    },
+    {
+      "label": "upsert NPCs",
+      "hash": "FvkLSvPssQAETEPDqbR7nd17WoW3sfSv41KVY6kjzLzZ",
+      "url": "https://testnet.nearblocks.io/txns/FvkLSvPssQAETEPDqbR7nd17WoW3sfSv41KVY6kjzLzZ"
+    },
+    {
+      "label": "set_npc_offer ×8",
+      "hash": "6aunbXZFE8A4izHdFES3Vot77Wu35dZavbPHTcmwcEfN",
+      "url": "https://testnet.nearblocks.io/txns/6aunbXZFE8A4izHdFES3Vot77Wu35dZavbPHTcmwcEfN"
+    },
+    {
+      "label": "set_npc_offer ×2",
+      "hash": "kr1NYpjo1GthUJX3TecHNY7iqpsiQWxeP1FSiwvEMJ9",
+      "url": "https://testnet.nearblocks.io/txns/kr1NYpjo1GthUJX3TecHNY7iqpsiQWxeP1FSiwvEMJ9"
+    },
+    {
+      "label": "fund_npc merchant (0.5 NEAR)",
+      "hash": "DiejiswYidHVhZFze3WNV982sfjawehMckyxFfAThDv2",
+      "url": "https://testnet.nearblocks.io/txns/DiejiswYidHVhZFze3WNV982sfjawehMckyxFfAThDv2"
+    }
+  ],
+  "stats": {
+    "owner_id": "trezo-game-0e8b06.testnet",
+    "oracle_public_key": "wSJv/MHX/IarrEaF3ql7EFsYXiamREGAt53joFU76ks=",
+    "paused": false,
+    "players": 0,
+    "claims": 0,
+    "item_types": 13,
+    "active_listings": 0,
+    "market_fee_bps": 250,
+    "total_market_volume": "0"
+  }
+}
