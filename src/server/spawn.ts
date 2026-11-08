@@ -1,5 +1,5 @@
 import "server-only";
-import type Database from "better-sqlite3";
+import type { Database } from "./sqlite";
 import { ECONOMY, RARITY, type Rarity } from "@/lib/rules";
 import { cellKey, offsetM, type LatLng } from "@/lib/geo";
 import { rng } from "@/lib/rng";
@@ -63,7 +63,7 @@ export function makeTreasure(
   };
 }
 
-export function insertTreasure(db: Database.Database, t: TreasureSpec) {
+export function insertTreasure(db: Database, t: TreasureSpec) {
   db.prepare(
     `INSERT OR IGNORE INTO treasures (id,name,description,lat,lng,rarity,reward_shards,reward_xp,reward_item_id,reward_item_qty,max_claims,claim_radius_m,zone,source,expires_at,created_at)
      VALUES (@id,@name,@description,@lat,@lng,@rarity,@reward_shards,@reward_xp,@reward_item_id,@reward_item_qty,@max_claims,@claim_radius_m,@zone,@source,@expires_at,@created_at)`,
@@ -77,7 +77,7 @@ export function insertTreasure(db: Database.Database, t: TreasureSpec) {
  * bounded: spawnPerCell treasures per cell per day, each with limited claims.
  * Returns the number of treasures created.
  */
-export function ensureSpawnField(db: Database.Database, p: LatLng, t = Date.now()): number {
+export function ensureSpawnField(db: Database, p: LatLng, t = Date.now()): number {
   const day = utcDay(t);
   const size = ECONOMY.spawnCellDeg;
   const cell = cellKey(p, size);

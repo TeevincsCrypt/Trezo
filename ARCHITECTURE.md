@@ -26,7 +26,7 @@
 │ auth.ts     sessions, NEP-413, admin  │  │  NPC treasuries & curve      │
 │ oracle.ts   ticket signing/settlement │──┼─▶ get_claim (settlement read)│
 │ near.ts     RPC provider, verifier    │  └──────────────────────────────┘
-│ db.ts       SQLite (better-sqlite3)   │
+│ db.ts       SQLite (node:sqlite)      │
 └───────────────────────────────────────┘
 ```
 
@@ -95,6 +95,10 @@ Storage uses `near_sdk::store` collections. Balances are keyed `(token_id, accou
 - `src/components/onchain/*`: `MintButton` (ticket → tx → settle), `OnchainAction` (any signed call that reports the real outcome), `NpcTreasury`, `useOnchainHoldings`.
 - Overlays (`Sheet`, reveal) are portalled to `<body>`, so they escape the map's stacking context.
 - Map: MapLibre's ES-module worker is copied to `public/maplibre` (`postinstall`) and wired with `setWorkerUrl`. Style URLs fall back in order and then to an offline grid, so gameplay never depends on a tile provider.
+
+## Database driver
+
+TREZO uses Node's built-in `node:sqlite` through a small adapter (`src/server/sqlite.ts`) that provides the better-sqlite3-style API the game uses: `prepare().get/all/run`, and `transaction()` nested via savepoints. The earlier `better-sqlite3` native addon segfaulted on Railway's build image; the built-in module needs no compilation. The database uses the classic rollback journal (not WAL), which avoids shared-memory mmap on container volumes.
 
 ## Scaling notes
 

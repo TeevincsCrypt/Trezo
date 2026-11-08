@@ -1,4 +1,4 @@
-import type Database from "better-sqlite3";
+import type { Database } from "./sqlite";
 import crypto from "node:crypto";
 import catalog from "@/data/catalog.json";
 import { publicConfig } from "@/lib/config";
@@ -12,7 +12,7 @@ const iso = (s?: string) => (s ? Date.parse(s) : null);
  * set of SAMPLE players for the leaderboard. Sample players are flagged
  * `is_sample = 1` and rendered with a "Sample" tag in the UI.
  */
-export function seedDatabase(db: Database.Database) {
+export function seedDatabase(db: Database) {
   const t0 = Date.now();
   const tx = db.transaction(() => {
     const item = db.prepare(
@@ -78,7 +78,7 @@ const SAMPLE_PLAYERS: [string, string, number, number, number, number, number][]
   ["ZeroToHero", "fox", 240, 6, 2, 0, 1],
 ];
 
-function seedSamplePlayers(db: Database.Database, t0: number) {
+function seedSamplePlayers(db: Database, t0: number) {
   const ins = db.prepare(
     `INSERT OR IGNORE INTO players (id,username,avatar,is_guest,is_sample,xp,shards,treasures_found,rare_found,missions_completed,quests_completed,distance_m,streak_days,created_at)
      VALUES (@id,@username,@avatar,1,1,@xp,@shards,@treasures,@rare,@missions,@quests,@distance,@streak,@created)`,

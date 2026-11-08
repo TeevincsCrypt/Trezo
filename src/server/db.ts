@@ -1,5 +1,5 @@
 import "server-only";
-import Database from "better-sqlite3";
+import { Database } from "./sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import { serverEnv } from "./env";
@@ -275,13 +275,16 @@ CREATE TABLE IF NOT EXISTS admin_log (
 );
 `;
 
-type DB = Database.Database;
+type DB = Database;
 const g = globalThis as unknown as { __trezoDb?: DB };
 
 export function openDatabase(file: string): DB {
   if (file !== ":memory:") fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
   const db = new Database(file);
-  db.pragma("journal_mode = WAL");
+  // Rollback journal (not WAL): WAL needs shared-memory mmap, which some
+  // container volumes handle poorly. Single-process writes make WAL unnecessary.
+  db.pragma("journal_mode = DELETE");
+  db.pragma("synchronous = NORMAL");
   db.pragma("busy_timeout = 5000");
   db.exec(SCHEMA);
   const seeded = db.prepare("SELECT COUNT(*) AS n FROM item_types").get() as { n: number };

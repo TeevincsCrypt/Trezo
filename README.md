@@ -36,7 +36,7 @@ These come from `scripts/testnet-demo.mjs` ([record](deployments/testnet-demo.js
 
 ```bash
 git clone https://github.com/TeevincsCrypt/Trezo.git && cd Trezo
-npm install            # Node ≥ 20.9 (tested on Node 22)
+npm install            # Node 22 (≥ 22.13; uses the built-in node:sqlite)
 npm run dev            # http://localhost:3000
 ```
 
@@ -95,7 +95,7 @@ Browser (Next.js 16 / React 19, mobile-first)
         │ JSON API (zod-validated, rate-limited, httpOnly session cookie)
 Next.js route handlers (server)
   ├─ game engine: proximity claims, anti-cheat, Shard economy, quests, NPC missions, shop
-  ├─ SQLite (better-sqlite3): profiles, treasures, rewards, quest/mission state, audit logs
+  ├─ SQLite (built-in node:sqlite): profiles, treasures, rewards, quest/mission state, audit logs
   ├─ NEP-413 verifier (near-api-js/nep413) ── checks the key is a FullAccess key via RPC
   └─ Oracle: signs short-lived *claim tickets* (ed25519) after validation; holds no NEAR
         │ ticket + signature, submitted by the PLAYER's wallet
@@ -191,7 +191,7 @@ Copy `.env.example` to `.env.local`. Every variable is optional for local play.
 | Command | What it covers | Result in this repo |
 |---|---|---|
 | `npm run test:contract` | 34 contract unit tests: claims (forgery, replay, expiry, wrong account/contract, supply), NEP-245, soulbound, market, NPC curve and limits, access control | 34/34 ✅ |
-| `npm test` | 29 server tests: proximity, duplicates, cooldown, supply races, GPS quality, jump detection, zone separation, daily cap, spawning, quests, missions, exchanges, shop, ticket signing, settlement, real NEP-413 verification | 29/29 ✅ |
+| `npm test` | 32 server tests (incl. the SQLite adapter): proximity, duplicates, cooldown, supply races, GPS quality, jump detection, zone separation, daily cap, spawning, quests, missions, exchanges, shop, ticket signing, settlement, real NEP-413 verification | 32/32 ✅ |
 | `npm run test:e2e` | Browser walkthrough (iPhone viewport + desktop) of the landing page, core loop, admin authorisation and duplicate rejection | 14/14 ✅ |
 | `npm run test:sandbox` | Local NEAR node: real deploy, wallet login, claim tx, settlement, forgery/replay/theft, NPC allocation, escrow market, fee, curve, buyback, `mt_transfer_call` refund, auth | 30/30 ✅ |
 | `npm run typecheck`, `npm run build` | TypeScript and production build | ✅ |

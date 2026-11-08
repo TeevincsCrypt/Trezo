@@ -1,5 +1,10 @@
 # Development log
 
+## 2026-11-08: live deployment fix
+- Railway crashed with `Segmentation fault` on every database request. The `better-sqlite3` native addon was incompatible with the host image.
+- Replaced it with Node's built-in `node:sqlite` behind `src/server/sqlite.ts`, which keeps the same API with lenient parameter binding and savepoint-nested transactions, plus 3 new adapter tests (32 server tests total). Switched to the rollback journal, pinned Node 22, and removed the native dependency.
+- Verified a production build on a fresh database file: all DB routes return 200 and the E2E smoke test passes 14/14.
+
 ## 2026-11-08: UI redesign
 - New light visual system, inspired by a reference shot the team supplied: warm paper canvas, porcelain cards, ink primary surfaces, a single ember accent, Unbounded display type, and a concentric-ring logo.
 - New public landing page at `/` (it previously redirected to `/explore`), with live server stats and the testnet contract link.

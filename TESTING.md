@@ -19,7 +19,7 @@ These use near-sdk's mocked runtime with **real ed25519 signatures** (`ed25519-d
 | NPC market | price rises with sales; buyback pays from treasury and lowers price; no buy→sell profit; daily limit; can't overspend treasury; anyone can fund |
 | Access control | owner-only items and oracle key; pause; supply cap can't be raised; registration deposit |
 
-## 2. Server tests (vitest): 29 tests
+## 2. Server tests (vitest): 32 tests
 
 ```bash
 npm test
