@@ -1,5 +1,10 @@
 # Development log
 
+## 2026-11-08: Docker deployment
+- Railway's Railpack builder failed to download from GitHub (outage on their side), blocking deploys. Added a `Dockerfile` (node:22-slim, multi-stage, `NEXT_PUBLIC_*` as build args, honours `PORT`, DB on `/data`) and a `.dockerignore`; Railway uses the Dockerfile automatically.
+- The container test caught a real bug: empty build args made `NEXT_PUBLIC_DEMO_LAT=""` parse as `0`, moving the demo zone to 0°, 0°. `src/lib/config.ts` now treats empty values as unset.
+- Verified in the built image with a fresh volume: smoke test 14/14, GPS test 6/6.
+
 ## 2026-11-08: map usability
 - **Follow mode:** the camera tracks the player as they walk; dragging pauses it and ⌖ re-locks it (black when following).
 - **First GPS fix** now centres the map. Before, it could stay on the default demo area until Recenter was tapped.

@@ -94,7 +94,8 @@ Then, in the browser: create a profile, go to **Profile → Connect NEAR wallet*
 > Requires **Node 22 (≥ 22.13)**, pinned via `.nvmrc`, `.node-version` and `engines`. SQLite is Node's built-in `node:sqlite`, so there's no native module to compile.
 
 ### Railway (what the live deployment uses)
-1. New project → Deploy from GitHub → `main`. Build `npm run build`, start `npm start`.
+The repo ships a tested `Dockerfile`, which Railway uses automatically. That avoids Railpack's builder download, which failed during a Railway/GitHub outage. Leave the custom build and start commands empty.
+1. New project → Deploy from GitHub → `main`.
 2. Attach a volume at `/data`.
 3. Variables: `NEXT_PUBLIC_NEAR_NETWORK`, `NEXT_PUBLIC_TREZO_CONTRACT_ID`, `TREZO_ORACLE_SECRET_KEY`, `TREZO_SESSION_SECRET`, `TREZO_ADMIN_TOKEN`, `TREZO_DB_PATH=/data/trezo.db`. Redeploy after setting `NEXT_PUBLIC_*`, since they're compiled in.
 4. Check `/api/config` shows `onchainSettlement: true`.

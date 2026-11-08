@@ -27,10 +27,12 @@ export const publicConfig = {
     .map((s) => s.trim())
     .filter(Boolean),
   /** Centre of the clearly-labelled demo exploration zone. */
+  // `||` (not `??`): hosts and Docker build args often pass *empty* strings,
+  // and Number("") is 0, which would move the demo zone to 0°, 0°.
   demoCenter: {
-    lat: Number(process.env.NEXT_PUBLIC_DEMO_LAT ?? 40.7812),
-    lng: Number(process.env.NEXT_PUBLIC_DEMO_LNG ?? -73.9665),
-    name: process.env.NEXT_PUBLIC_DEMO_NAME ?? "Central Park Demo Zone",
+    lat: Number(process.env.NEXT_PUBLIC_DEMO_LAT || 40.7812),
+    lng: Number(process.env.NEXT_PUBLIC_DEMO_LNG || -73.9665),
+    name: process.env.NEXT_PUBLIC_DEMO_NAME || "Central Park Demo Zone",
   },
 };
 
