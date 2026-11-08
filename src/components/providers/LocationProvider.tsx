@@ -6,7 +6,12 @@ import { publicConfig } from "@/lib/config";
 import { useGame } from "./GameProvider";
 
 export type LocMode = "gps" | "demo";
-export type GpsState = "idle" | "prompt" | "watching" | "denied" | "unavailable" | "error";
+export type GpsState = "idle" | "prompt" | "slow" | "watching" | "denied" | "unavailable" | "error";
+
+/** Fixes at or below this accuracy count as "precise" (claims need ≤ 75 m server-side). */
+export const PRECISE_M = 75;
+/** Fixes worse than this are display-only: never sent to the server (anti-cheat). */
+const REPORT_MAX_M = 150;
 
 interface LocationCtx {
   mode: LocMode;
@@ -15,6 +20,8 @@ interface LocationCtx {
   accuracy: number | null;
   /** Direction of travel in degrees from GPS (only while moving), else null. */
   heading: number | null;
+  /** True once we have a GPS fix good enough to open treasures (demo mode: always true). */
+  precise: boolean;
   /** Ask for permission and start watching real GPS. */
   startGps: () => void;
   /** Switch to the clearly-labelled demo zone with a simulated position. */
@@ -54,26 +61,42 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     } catch {}
     setMode("gps");
     setPosition(null);
+    setAccuracy(null);
     setGpsState("prompt");
     stopWatch();
-    watchId.current = navigator.geolocation.watchPosition(
+    let gotFix = false;
+    let gotPrecise = false;
+
+    const apply = (p: GeolocationPosition) => {
+      gotFix = true;
+      if ((p.coords.accuracy ?? 9999) <= PRECISE_M) gotPrecise = true;
+      setGpsState("watching");
+      setPosition({ lat: p.coords.latitude, lng: p.coords.longitude });
+      setAccuracy(p.coords.accuracy ?? null);
+      // GPS heading is only meaningful while moving; keep the last value for 10 s.
+      const h = p.coords.heading;
+      if (h != null && Number.isFinite(h) && (p.coords.speed ?? 1) > 0.4) {
+        setHeading(h);
+        headingAt.current = Date.now();
+      } else if (Date.now() - headingAt.current > 10_000) setHeading(null);
+      setLastFixAt(Date.now());
+    };
+
+    // 1) Fast, rough fix (Wi-Fi / cell, usually < 1 s) so the map appears right away.
+    navigator.geolocation.getCurrentPosition(
       (p) => {
-        setGpsState("watching");
-        setPosition({ lat: p.coords.latitude, lng: p.coords.longitude });
-        setAccuracy(p.coords.accuracy ?? null);
-        // GPS heading is only meaningful while moving; keep the last value for 10 s.
-        const h = p.coords.heading;
-        if (h != null && Number.isFinite(h) && (p.coords.speed ?? 1) > 0.4) {
-          setHeading(h);
-          headingAt.current = Date.now();
-        } else if (Date.now() - headingAt.current > 10_000) setHeading(null);
-        setLastFixAt(Date.now());
+        if (!gotPrecise) apply(p);
       },
-      (err) => {
-        setGpsState(err.code === err.PERMISSION_DENIED ? "denied" : err.code === err.POSITION_UNAVAILABLE ? "unavailable" : "error");
-      },
-      { enableHighAccuracy: true, maximumAge: 5_000, timeout: 20_000 },
+      () => {},
+      { enableHighAccuracy: false, maximumAge: 120_000, timeout: 10_000 },
     );
+
+    // 2) Precise GPS keeps refining in the background. A timeout is not a failure:
+    //    cold GPS can take a minute, so we keep waiting and tell the player.
+    watchId.current = navigator.geolocation.watchPosition(apply, (err) => {
+      if (err.code === err.PERMISSION_DENIED) setGpsState("denied");
+      else if (!gotFix) setGpsState("slow");
+    }, { enableHighAccuracy: true, maximumAge: 10_000, timeout: 30_000 });
   }, []);
 
   const enterDemo = useCallback((pos?: LatLng) => {
@@ -111,6 +134,9 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   // Report position to the server (throttled): distance, exploration, streak, spawning.
   useEffect(() => {
     if (!me || !position) return;
+    // Rough network fixes are display-only: sending them would make the jump to
+    // the precise fix look like teleporting to the anti-cheat.
+    if (mode === "gps" && (accuracy == null || accuracy > REPORT_MAX_M)) return;
     const prev = lastSent.current;
     const now = Date.now();
     if (prev && now - prev.at < 12_000 && distanceM(prev.pos, position) < 15) return;
@@ -122,9 +148,10 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       .catch(() => {});
   }, [me, position, accuracy, mode, notify]);
 
+  const precise = mode === "demo" || (accuracy != null && accuracy <= PRECISE_M);
   const value = useMemo(
-    () => ({ mode, gpsState, position, accuracy, heading, startGps, enterDemo, setDemoPosition, lastFixAt }),
-    [mode, gpsState, position, accuracy, heading, startGps, enterDemo, setDemoPosition, lastFixAt],
+    () => ({ mode, gpsState, position, accuracy, heading, precise, startGps, enterDemo, setDemoPosition, lastFixAt }),
+    [mode, gpsState, position, accuracy, heading, precise, startGps, enterDemo, setDemoPosition, lastFixAt],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-11-08: faster location, wallet guidance
+- Tester feedback: finding the location took very long. Precise GPS is now refined in the background after a **rough Wi-Fi/cell fix shown in ~0.5 s** ("Approximate · sharpening GPS…").
+- A GPS timeout no longer shows "Can't find your location"; it says "Still finding you…" and keeps trying.
+- Rough fixes (> 150 m) are never sent to the server, so they can't trip the jump detector. Arrival and claims wait for precise GPS (≤ 75 m).
+- NEAR Mobile is mainnet-only in the NEAR Connect manifest, so it's hidden on testnet. The profile now explains this and suggests Meteor Web (choose "Meteor Web" inside the Meteor app).
+- New `scripts/e2e-gps-slow.cjs` (4 checks); `npm run test:e2e:gps` runs both GPS suites.
+
 ## 2026-11-08: Docker deployment
 - Railway's Railpack builder failed to download from GitHub (outage on their side), blocking deploys. Added a `Dockerfile` (node:22-slim, multi-stage, `NEXT_PUBLIC_*` as build args, honours `PORT`, DB on `/data`) and a `.dockerignore`; Railway uses the Dockerfile automatically.
 - The container test caught a real bug: empty build args made `NEXT_PUBLIC_DEMO_LAT=""` parse as `0`, moving the demo zone to 0°, 0°. `src/lib/config.ts` now treats empty values as unset.

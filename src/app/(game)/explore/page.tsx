@@ -89,7 +89,8 @@ export default function ExplorePage() {
 
   // Arrival: entering a treasure's claim radius buzzes the phone, highlights the
   // marker and opens the treasure once, so it can be opened with one tap.
-  const inRangeIds = useMemo(() => new Set(available.filter((t) => t.distanceM <= t.claimRadiusM).map((t) => t.id)), [available]);
+  // Only with precise GPS: a rough Wi-Fi/cell fix must not trigger arrival.
+  const inRangeIds = useMemo(() => new Set(loc.precise ? available.filter((t) => t.distanceM <= t.claimRadiusM).map((t) => t.id) : []), [available, loc.precise]);
   useEffect(() => {
     for (const id of inRangeIds) {
       if (arrived.current.has(id)) continue;
@@ -297,6 +298,15 @@ function ModeBanner({ browse, onExitBrowse }: { browse: boolean; onExitBrowse: (
       </div>
     );
   if (!loc.position) return null;
+  if (!loc.precise)
+    return (
+      <div className="hud-glass flex items-center gap-2 rounded-full px-4 py-2 text-[12px]">
+        <Spinner className="!h-3.5 !w-3.5 text-gold" />
+        <span className="whitespace-nowrap text-muted">
+          Approximate{loc.accuracy ? ` ±${loc.accuracy >= 1000 ? `${(loc.accuracy / 1000).toFixed(1)} km` : `${Math.round(loc.accuracy)} m`}` : ""} · sharpening GPS…
+        </span>
+      </div>
+    );
   return (
     <div className="hud-glass flex items-center gap-2 rounded-full px-4 py-2 text-[12px]">
       <span className="relative flex h-2 w-2">
@@ -316,6 +326,7 @@ function LocationGate() {
   const denied = loc.gpsState === "denied";
   const failed = loc.gpsState === "unavailable" || loc.gpsState === "error";
   const waiting = loc.gpsState === "prompt";
+  const slow = loc.gpsState === "slow";
   return (
     <div className="absolute inset-x-0 bottom-[calc(var(--safe-bottom)+92px)] z-30 px-4">
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="card-raised relative mx-auto max-w-[460px] overflow-hidden p-6">
@@ -325,9 +336,13 @@ function LocationGate() {
             {denied || failed ? <TriangleAlert size={21} /> : <MapPin size={21} />}
           </div>
           <div>
-            <p className="font-display text-[1.15rem] leading-snug">{denied ? "Location access is off" : failed ? "Can't find your location" : "Find treasures around you"}</p>
+            <p className="font-display text-[1.15rem] leading-snug">{denied ? "Location access is off" : failed ? "Can't find your location" : slow ? "Still finding you…" : waiting ? "Finding you…" : "Find treasures around you"}</p>
             <p className="mt-1 text-[13.5px] text-muted">
-              {denied
+              {slow
+                ? "GPS can take up to a minute on a cold start. Step outside or near a window — we'll keep trying."
+                : waiting
+                  ? "Allow location access when your browser asks. The map appears as soon as we have a rough fix."
+                  : denied
                 ? "Enable location for this site in your browser settings to hunt near you, or explore the demo zone."
                 : failed
                   ? "Your device couldn't get a GPS fix. Move outdoors and retry, or try the demo zone."
@@ -336,8 +351,8 @@ function LocationGate() {
           </div>
         </div>
         <div className="relative mt-5 grid grid-cols-2 gap-2">
-          <button className="btn btn-primary" onClick={loc.startGps} disabled={waiting}>
-            {waiting ? <Spinner /> : <Crosshair size={17} />} {waiting ? "Locating…" : denied || failed ? "Retry GPS" : "Use my location"}
+          <button className="btn btn-primary" onClick={loc.startGps} disabled={waiting || slow}>
+            {waiting || slow ? <Spinner /> : <Crosshair size={17} />} {waiting || slow ? "Locating…" : denied || failed ? "Retry GPS" : "Use my location"}
           </button>
           <button className="btn btn-ghost" onClick={() => loc.enterDemo()}>
             <Sparkles size={16} className="text-gold" /> Demo zone
@@ -383,6 +398,7 @@ function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { 
   if (!tr) return <Sheet open={false} onClose={onClose}>{null}</Sheet>;
   const c = RARITY[tr.rarity].color;
   const inRange = tr.distanceM <= tr.claimRadiusM;
+  const needPrecise = inRange && !loc.precise;
   const pct = Math.max(0.04, Math.min(1, tr.claimRadiusM / Math.max(1, tr.distanceM)));
   const unavailable = tr.claimedByMe || tr.remaining === 0;
   const wrongMode = (loc.mode === "demo") !== (tr.zone === "demo");
@@ -424,9 +440,9 @@ function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { 
         {wrongMode ? (
           <p className="rounded-xl bg-surface-2 p-3 text-center text-sm text-muted">{tr.zone === "demo" ? "Switch to the demo zone to open demo treasures." : "Use real GPS to open this treasure."}</p>
         ) : (
-          <button className={cx("btn w-full py-4 text-[15px]", inRange && !unavailable ? "btn-accent" : "btn-primary")} disabled={!inRange || unavailable || claiming} onClick={() => onClaim(tr)}>
+          <button className={cx("btn w-full py-4 text-[15px]", inRange && !unavailable && !needPrecise ? "btn-accent" : "btn-primary")} disabled={!inRange || unavailable || claiming || needPrecise} onClick={() => onClaim(tr)}>
             {claiming ? <Spinner /> : null}
-            {!me ? "Create a profile to open" : unavailable ? (tr.claimedByMe ? "Opened" : "No rewards left") : inRange ? "Open treasure" : "Get closer to open"}
+            {!me ? "Create a profile to open" : unavailable ? (tr.claimedByMe ? "Opened" : "No rewards left") : needPrecise ? "Waiting for precise GPS…" : inRange ? "Open treasure" : "Get closer to open"}
           </button>
         )}
         {loc.mode === "demo" && !inRange && !unavailable && !wrongMode && (

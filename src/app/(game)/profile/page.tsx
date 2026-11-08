@@ -78,7 +78,12 @@ export default function ProfilePage() {
           </div>
         ) : (
           <div className="mt-2">
-            <p className="text-[13px] text-muted">Link a NEAR wallet to mint your collectibles as NEP-245 tokens, trade on the player market and sell to the Merchant. Your current progress is kept. Wallets supporting email/social sign-in (e.g. HOT, Meteor) work through NEAR Connect.</p>
+            <p className="text-[13px] text-muted">Link a NEAR wallet to mint your collectibles as NEP-245 tokens, trade on the player market and sell to the Merchant. Your current progress is kept.</p>
+            {publicConfig.network === "testnet" && (
+              <p className="mt-2 rounded-2xl bg-surface-2 px-3 py-2.5 text-[12.5px] text-muted">
+                TREZO runs on <b className="text-ink">NEAR testnet</b>, so use a testnet account. Meteor Web works well on phones (inside the Meteor app, pick <b className="text-ink">Meteor Web</b>). Mainnet-only wallets such as NEAR Mobile are hidden until launch.
+              </p>
+            )}
             <button className="btn btn-teal mt-3" onClick={() => connectAndSignIn()} disabled={busy}>
               {busy ? <Spinner /> : <Wallet size={16} />} Connect NEAR wallet
             </button>
