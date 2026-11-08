@@ -2,7 +2,7 @@
 
 TREZO has two deployable parts: the **NEAR contract** (`contracts/trezo`) and the **Next.js app** (game server and UI).
 
-> **Status:** deployed to **testnet** at [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) on 2026-11-07 using exactly this procedure (record at the bottom). **Mainnet is not deployed.** The app is not hosted yet.
+> **Status:** deployed to **testnet** at [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) on 2026-11-07 using exactly this procedure (record at the bottom). **Mainnet is not deployed.** The app is live on Railway at https://trezo-production-0500.up.railway.app.
 
 ## 0. Prerequisites
 
@@ -139,4 +139,4 @@ From `deployments/testnet.json` and `deployments/testnet-demo.json`:
 | Wasm SHA-256 | `487492eb0c069f9634bbbfd20cc6ba9d0ccebf0cb52e0396448388f08fed494b` (non-reproducible build) |
 | Demo transactions | claim/mint, list, buy, Merchant sale and buyback: `deployments/testnet-demo.json` (`node scripts/testnet-demo.mjs`) |
 | Oracle public key (base64) | `wSJv/MHX/IarrEaF3ql7EFsYXiamREGAt53joFU76ks=` |
-| App URL | not hosted yet |
+| App URL | https://trezo-production-0500.up.railway.app (Railway) |

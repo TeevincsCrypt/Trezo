@@ -18,6 +18,8 @@ Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economi
 
 ## Live on NEAR testnet
 
+**Play it:** https://trezo-production-0500.up.railway.app (hosted on Railway, settling on testnet; E2E smoke test passes 14/14 against it)
+
 | | |
 |---|---|
 | **Contract** | [`trezo-game-0e8b06.testnet`](https://testnet.nearblocks.io/address/trezo-game-0e8b06.testnet) (deployed 2026-11-07, near-sdk 5.30 wasm, SHA-256 `487492eb…8444b`) |
@@ -28,7 +30,7 @@ Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economi
 | Merchant NPC sale (price 0.01 → 0.0108 NEAR) | [`HY6EMDnA…`](https://testnet.nearblocks.io/txns/HY6EMDnA1bFw8sLPzrJBamfbRX5huY6dMwhJQqtfJsjJ) |
 | Merchant NPC buyback (paid from its treasury) | [`KnSyraBw…`](https://testnet.nearblocks.io/txns/KnSyraBwGhjRzYuqT1gWbL9SoPUW5GkhjeMc5aXxCof) |
 
-These come from `scripts/testnet-demo.mjs` ([record](deployments/testnet-demo.json)): two faucet-funded players (`trezo-alice-418679.testnet`, `trezo-bob-339ab1.testnet`) signing with their own keys, against the real game server. The claim was made in the demo zone, so its on-chain record says `demo: true`. The app itself isn't hosted yet; run it locally against this contract by putting `NEXT_PUBLIC_TREZO_CONTRACT_ID=trezo-game-0e8b06.testnet` in `.env.local` (plus an oracle key; see [DEPLOYMENT.md](DEPLOYMENT.md)).
+These come from `scripts/testnet-demo.mjs` ([record](deployments/testnet-demo.json)): two faucet-funded players (`trezo-alice-418679.testnet`, `trezo-bob-339ab1.testnet`) signing with their own keys, against the real game server. The claim was made in the demo zone, so its on-chain record says `demo: true`.
 
 ---
 
@@ -200,7 +202,7 @@ See **[TESTING.md](TESTING.md)**.
 
 ## Known limitations
 
-- **Testnet only; the app isn't hosted yet.** The contract is live on testnet. Mainnet is not deployed. The testnet transactions were signed by script-held player keys (exactly what a wallet signs after approval); a browser wallet flow through NEAR Connect has not been recorded on testnet yet.
+- **Testnet only.** The contract and app are live on testnet (https://trezo-production-0500.up.railway.app). Mainnet is not deployed. The testnet transactions were signed by script-held player keys (exactly what a wallet signs after approval); a browser wallet flow through NEAR Connect has not been recorded on testnet yet.
 - **GPS cannot prove physical presence.** TREZO uses server-side distance checks, GPS-accuracy limits, impossible-speed detection, cooldowns, rate limits and per-player duplicate prevention. A determined spoofer with a fake-GPS app can still claim. The oracle can only attest that *the server's rules passed*. Demo-zone claims are explicitly flagged `demo: true` on-chain.
 - **SQLite needs a persistent disk.** Host TREZO on a Node server or container with a volume (Railway, Fly.io, Render, a VM). Serverless platforms with ephemeral filesystems (e.g. Vercel) would lose game state. Rate limits are in-memory, which suits a single instance.
 - **NEAR Intents is not integrated.** Paying for Merchant items with assets from other chains is a natural extension (the 1Click API quotes a swap that settles in NEAR), but the APIs and settlement flow could not be verified from the build environment. Per the brief, a working NEAR-native economy took priority.
