@@ -10,7 +10,9 @@
  *     NEAR_PRIVATE_KEY               ed25519:... full-access key of the contract account
  *     (or a near-cli legacy keychain file ~/.near-credentials/<network>/<account>.json)
  * Optional:
- *   TREZO_OWNER_ID                   owner/admin account (default: the contract account)
+ *   TREZO_OWNER_ID                   final owner/admin account (default: the contract account).
+ *                                    The contract is initialised with itself as owner so this
+ *                                    script can configure it, then ownership is transferred.
  *   TREZO_APP_URL                    public app URL, used for NEP-245 media links
  *   TREZO_FUND_MERCHANT_NEAR         seed the Merchant treasury (default 0.5)
  *   TREZO_LOCK_ECONOMY               1 (default) = call lock_economy at the end, which
@@ -18,13 +20,17 @@
  *                                    0 = leave them editable (development only)
  *   NEAR_RPC_URL                     custom RPC endpoint
  *
- * Usage:  npm run contract:build && node scripts/deploy-contract.mjs
+ * Usage:  npm run contract:build && node scripts/deploy-contract.mjs [--upgrade] [--delete-keys]
+ *   --delete-keys  (mainnet hardening) after ownership is transferred, DELETE every
+ *                  access key of the contract account. Irreversible: the code can
+ *                  never be redeployed and the account's NEAR can only move through
+ *                  contract rules. Requires TREZO_OWNER_ID ≠ the contract account.
  * Writes deployments/<network>.json with the transactions it sent.
  */
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { Account, JsonRpcProvider, KeyPairSigner, actions } from "near-api-js";
+import { Account, JsonRpcProvider, KeyPairSigner, PublicKey, actions } from "near-api-js";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import bs58 from "bs58";
 
@@ -110,13 +116,19 @@ const call = (method, args, deposit = 0n, gas = 30n) => actions.functionCall(met
   }
   const code = new Uint8Array(fs.readFileSync(wasmPath));
   const owner = process.env.TREZO_OWNER_ID || contractId;
+  const deleteKeys = process.argv.includes("--delete-keys");
+  if (deleteKeys && owner === contractId) die("--delete-keys needs TREZO_OWNER_ID set to a different account, or nobody could ever administer the contract");
   if (!initialised) {
-    await send("deploy + init", [actions.deployContract(code), call("new", { owner_id: owner, oracle_public_key: oraclePubB64() }, 0n, 100n)]);
+    await send("deploy + init", [actions.deployContract(code), call("new", { owner_id: contractId, oracle_public_key: oraclePubB64() }, 0n, 100n)]);
   } else if (process.argv.includes("--upgrade")) {
     await send("redeploy code (upgrade)", [actions.deployContract(code)]);
   } else {
     console.log("  • already initialised (pass --upgrade to redeploy code)");
     const stats = await view("get_stats");
+    if (stats.owner_id !== contractId) {
+      console.log(`  • ownership already transferred to ${stats.owner_id}; configuration is up to the owner now`);
+      return finish(stats.owner_id);
+    }
     if (stats.oracle_public_key !== oraclePubB64()) await send("set_oracle_key", [call("set_oracle_key", { oracle_public_key: oraclePubB64() })]);
   }
 
@@ -164,6 +176,23 @@ const call = (method, args, deposit = 0n, gas = 30n) => actions.functionCall(met
   //    or the market fee again, so treasuries follow only the contract's rules.
   if (!locked && (process.env.TREZO_LOCK_ECONOMY ?? "1") !== "0") await send("lock_economy (irreversible)", [call("lock_economy", {})]);
 
+  // 6. Hand the contract to its real owner (C-2: owner ≠ contract account)
+  if (owner !== contractId) await send(`transfer_ownership → ${owner}`, [call("transfer_ownership", { new_owner_id: owner })]);
+  await finish(owner);
+})().catch((e) => die(e.message ?? String(e)));
+
+async function finish(owner) {
+  // 7. Optional: remove every access key so the contract can never be changed.
+  if (process.argv.includes("--delete-keys")) {
+    const stats0 = await view("get_stats");
+    if (stats0.owner_id === contractId) die("refusing --delete-keys: the contract still owns itself");
+    if (!stats0.economy_locked) die("refusing --delete-keys: lock the economy first");
+    const { keys } = await provider.viewAccessKeyList({ accountId: contractId, finalityQuery: { finality: "final" } });
+    if (keys.length) await send(`delete ${keys.length} access key(s): contract is now immutable`, keys.map((k) => actions.deleteKey(PublicKey.fromString(k.public_key))));
+    const after = await provider.viewAccessKeyList({ accountId: contractId, finalityQuery: { finality: "final" } });
+    if (after.keys.length) die(`${after.keys.length} key(s) still present`);
+    log.keysDeleted = true;
+  }
   const stats = await view("get_stats");
   log.stats = stats;
   fs.mkdirSync("deployments", { recursive: true });
@@ -171,4 +200,4 @@ const call = (method, args, deposit = 0n, gas = 30n) => actions.functionCall(met
   console.log(`\nDone. ${stats.item_types} item types, owner ${stats.owner_id}, economy ${stats.economy_locked ? "LOCKED" : "unlocked"}.`);
   console.log(`Explorer: ${explorer}/address/${contractId}`);
   console.log(`Saved deployments/${label}.json`);
-})().catch((e) => die(e.message ?? String(e)));
+}
