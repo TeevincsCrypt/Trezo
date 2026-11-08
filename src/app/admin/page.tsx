@@ -220,7 +220,21 @@ function TreasuresTab({ d, act }: { d: Overview; act: (fn: () => Promise<unknown
       setForm(emptyTreasure);
       setEditing(null);
     }, editing ? "Treasure updated" : "Treasure created");
-  const useMyLocation = () => navigator.geolocation?.getCurrentPosition((p) => setForm((f) => ({ ...f, lat: p.coords.latitude, lng: p.coords.longitude })));
+  const [geoMsg, setGeoMsg] = useState<string | null>(null);
+  // Place the treasure relative to the admin's precise GPS fix (no manual decimal maths).
+  const placeNearMe = (northM: number) => {
+    if (!navigator.geolocation) return setGeoMsg("Location isn't available in this browser.");
+    setGeoMsg("Getting a precise GPS fix…");
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        const lat = p.coords.latitude + northM / 111_320;
+        setForm((f) => ({ ...f, lat: Number(lat.toFixed(7)), lng: Number(p.coords.longitude.toFixed(7)), claim_radius_m: northM > 0 ? 10 : f.claim_radius_m, zone: "world" }));
+        setGeoMsg(`${northM ? `Placed ${northM} m north of you` : "Placed at your position"} (GPS ±${Math.round(p.coords.accuracy)} m)${p.coords.accuracy > 30 ? " — accuracy is low, step outside and try again" : ""}.`);
+      },
+      (e) => setGeoMsg(`Couldn't get your location: ${e.message}`),
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 },
+    );
+  };
 
   return (
     <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
@@ -234,7 +248,13 @@ function TreasuresTab({ d, act }: { d: Overview; act: (fn: () => Promise<unknown
           <F label="Latitude"><input className="input" value={String(form.lat)} onChange={(e) => set("lat", e.target.value)} /></F>
           <F label="Longitude"><input className="input" value={String(form.lng)} onChange={(e) => set("lng", e.target.value)} /></F>
         </div>
-        <button className="text-[12px] text-teal" onClick={useMyLocation}>Use my current location</button>
+        <div className="flex flex-wrap gap-1.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">Place:</span>
+          <button className="chip" onClick={() => placeNearMe(0)}>Here</button>
+          <button className="chip" onClick={() => placeNearMe(10)}>10 m north of me</button>
+          <button className="chip" onClick={() => placeNearMe(15)}>15 m north of me</button>
+        </div>
+        {geoMsg && <p className="text-[12px] text-muted">{geoMsg}</p>}
         <div className="grid grid-cols-2 gap-2">
           <F label="Rarity">
             <select className="input" value={String(form.rarity)} onChange={(e) => set("rarity", e.target.value)}>
