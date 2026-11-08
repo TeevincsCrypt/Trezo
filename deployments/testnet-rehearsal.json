@@ -1,0 +1,71 @@
+{
+  "network": "testnet-rehearsal",
+  "contractId": "trezo-rehearsal-65920b.testnet",
+  "rpcUrl": "https://test.rpc.fastnear.com",
+  "deployedAt": "2026-11-08T15:46:00.287Z",
+  "transactions": [
+    {
+      "label": "deploy + init",
+      "hash": "HqJroEDtvTxSNL7Lf3CKrzLgLxtSak8RHLb1CjQNS978",
+      "url": "https://testnet.nearblocks.io/txns/HqJroEDtvTxSNL7Lf3CKrzLgLxtSak8RHLb1CjQNS978"
+    },
+    {
+      "label": "add_item_type ×8",
+      "hash": "7mwbPEPTj1ADthxJfyHoKs6ZvQvaj7e2MBsEe33gE4sZ",
+      "url": "https://testnet.nearblocks.io/txns/7mwbPEPTj1ADthxJfyHoKs6ZvQvaj7e2MBsEe33gE4sZ"
+    },
+    {
+      "label": "add_item_type ×5",
+      "hash": "9eKhnjgGg7XBx8cb5f1FoTq1bEaPhQpZnkYvyMPbeKw2",
+      "url": "https://testnet.nearblocks.io/txns/9eKhnjgGg7XBx8cb5f1FoTq1bEaPhQpZnkYvyMPbeKw2"
+    },
+    {
+      "label": "upsert NPCs",
+      "hash": "42V1QmtdzRLnr6hGW58ANem9AsX8DndE3yoD551GeFRv",
+      "url": "https://testnet.nearblocks.io/txns/42V1QmtdzRLnr6hGW58ANem9AsX8DndE3yoD551GeFRv"
+    },
+    {
+      "label": "set_npc_offer ×8",
+      "hash": "GFkCS8JMUgTFNNrMgxwYDatiyuxXYCKwiQQSZECjZjeA",
+      "url": "https://testnet.nearblocks.io/txns/GFkCS8JMUgTFNNrMgxwYDatiyuxXYCKwiQQSZECjZjeA"
+    },
+    {
+      "label": "set_npc_offer ×2",
+      "hash": "BGdN6QuYAUrdmivxXFwFMLDJ36xsFLVuaT1rMZkSMJVE",
+      "url": "https://testnet.nearblocks.io/txns/BGdN6QuYAUrdmivxXFwFMLDJ36xsFLVuaT1rMZkSMJVE"
+    },
+    {
+      "label": "fund_npc merchant (0.5 NEAR)",
+      "hash": "5Fu7KSg3xkTJ8E2D3q3fQ5gJVyZVtPGpQgFKrjU3YJD1",
+      "url": "https://testnet.nearblocks.io/txns/5Fu7KSg3xkTJ8E2D3q3fQ5gJVyZVtPGpQgFKrjU3YJD1"
+    },
+    {
+      "label": "lock_economy (irreversible)",
+      "hash": "EFhW9NcvK8mJR6jQFGS7XmiM3nSnE8tJPhw2mwULaAd4",
+      "url": "https://testnet.nearblocks.io/txns/EFhW9NcvK8mJR6jQFGS7XmiM3nSnE8tJPhw2mwULaAd4"
+    },
+    {
+      "label": "transfer_ownership → trezo-owner-2f15df.testnet",
+      "hash": "CRv7pWvHit9GFyy7D5XVamtpLMvjwdhz27KoKa1bfvKF",
+      "url": "https://testnet.nearblocks.io/txns/CRv7pWvHit9GFyy7D5XVamtpLMvjwdhz27KoKa1bfvKF"
+    },
+    {
+      "label": "delete 1 access key(s): contract is now immutable",
+      "hash": "AgfQkzTMksJCqFzZfnExANkZS7v5JkiL8pgJtiwmENZe",
+      "url": "https://testnet.nearblocks.io/txns/AgfQkzTMksJCqFzZfnExANkZS7v5JkiL8pgJtiwmENZe"
+    }
+  ],
+  "keysDeleted": true,
+  "stats": {
+    "owner_id": "trezo-owner-2f15df.testnet",
+    "oracle_public_key": "wSJv/MHX/IarrEaF3ql7EFsYXiamREGAt53joFU76ks=",
+    "paused": false,
+    "players": 0,
+    "claims": 0,
+    "item_types": 13,
+    "active_listings": 0,
+    "market_fee_bps": 250,
+    "total_market_volume": "0",
+    "economy_locked": true
+  }
+}

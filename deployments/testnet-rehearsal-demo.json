@@ -1,0 +1,74 @@
+{
+  "network": "testnet",
+  "contract": "trezo-rehearsal-65920b.testnet",
+  "ranAt": "2026-11-08T15:46:51.416Z",
+  "steps": [
+    {
+      "step": "created faucet-funded players trezo-alice-66d226.testnet, trezo-bob-6eaad1.testnet",
+      "url": null
+    },
+    {
+      "step": "alice signed in with NEP-413 (key verified against testnet)",
+      "url": null
+    },
+    {
+      "step": "server validated claim: Silver Cache (rare) → relic-compass",
+      "hash": null,
+      "url": null
+    },
+    {
+      "step": "alice minted relic-compass (NEP-245) via oracle-signed claim ticket",
+      "hash": "FCdRu5EbK7CWAea6Mgeq3eo3rxyjjZfL7m7i83p5Fgoe",
+      "url": "https://testnet.nearblocks.io/txns/FCdRu5EbK7CWAea6Mgeq3eo3rxyjjZfL7m7i83p5Fgoe"
+    },
+    {
+      "step": "game server confirmed settlement by reading get_claim on-chain",
+      "url": null
+    },
+    {
+      "step": "alice prepaid 0.02 NEAR storage deposit (withdrawable)",
+      "hash": "5orEXVDczX5XN7mc9hmwK4ENPeMSg1dmzecvHg7WHnQX",
+      "url": "https://testnet.nearblocks.io/txns/5orEXVDczX5XN7mc9hmwK4ENPeMSg1dmzecvHg7WHnQX"
+    },
+    {
+      "step": "bob prepaid 0.02 NEAR storage deposit (withdrawable)",
+      "hash": "Y2pJtPvrNuKrwXyCY7s9eZ1zp9ueh67iz7DhX4ozxnB",
+      "url": "https://testnet.nearblocks.io/txns/Y2pJtPvrNuKrwXyCY7s9eZ1zp9ueh67iz7DhX4ozxnB"
+    },
+    {
+      "step": "alice listed 1 × relic-compass for 0.1 NEAR (escrowed, listing #1)",
+      "hash": "Gmyuz6xSkS1TdUUtMnHCDHmg7qBfHKg7tAXvn3C9Tug7",
+      "url": "https://testnet.nearblocks.io/txns/Gmyuz6xSkS1TdUUtMnHCDHmg7qBfHKg7tAXvn3C9Tug7"
+    },
+    {
+      "step": "bob bought it: payment, 2.5% fee to Merchant treasury and delivery in one receipt",
+      "hash": "xp1sTLoU1sT1GrsuoRPZUKK1rMaBqEu3Caem572AQ9n",
+      "url": "https://testnet.nearblocks.io/txns/xp1sTLoU1sT1GrsuoRPZUKK1rMaBqEu3Caem572AQ9n"
+    },
+    {
+      "step": "bob bought a Glimmer Shard from the Merchant at 0.01 NEAR (price now 0.0108)",
+      "hash": "ESgT3ZtHwX42d24Tq9Z1CfgZKT95xfM9NUNqNGDwkVym",
+      "url": "https://testnet.nearblocks.io/txns/ESgT3ZtHwX42d24Tq9Z1CfgZKT95xfM9NUNqNGDwkVym"
+    },
+    {
+      "step": "bob sold it back; Merchant paid 0.006 NEAR from its on-chain treasury",
+      "hash": "E3VRZP8vYudosR6j2CzBqwA69WfTPqiRU9tqJqbnQM2c",
+      "url": "https://testnet.nearblocks.io/txns/E3VRZP8vYudosR6j2CzBqwA69WfTPqiRU9tqJqbnQM2c"
+    },
+    {
+      "step": "economy is locked: NPC prices, allocations and the market fee can no longer be changed by anyone",
+      "hash": null,
+      "url": null
+    }
+  ],
+  "players": [
+    "trezo-alice-66d226.testnet",
+    "trezo-bob-6eaad1.testnet"
+  ],
+  "final": {
+    "players": 2,
+    "claims": 1,
+    "volumeYocto": "100000000000000000000000",
+    "merchantTreasuryYocto": "506500000000000000000000"
+  }
+}

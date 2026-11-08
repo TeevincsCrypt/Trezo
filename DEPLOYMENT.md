@@ -121,10 +121,25 @@ Set the same environment variables on the host. Keep `TREZO_ORACLE_SECRET_KEY`, 
 
 ## 7. Mainnet
 
-The same flow with `NEXT_PUBLIC_NEAR_NETWORK=mainnet` and a funded mainnet account. Before going to mainnet:
-- use a dedicated owner account (`TREZO_OWNER_ID`) separate from the contract account, and consider removing the contract account's full-access key after configuration (`near account delete-keys`) so code can only change through a planned upgrade path;
-- use a reproducible build (`cargo near build reproducible-wasm`; this needs Docker);
-- review [SECURITY.md](SECURITY.md).
+Rehearsed end to end on testnet with the same binary: [`trezo-rehearsal-65920b.testnet`](https://testnet.nearblocks.io/address/trezo-rehearsal-65920b.testnet). Its records are `deployments/testnet-rehearsal*.json`. After its keys were deleted it still played the full loop.
+
+1. **Reproducible build** (Docker): `cd contracts/trezo && cargo near build reproducible-wasm`. The wasm embeds NEP-330 metadata (`contract_source_metadata`) naming the exact git commit and image, so anyone can rebuild and compare hashes.
+2. **Funding address:** `NEXT_PUBLIC_NEAR_NETWORK=mainnet node scripts/mainnet-account.mjs funder` prints a one-time implicit account. Send it about **6.2 NEAR**:
+   - ~4.05 NEAR for contract storage (the 393 KB wasm plus config);
+   - 0.5 NEAR for the Merchant treasury;
+   - about 1.5 NEAR of headroom for contract-paid claim storage.
+3. **Named account:** `... mainnet-account.mjs create <name>.near 6.1` registers the name through the `near` registrar with a fresh key.
+4. **Fresh oracle key** (O-1): `npm run oracle:keygen`. Never reuse the testnet key.
+5. **Deploy, lock, hand over, seal:** `NEXT_PUBLIC_NEAR_NETWORK=mainnet NEXT_PUBLIC_TREZO_CONTRACT_ID=<name>.near TREZO_OWNER_ID=<your-wallet>.near node scripts/deploy-contract.mjs --delete-keys`. This deploys and initialises, configures items, NPCs and offers, funds the Merchant, calls `lock_economy`, then `transfer_ownership` to your wallet, and finally **deletes every access key** of the contract account (C-2). After this, nobody can redeploy the code or move its NEAR except through contract rules.
+6. **Return leftovers:** `... mainnet-account.mjs close <funder-id> <your-wallet>.near`.
+7. **Host:** set the following on a mainnet app instance:
+   - `NEXT_PUBLIC_NEAR_NETWORK=mainnet`;
+   - `NEXT_PUBLIC_TREZO_CONTRACT_ID=<name>.near`;
+   - the new oracle key;
+   - a new session secret and admin token;
+   - a fresh database.
+
+What the owner wallet can still do: `set_oracle_key` (rotate a leaked key), `set_paused`, `add_item_type` (new items), `reduce_max_supply` and `transfer_ownership`. It cannot change NPC offers, prices or fees (locked) or upgrade the code (no keys). Anyone can top up the contract's storage balance with a plain NEAR transfer.
 
 Do not claim a mainnet deployment until the `deployments/mainnet.json` transactions exist.
 
