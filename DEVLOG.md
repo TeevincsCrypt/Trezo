@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-11-09: NEAR Intents
+- **"Add NEAR from any chain"** (Profile and the Merchant tab, mainnet only), built on the 1Click Swap API. The API shapes come from the official `@defuse-protocol/one-click-sdk-typescript` types, because the docs host wasn't reachable from the build environment.
+- The server forces the recipient to the session's NEAR account and stores signed quotes. Status is owner-only and proxied.
+- 8 new unit tests against a mocked 1Click, and phone screenshots of the flow (mocked responses).
+- **Not yet verified:** a live swap with a real deposit.
+
 ## 2026-11-09: mainnet
 - Reproducible build (cargo-near 0.22.0 / Rust 1.97.0 image, pinned by digest). The local sandbox's Docker Hub rate limit and lack of container network needed a local `docker` wrapper: it skips the registry re-check for the already-pulled digest and passes the HTTPS proxy. Neither changes the build inputs.
 - New `scripts/mainnet-account.mjs` (one-time funding address → named `.near` account via the registrar → close and return leftovers). `deploy-contract.mjs` now initialises with itself as owner, transfers ownership and supports `--delete-keys`.
@@ -89,7 +95,7 @@
 ### Remaining work / not done
 - ~~Deploy to NEAR testnet~~ (done 2026-11-07). Still to do: a recorded browser-wallet (NEAR Connect) run on testnet.
 - Host the app on a platform with a persistent volume, and set `TREZO_APP_URL` for NEP-245 media URLs.
-- Optional: NEAR Intents (cross-chain payment for Merchant items), NEP-245 Approval Management, an embedded social-login provider (Privy/Web3Auth), device attestation for anti-spoofing, and Postgres/Redis for horizontal scaling.
+- Optional: one-step cross-chain Merchant purchases (needs NEP-141 support in the contract), NEP-245 Approval Management, an embedded social-login provider (Privy/Web3Auth), device attestation for anti-spoofing, and Postgres/Redis for horizontal scaling.
 
 ### Known issues
 - GPS spoofing can't be fully prevented (see [SECURITY.md](SECURITY.md)).

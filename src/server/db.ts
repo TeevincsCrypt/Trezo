@@ -266,6 +266,22 @@ CREATE TABLE IF NOT EXISTS market_events (
   created_at INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS intent_swaps (
+  deposit_address TEXT NOT NULL,
+  deposit_memo TEXT NOT NULL DEFAULT '',
+  player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  account_id TEXT NOT NULL,
+  origin_asset TEXT NOT NULL,
+  amount_in TEXT NOT NULL,
+  amount_out TEXT NOT NULL,
+  status TEXT NOT NULL,
+  quote_json TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (deposit_address, deposit_memo)
+);
+CREATE INDEX IF NOT EXISTS intent_swaps_player ON intent_swaps(player_id, created_at);
+
 CREATE TABLE IF NOT EXISTS admin_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   actor TEXT NOT NULL,

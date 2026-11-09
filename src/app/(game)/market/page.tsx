@@ -7,6 +7,7 @@ import { useGame } from "@/components/providers/GameProvider";
 import { OnchainAction } from "@/components/onchain/OnchainAction";
 import type { OnchainNpc } from "@/components/onchain/NpcTreasury";
 import { Empty, ItemImage, PageHeader, RarityBadge, Segmented, ShardIcon, Spinner, cx, shortAccount } from "@/components/ui";
+import { AddNearButton } from "@/components/onchain/AddNear";
 import { api, ApiError } from "@/lib/api";
 import { formatNear, viewContract } from "@/lib/near-client";
 import { accountUrl, publicConfig } from "@/lib/config";
@@ -148,6 +149,7 @@ function Merchant() {
   const forSale = npc.offers.filter((o) => BigInt(o.offer.base_price) > 0n);
   return (
     <>
+      <AddNearButton className="mb-3 w-full" />
       <div className="card relative overflow-hidden p-4">
         <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-legendary/25 blur-3xl" />
         <div className="flex items-center gap-3">

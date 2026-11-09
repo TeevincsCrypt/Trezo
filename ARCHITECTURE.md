@@ -96,6 +96,10 @@ Storage uses `near_sdk::store` collections. Balances are keyed `(token_id, accou
 - Overlays (`Sheet`, reveal) are portalled to `<body>`, so they escape the map's stacking context.
 - Map: MapLibre's ES-module worker is copied to `public/maplibre` (`postinstall`) and wired with `setWorkerUrl`. Style URLs fall back in order and then to an offline grid, so gameplay never depends on a tile provider.
 
+## NEAR Intents (mainnet)
+
+`AddNear.tsx` → `POST /api/intents/swaps` → `src/server/intents.ts` → 1Click `POST /v0/quote` (EXACT_INPUT, origin-chain deposit, destination `nep141:wrap.near` delivered to the player's NEAR account). The player sends funds to the returned deposit address. The UI polls `GET /api/intents/swaps/:address`, which proxies `GET /v0/status` (owner-only) and records the result in `intent_swaps`.
+
 ## Database driver
 
 TREZO uses Node's built-in `node:sqlite` through a small adapter (`src/server/sqlite.ts`) that provides the better-sqlite3-style API the game uses: `prepare().get/all/run`, and `transaction()` nested via savepoints. The earlier `better-sqlite3` native addon segfaulted on Railway's build image; the built-in module needs no compilation. It runs in WAL mode. The default path is built at runtime, because Turbopack traces static file paths passed to `node:sqlite` and would otherwise rebuild (and reload the page) on every database write in `next dev`.

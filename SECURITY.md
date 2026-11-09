@@ -35,6 +35,14 @@ No key or secret is committed, and none is bundled into the browser: only `NEXT_
 - **Errors:** no stack traces leave the server; failures return `{error, message}`.
 - **Headers:** `nosniff`, a strict referrer policy, and a `Permissions-Policy` that only allows geolocation on self. Art SVGs are served with a restrictive CSP.
 
+## NEAR Intents (cross-chain top-ups)
+
+- The swap recipient is **always the signed-in player's linked NEAR account**, read from the session on the server. The client can't redirect output.
+- Refunds go to the player's own origin-chain address. TREZO never takes custody: deposits go to 1Click's one-time address.
+- Swaps are mainnet-only and rate-limited (6 real quotes per minute per player). Status is visible only to the swap's owner.
+- The full signed quote is stored (`intent_swaps.quote_json`), as 1Click recommends for disputes.
+- The optional partner JWT (`TREZO_ONECLICK_JWT`) is server-only.
+
 ## Anti-cheat (and its limits)
 
 Implemented server-side, inside the claim transaction:

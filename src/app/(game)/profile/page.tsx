@@ -8,6 +8,7 @@ import { useGame, type Me } from "@/components/providers/GameProvider";
 import { useWallet } from "@/components/providers/WalletProvider";
 import { Achievements, CollectionStrip, ProfileHeader, type Achievement } from "@/components/profile/ProfileView";
 import { Empty, Sheet, Spinner, cx } from "@/components/ui";
+import { AddNearButton } from "@/components/onchain/AddNear";
 import { api, ApiError } from "@/lib/api";
 import { AVATARS } from "@/lib/rules";
 import { accountUrl, publicConfig } from "@/lib/config";
@@ -75,6 +76,7 @@ export default function ProfilePage() {
             <p className="text-[12px] text-faint">
               Network: {publicConfig.network} · Contract: {config?.contractId ?? "not configured"}
             </p>
+            <AddNearButton className="mt-3" />
           </div>
         ) : (
           <div className="mt-2">
