@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MlMap, Marker, StyleSpecification } from "maplibre-gl";
 import { publicConfig } from "@/lib/config";
+import { satelliteStyle, type MapMode } from "@/lib/map-styles";
 import { chestSvg } from "@/lib/art";
 import { RARITY } from "@/lib/rules";
 import type { LatLng } from "@/lib/geo";
@@ -42,16 +43,23 @@ export interface GameMapProps {
   heading: number | null;
   /** Treasures the player is currently close enough to open. */
   inRangeIds: Set<string>;
+  /** Satellite imagery with labels (default) or the street map. */
+  mapMode: MapMode;
+  /** Treasure being hunted: a dashed guide line is drawn from the player to it. */
+  guide: (LatLng & { color: string }) | null;
 }
 
 export function GameMap(props: GameMapProps) {
-  const { center, player, demo, accuracy, treasures, selectedId, onSelect, onMapClick, recenterKey, follow, onUserPan, heading, inRangeIds } = props;
+  const { center, player, demo, accuracy, treasures, selectedId, onSelect, onMapClick, recenterKey, follow, onUserPan, heading, inRangeIds, mapMode, guide } = props;
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
   const markers = useRef<Map<string, Marker>>(new Map());
   const playerMarker = useRef<Marker | null>(null);
   const [ready, setReady] = useState(false);
   const [offline, setOffline] = useState(false);
+  // Bumped on every style (re)load so overlay data is re-applied after a mode switch.
+  const [styleRev, setStyleRev] = useState(0);
+  const modeRef = useRef(mapMode);
   const clickRef = useRef(onMapClick);
   clickRef.current = onMapClick;
   const selectRef = useRef(onSelect);
@@ -71,7 +79,7 @@ export function GameMap(props: GameMapProps) {
       const styles = publicConfig.mapStyles;
       const m = new ml.Map({
         container: el.current,
-        style: styles[0] ?? OFFLINE_STYLE,
+        style: mapMode === "satellite" ? satelliteStyle() : (styles[0] ?? OFFLINE_STYLE),
         center: [center.lng, center.lat],
         zoom: 16,
         pitch: 35,
@@ -80,7 +88,7 @@ export function GameMap(props: GameMapProps) {
       });
       map.current = m;
       const tryNext = () => {
-        if (loaded || disposed) return;
+        if (loaded || disposed || modeRef.current === "satellite") return;
         styleIdx++;
         if (styleIdx < styles.length) m.setStyle(styles[styleIdx]);
         else {
@@ -97,11 +105,18 @@ export function GameMap(props: GameMapProps) {
       m.on("style.load", () => {
         loaded = true;
         clearTimeout(timer);
+        setOffline(false);
         if (!m.getSource("radius")) {
           m.addSource("radius", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-          m.addLayer({ id: "radius-fill", type: "fill", source: "radius", paint: { "fill-color": ["get", "color"], "fill-opacity": 0.12 } });
+          m.addLayer({ id: "radius-fill", type: "fill", source: "radius", paint: { "fill-color": ["get", "color"], "fill-opacity": 0.16 } });
           m.addLayer({ id: "radius-line", type: "line", source: "radius", paint: { "line-color": ["get", "color"], "line-width": 2, "line-dasharray": [2, 2] } });
         }
+        if (!m.getSource("guide")) {
+          m.addSource("guide", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+          m.addLayer({ id: "guide-casing", type: "line", source: "guide", layout: { "line-cap": "round" }, paint: { "line-color": "rgba(0,0,0,0.45)", "line-width": 6 } });
+          m.addLayer({ id: "guide-line", type: "line", source: "guide", layout: { "line-cap": "round" }, paint: { "line-color": "#ffffff", "line-width": 3.5, "line-dasharray": [1.2, 1.6] } });
+        }
+        setStyleRev((v) => v + 1);
         setReady(true);
       });
       m.on("click", (e: { lngLat: { lat: number; lng: number } }) => clickRef.current?.({ lat: e.lngLat.lat, lng: e.lngLat.lng }));
@@ -117,6 +132,14 @@ export function GameMap(props: GameMapProps) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Satellite ⇄ street map
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready || modeRef.current === mapMode) return;
+    modeRef.current = mapMode;
+    m.setStyle(mapMode === "satellite" ? satelliteStyle() : (publicConfig.mapStyles[0] ?? OFFLINE_STYLE));
+  }, [mapMode, ready]);
 
   // Explicit recenter (button, search result, mode switch)
   useEffect(() => {
@@ -149,7 +172,7 @@ export function GameMap(props: GameMapProps) {
         const d = document.createElement("div");
         d.className = "trz-player-wrap";
         const arrow = document.createElement("div");
-        arrow.className = "trz-heading";
+        arrow.className = "trz-beam";
         d.appendChild(arrow);
         d.appendChild(document.createElement("div"));
         playerMarker.current = new ml.Marker({ element: d }).setLngLat([player.lng, player.lat]).addTo(m);
@@ -158,7 +181,7 @@ export function GameMap(props: GameMapProps) {
       const wrap = pm.getElement();
       (wrap.lastChild as HTMLElement).className = `trz-player${demo ? " demo" : ""}`;
       const arrow = wrap.firstChild as HTMLElement;
-      arrow.style.display = heading == null || demo ? "none" : "block";
+      arrow.style.display = heading == null ? "none" : "block";
       if (heading != null) arrow.style.transform = `rotate(${heading}deg)`;
       pm.setLngLat([player.lng, player.lat]);
     })();
@@ -211,9 +234,21 @@ export function GameMap(props: GameMapProps) {
     const sel = treasures.find((t) => t.id === selectedId);
     const features = [];
     if (sel) features.push({ ...circlePolygon(sel, sel.claimRadiusM), properties: { color: RARITY[sel.rarity].color } });
-    if (player && accuracy && !demo && accuracy < 500) features.push({ ...circlePolygon(player, accuracy), properties: { color: "#0E0E10" } });
+    if (player && accuracy && !demo && accuracy < 500) features.push({ ...circlePolygon(player, accuracy), properties: { color: "#0A84FF" } });
     src?.setData?.({ type: "FeatureCollection", features });
-  }, [selectedId, treasures, player, accuracy, demo, ready]);
+  }, [selectedId, treasures, player, accuracy, demo, ready, styleRev]);
+
+  // Guide line: player → hunted treasure
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready) return;
+    const src = m.getSource("guide") as { setData?: (d: unknown) => void } | undefined;
+    const features =
+      player && guide
+        ? [{ type: "Feature", properties: { color: guide.color }, geometry: { type: "LineString", coordinates: [[player.lng, player.lat], [guide.lng, guide.lat]] } }]
+        : [];
+    src?.setData?.({ type: "FeatureCollection", features });
+  }, [player, guide, ready, styleRev]);
 
   return (
     <div className="absolute inset-0 isolate">

@@ -26,6 +26,17 @@ export const publicConfig = {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean),
+  /**
+   * Satellite imagery (raster XYZ, {z}/{y}/{x} or {z}/{x}/{y}) for the default
+   * "Satellite" map. Defaults to Esri World Imagery (attribution required; see
+   * DEPLOYMENT.md for licensing). Roads and place names are drawn on top from
+   * the OpenFreeMap vector tiles.
+   */
+  satelliteTiles:
+    process.env.NEXT_PUBLIC_SATELLITE_TILES || "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  satelliteAttribution: process.env.NEXT_PUBLIC_SATELLITE_ATTRIBUTION || "Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+  labelTiles: process.env.NEXT_PUBLIC_LABEL_TILES || "https://tiles.openfreemap.org/planet",
+  mapGlyphs: process.env.NEXT_PUBLIC_MAP_GLYPHS || "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   /** Centre of the clearly-labelled demo exploration zone. */
   // `||` (not `??`): hosts and Docker build args often pass *empty* strings,
   // and Number("") is 0, which would move the demo zone to 0°, 0°.

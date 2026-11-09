@@ -108,7 +108,7 @@ Most "crypto games" bolt a token onto a game loop, and the economy dies once spe
 
 ```
 Browser (Next.js 16 / React 19, mobile-first)
-  ├─ MapLibre GL 6 + OpenStreetMap-based styles (OpenFreeMap → CARTO → offline grid)
+  ├─ MapLibre GL 6: satellite imagery + road/place labels (default), or OSM street styles (OpenFreeMap → CARTO → offline grid)
   ├─ NEAR Connect (@hot-labs/near-connect) ── wallet sign-in (NEP-413) & transactions
   └─ near-api-js 7 JsonRpcProvider ── live contract views (balances, listings, NPC treasuries)
         │ JSON API (zod-validated, rate-limited, httpOnly session cookie)
@@ -201,7 +201,8 @@ Copy `.env.example` to `.env.local`. Every variable is optional for local play.
 | `TREZO_SESSION_SECRET` | **Server secret.** HMAC for admin cookies (≥16 chars). Required in production. |
 | `TREZO_ADMIN_TOKEN` / `TREZO_ADMIN_ACCOUNTS` | Admin access by token, or by wallet-authenticated NEAR accounts |
 | `TREZO_DB_PATH` | SQLite file (default `data/trezo.db`) |
-| `NEXT_PUBLIC_MAP_STYLE_URLS` | Comma-separated MapLibre style URLs, tried in order |
+| `NEXT_PUBLIC_MAP_STYLE_URLS` | Comma-separated MapLibre style URLs for the street map, tried in order |
+| `NEXT_PUBLIC_SATELLITE_TILES`, `NEXT_PUBLIC_SATELLITE_ATTRIBUTION` | Raster satellite tile URL and credit (default: Esri World Imagery) |
 | `NEXT_PUBLIC_DEMO_LAT/LNG/NAME` | Demo-zone centre |
 
 `NEXT_PUBLIC_*` values are compiled into the client at `npm run build`, so set them before building.
@@ -229,6 +230,7 @@ See **[TESTING.md](TESTING.md)**.
 - **Social login** depends on the wallets NEAR Connect lists (several support email/social sign-in). There is no embedded Privy/Web3Auth flow.
 - The official hackathon pages (`nearhackathon.com`) were **not reachable** from the build environment. This project follows the track description in the brief and the current NEAR docs (read from the `near/docs` repository).
 - The map uses free, key-less OpenStreetMap-based styles. Heavy production traffic should use a provider with an SLA (set `NEXT_PUBLIC_MAP_STYLE_URLS`).
+- The default **satellite** view uses Esri World Imagery tiles, with attribution. Esri's terms govern that service. For a commercial launch, use an ArcGIS account or switch `NEXT_PUBLIC_SATELLITE_TILES` to a keyed provider (e.g. MapTiler Satellite). Players can switch to the street map at any time.
 
 More: [DEVLOG.md](DEVLOG.md) (progress log, bugs found and fixed) · [DEPLOYMENT.md](DEPLOYMENT.md) · [SECURITY.md](SECURITY.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [TESTING.md](TESTING.md)
 

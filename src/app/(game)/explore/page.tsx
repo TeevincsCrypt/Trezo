@@ -2,13 +2,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Crosshair, List, LocateFixed, Map as MapIcon, MapPin, Navigation, Search, ScrollText, Sparkles, TriangleAlert, X } from "lucide-react";
+import { Crosshair, Layers, List, LocateFixed, Map as MapIcon, MapPin, Navigation2, Search, ScrollText, Sparkles, TriangleAlert, X } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { bearingDeg, distanceM, formatDistance, type LatLng } from "@/lib/geo";
 import { publicConfig } from "@/lib/config";
 import { RARITY } from "@/lib/rules";
 import type { NearbyTreasure } from "@/server/game";
 import { GameMap } from "@/components/explore/GameMap";
+import { useCompass } from "@/components/explore/useCompass";
+import type { MapMode } from "@/lib/map-styles";
 import { RevealModal, type RevealData } from "@/components/explore/RevealModal";
 import { useGame, type Me } from "@/components/providers/GameProvider";
 import { useLocation } from "@/components/providers/LocationProvider";
@@ -35,6 +37,26 @@ export default function ExplorePage() {
   const [searchOpen, setSearchOpen] = useState(false);
   const lastFetch = useRef<{ at: LatLng; t: number; mode: string } | null>(null);
   const detected = useRef<Set<string>>(new Set());
+  const compass = useCompass();
+  // Satellite (default, Apple-Maps-like) or street map; remembered per device.
+  const [mapMode, setMapMode] = useState<MapMode>("satellite");
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("trezo:mapMode");
+      if (v === "map" || v === "satellite") setMapMode(v);
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+  const toggleMapMode = () => {
+    const next: MapMode = mapMode === "satellite" ? "map" : "satellite";
+    setMapMode(next);
+    try {
+      localStorage.setItem("trezo:mapMode", next);
+    } catch {
+      /* storage unavailable */
+    }
+  };
 
   const demo = loc.mode === "demo";
   const fetchCenter = browseCenter ?? loc.position;
@@ -86,6 +108,13 @@ export default function ExplorePage() {
   const available = withDist.filter((t) => !t.claimedByMe && t.remaining > 0);
   const selected = withDist.find((t) => t.id === selectedId) ?? null;
   const nearest = available[0] ?? null;
+  // Which way the phone points: compass first, else GPS direction of travel.
+  const facing = compass.heading ?? loc.heading;
+  // Treasure being hunted: the selected one, else the nearest unopened.
+  const target = selected && !selected.claimedByMe ? selected : nearest;
+  const guide = useMemo(() => (target && loc.position ? { lat: target.lat, lng: target.lng, color: RARITY[target.rarity].color } : null), [target, loc.position]);
+  /** Arrow rotation toward a treasure, relative to where the phone faces when known. */
+  const arrowDeg = (t: LatLng) => (loc.position ? bearingDeg(loc.position, t) - (facing ?? 0) : 0);
 
   // Arrival: entering a treasure's claim radius buzzes the phone, highlights the
   // marker and opens the treasure once, so it can be opened with one tap.
@@ -139,6 +168,7 @@ export default function ExplorePage() {
 
   const onMapClick = useCallback((p: LatLng) => (demo ? loc.setDemoPosition(p) : undefined), [demo, loc]);
   const recenter = () => {
+    void compass.enable(); // iOS asks for compass access on this tap
     setBrowseCenter(null);
     setFollow(true);
     setRecenterKey((k) => k + 1);
@@ -169,8 +199,10 @@ export default function ExplorePage() {
           recenterKey={recenterKey}
           follow={follow && !browseCenter}
           onUserPan={() => setFollow(false)}
-          heading={loc.heading}
+          heading={demo ? null : facing}
           inRangeIds={inRangeIds}
+          mapMode={mapMode}
+          guide={guide}
         />
       )}
       {view === "list" && <div className="absolute inset-0 bg-bg" />}
@@ -188,6 +220,11 @@ export default function ExplorePage() {
         <CtrlButton label={follow && !browseCenter ? "Following you" : "Recenter and follow me"} onClick={recenter} active={follow && !browseCenter && !!loc.position}>
           <LocateFixed size={19} />
         </CtrlButton>
+        {view === "map" && (
+          <CtrlButton label={mapMode === "satellite" ? "Switch to street map" : "Switch to satellite"} onClick={toggleMapMode}>
+            {mapMode === "satellite" ? <MapIcon size={19} /> : <Layers size={19} />}
+          </CtrlButton>
+        )}
         <CtrlButton label="Search places" onClick={() => setSearchOpen(true)}>
           <Search size={19} />
         </CtrlButton>
@@ -229,7 +266,7 @@ export default function ExplorePage() {
                   <button key={t.id} onClick={() => setSelectedId(t.id)} className={cx("flex w-full items-center gap-3 rounded-[22px] p-2.5 text-left transition-colors hover:bg-white", i === 0 && "bg-white shadow-[0_8px_20px_-16px_rgba(0,0,0,0.4)]")}>
                     <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white shadow-[0_6px_14px_-8px_rgba(0,0,0,0.35)]" style={{ boxShadow: `inset 0 0 0 2px ${RARITY[t.rarity].color}` }}>
                       {i === 0 ? (
-                        <Navigation size={19} style={{ color: RARITY[t.rarity].color, transform: `rotate(${bearingDeg(loc.position!, t)}deg)` }} />
+                        <Navigation2 size={20} fill="currentColor" style={{ color: RARITY[t.rarity].color, transform: `rotate(${arrowDeg(t)}deg)`, transition: "transform .25s ease-out" }} />
                       ) : (
                         <span className="h-6 w-6" dangerouslySetInnerHTML={{ __html: chestSvg(t.rarity).replace('width="48" height="48"', 'width="24" height="24"') }} />
                       )}
@@ -254,7 +291,7 @@ export default function ExplorePage() {
         </div>
       )}
 
-      <TreasureSheet treasure={selected} onClose={() => setSelectedId(null)} onClaim={claim} claiming={claiming} itemName={selected?.rewardItemId ? items[selected.rewardItemId]?.name : undefined} />
+      <TreasureSheet treasure={selected} arrowDeg={selected && loc.position && !demo ? arrowDeg(selected) : null} compassOn={compass.heading != null} onClose={() => setSelectedId(null)} onClaim={claim} claiming={claiming} itemName={selected?.rewardItemId ? items[selected.rewardItemId]?.name : undefined} />
       <RevealModal data={reveal} onClose={() => setReveal(null)} />
       <SearchSheet
         open={searchOpen}
@@ -389,7 +426,7 @@ function TreasureRow({ t, onClick, itemName }: { t: NearbyTreasure; onClick: () 
   );
 }
 
-function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { treasure: NearbyTreasure | null; onClose: () => void; onClaim: (t: NearbyTreasure) => void; claiming: boolean; itemName?: string }) {
+function TreasureSheet({ treasure: t, arrowDeg, compassOn, onClose, onClaim, claiming, itemName }: { treasure: NearbyTreasure | null; arrowDeg: number | null; compassOn: boolean; onClose: () => void; onClaim: (t: NearbyTreasure) => void; claiming: boolean; itemName?: string }) {
   const { me } = useGame();
   const loc = useLocation();
   const t0 = useRef(t);
@@ -414,7 +451,17 @@ function TreasureSheet({ treasure: t, onClose, onClaim, claiming, itemName }: { 
         <p className="relative text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: c }}>
           {unavailable ? (tr.claimedByMe ? "Already opened" : "Fully claimed") : inRange ? `${RARITY[tr.rarity].label} treasure in range` : `${RARITY[tr.rarity].label} treasure detected`}
         </p>
-        <p className="font-display relative mt-2 text-[2.6rem] leading-none tabular">{formatDistance(tr.distanceM)}</p>
+        <div className="relative mt-2 flex items-center justify-between gap-3">
+          <p className="font-display text-[2.6rem] leading-none tabular">{formatDistance(tr.distanceM)}</p>
+          {arrowDeg != null && !inRange && !unavailable && (
+            <span className="flex flex-col items-center gap-1" aria-label="Direction to the treasure">
+              <span className="grid h-14 w-14 place-items-center rounded-full bg-white/10">
+                <Navigation2 size={30} fill="currentColor" style={{ color: c, transform: `rotate(${arrowDeg}deg)`, transition: "transform .25s ease-out" }} />
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-white/50">{compassOn ? "Follow" : "From north"}</span>
+            </span>
+          )}
+        </div>
         <p className="relative mt-2 text-[13px] text-white/60">{inRange ? "You're close enough. Open it!" : `Get within ${tr.claimRadiusM} m to unlock your reward.`}</p>
         <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-white/12">
           <motion.div className="h-full rounded-full" style={{ background: c }} animate={{ width: `${(inRange ? 1 : pct) * 100}%` }} />

@@ -1,5 +1,17 @@
 # Development log
 
+## 2026-11-09: satellite map, easier to find treasure
+- A tester asked for an Apple-Maps-style view. **Satellite is now the default**:
+  - Esri World Imagery, with roads, road names, places and water names drawn on top from OpenFreeMap vector tiles;
+  - a map/satellite toggle, remembered per device.
+- The player is now an Apple-style **blue dot with a heading beam**. It uses the phone's compass: `deviceorientationabsolute` on Android, and `webkitCompassHeading` on iOS after a tap on Recenter grants permission. It falls back to the GPS direction of travel.
+- **Finding treasure:**
+  - a dashed guide line from the player to the selected (or nearest) treasure;
+  - stronger pulsing halos on every unopened marker;
+  - the Nearby and treasure-card arrows now point relative to where the phone faces, so you can follow them.
+- Fixed an old bug: the Nearby arrow used lucide's `Navigation` icon, which points north-east, so every direction was off by 45°. It now uses `Navigation2`.
+- Verified with stand-in imagery (the tile hosts aren't reachable from the build environment). The smoke and GPS suites pass.
+
 ## 2026-11-09: NEAR Intents
 - **"Add NEAR from any chain"** (Profile and the Merchant tab, mainnet only), built on the 1Click Swap API. The API shapes come from the official `@defuse-protocol/one-click-sdk-typescript` types, because the docs host wasn't reachable from the build environment.
 - The server forces the recipient to the session's NEAR account and stores signed quotes. Status is owner-only and proxied.
