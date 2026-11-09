@@ -18,6 +18,8 @@ Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economi
 
 ## Live on NEAR mainnet
 
+**Play it:** https://exquisite-expression-production-412c.up.railway.app (Railway, settling on mainnet; E2E smoke test passes 14/14 against it). Demo-zone rewards stay off-chain on mainnet. Only real-location treasures can be minted.
+
 | | |
 |---|---|
 | **Contract** | [`trezo-game.near`](https://nearblocks.io/address/trezo-game.near), deployed 2026-11-09 |

@@ -141,7 +141,7 @@ Rehearsed end to end on testnet with the same binary: [`trezo-rehearsal-65920b.t
 
 What the owner wallet can still do: `set_oracle_key` (rotate a leaked key), `set_paused`, `add_item_type` (new items), `reduce_max_supply` and `transfer_ownership`. It cannot change NPC offers, prices or fees (locked) or upgrade the code (no keys). Anyone can top up the contract's storage balance with a plain NEAR transfer.
 
-**Done 2026-11-09:** `trezo-game.near`, owner `trezonear.near`, keys deleted, 0.1 NEAR Merchant seed. The record is in `deployments/mainnet.json`. After deployment the contract held 4.62 NEAR, with 4.02 NEAR locked for storage.
+**Done 2026-11-09:** `trezo-game.near`, owner `trezonear.near`, keys deleted, 0.1 NEAR Merchant seed. The record is in `deployments/mainnet.json`. After deployment the contract held 4.62 NEAR, with 4.02 NEAR locked for storage. Mainnet app: https://exquisite-expression-production-412c.up.railway.app, a separate Railway service with its own volume, fresh secrets and a fresh database. Its oracle public key matches the contract, and the smoke test passes 14/14.
 
 ## Deployment record
 
