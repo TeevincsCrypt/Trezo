@@ -16,6 +16,19 @@ Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economi
 
 **Design.** A light "daylight expedition" system: a warm paper canvas, porcelain cards with large radii, ink-black primary surfaces and a single ember-orange accent. Headlines and numbers use the wide geometric Unbounded face; body text is Inter. Navigation is a floating ink dock with a white active pill, plus an orange **Hunt** button that jumps straight to the nearest treasure. The concentric-ring logo is a compass seen from above, or a radar ping. Design tokens are in `src/app/globals.css`.
 
+## Live on NEAR mainnet
+
+| | |
+|---|---|
+| **Contract** | [`trezo-game.near`](https://nearblocks.io/address/trezo-game.near), deployed 2026-11-09 |
+| Build | Reproducible (`cargo near build reproducible-wasm`). The code hash `AQTbFPTT7qTjWuCTr5btq9WVvj5aFLNctGTgaNS9XNoW` matches SHA-256 `8bbb9b5d…c10d`, and `contract_source_metadata` points to commit [`7280786`](https://github.com/teevincscrypt/trezo/tree/728078641910a765bf1b712d4653a4f44892dc41) |
+| Deploy + init | [`8pCgktXE…`](https://nearblocks.io/txns/8pCgktXE9TKLSFa5GraAs5j9RpKnCAB4QwmpRtUfT9Ho), then 13 item types, 4 NPCs, 10 offers and a 0.1 NEAR Merchant seed ([all 10 txs](deployments/mainnet.json)) |
+| Economy locked (irreversible) | [`4Bap9XF5…`](https://nearblocks.io/txns/4Bap9XF5GBwws1L8XKGaYv2yJ9ukf8TAt312uTL4Lthx) |
+| Ownership → `trezonear.near` | [`GXrLouqA…`](https://nearblocks.io/txns/GXrLouqArNifGA4YapBridRZkkw4Rts5CwQLA1P8Tm8H) |
+| **All access keys deleted** (code can never change) | [`FBmPJ1pU…`](https://nearblocks.io/txns/FBmPJ1pUAEhRJpNGkLLBJ9jbRbcNiKUtkLQwKyyqFuTW) |
+
+The owner can only rotate the oracle key, pause, add new item types and lower supply caps. It cannot touch NPC prices, offers, fees, treasuries or the code. The mainnet procedure was first rehearsed on testnet (`deployments/testnet-rehearsal*.json`).
+
 ## Live on NEAR testnet
 
 **Play it:** https://trezo-production-0500.up.railway.app (hosted on Railway, settling on testnet; E2E smoke test passes 14/14 against it)
@@ -127,7 +140,7 @@ Details: **[ARCHITECTURE.md](ARCHITECTURE.md)**. Security model: **[SECURITY.md]
 | **Social login** | NEAR Connect wallet list | ⚠️ via wallets that offer email/social sign-in inside NEAR Connect (e.g. HOT, Meteor). A Privy/Web3Auth integration was *not* added: it needs third-party app IDs, and FastAuth is deprecated per the NEAR docs. |
 | **NEP-171 (NFT)** | not used | Deliberate: TREZO items are editions (many identical copies), which NEP-245 models natively. Badges are NEP-245 tokens marked soulbound. |
 | **NEAR Intents** | not implemented | Investigated only (see [Known limitations](#known-limitations)). |
-| **Testnet deployment** | `scripts/deploy-contract.mjs`, `scripts/testnet-demo.mjs` | ✅ [`trezo-v2-f8ff97.testnet`](https://testnet.nearblocks.io/address/trezo-v2-f8ff97.testnet), with real claim, market and NPC transactions (see [Live on NEAR testnet](#live-on-near-testnet)). **Mainnet: not deployed.** |
+| **Testnet deployment** | `scripts/deploy-contract.mjs`, `scripts/testnet-demo.mjs` | ✅ [`trezo-v2-f8ff97.testnet`](https://testnet.nearblocks.io/address/trezo-v2-f8ff97.testnet), with real claim, market and NPC transactions (see [Live on NEAR testnet](#live-on-near-testnet)). **Mainnet:** [`trezo-game.near`](https://nearblocks.io/address/trezo-game.near) (see [Live on NEAR mainnet](#live-on-near-mainnet)). |
 
 ### Contract methods
 

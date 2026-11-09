@@ -1,5 +1,15 @@
 # Development log
 
+## 2026-11-09: mainnet
+- Reproducible build (cargo-near 0.22.0 / Rust 1.97.0 image, pinned by digest). The local sandbox's Docker Hub rate limit and lack of container network needed a local `docker` wrapper: it skips the registry re-check for the already-pulled digest and passes the HTTPS proxy. Neither changes the build inputs.
+- New `scripts/mainnet-account.mjs` (one-time funding address → named `.near` account via the registrar → close and return leftovers). `deploy-contract.mjs` now initialises with itself as owner, transfers ownership and supports `--delete-keys`.
+- Rehearsed the whole procedure on testnet (`trezo-rehearsal-65920b.testnet`). The keyless contract played the full loop.
+- Deployed **`trezo-game.near`**:
+  - code hash matches the reproducible wasm;
+  - economy locked, ownership with `trezonear.near`, 0 access keys;
+  - 0.1 NEAR Merchant seed, because of the budget.
+- First create attempt was rejected before execution (prepaid gas reservation pushed the cost over the balance); retried with 4.63 NEAR.
+
 ## 2026-11-08: security fixes, fresh testnet contract
 - Implemented the [pre-mainnet review](SECURITY_REVIEW.md) fixes. **Contract:** NEP-145-style storage deposits charged on every player call that grows state (C-1), a per-account daily ticket limit and a global hourly mint ceiling (C-4), and an irreversible `lock_economy` that freezes NPCs, offers and the market fee (C-3). **Server:** demo-zone rewards are never minted on mainnet (S-1), the client IP comes from the trusted proxy hop (S-2), sessions rotate on login (S-3), and there are clickjacking/base-uri/object/form-action CSP directives plus HSTS (S-5).
 - **App:** when the prepaid storage balance is low, a 0.02 NEAR `storage_deposit` action is added to the same wallet transaction, so it's still one approval.

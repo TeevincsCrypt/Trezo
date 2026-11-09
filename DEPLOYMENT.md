@@ -141,7 +141,7 @@ Rehearsed end to end on testnet with the same binary: [`trezo-rehearsal-65920b.t
 
 What the owner wallet can still do: `set_oracle_key` (rotate a leaked key), `set_paused`, `add_item_type` (new items), `reduce_max_supply` and `transfer_ownership`. It cannot change NPC offers, prices or fees (locked) or upgrade the code (no keys). Anyone can top up the contract's storage balance with a plain NEAR transfer.
 
-Do not claim a mainnet deployment until the `deployments/mainnet.json` transactions exist.
+**Done 2026-11-09:** `trezo-game.near`, owner `trezonear.near`, keys deleted, 0.1 NEAR Merchant seed. The record is in `deployments/mainnet.json`. After deployment the contract held 4.62 NEAR, with 4.02 NEAR locked for storage.
 
 ## Deployment record
 

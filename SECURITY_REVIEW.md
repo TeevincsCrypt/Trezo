@@ -9,7 +9,7 @@ Severity is rated **for mainnet**, where items and NEAR have real value.
 | # | Finding | Severity | Status |
 |---|---|---|---|
 | C-1 | Storage-drain: anyone can make the contract pay for unlimited new state | **High** | ✅ Fixed (storage deposits) |
-| C-2 | Contract account holds a full-access key and is its own owner | **High** | Fix before mainnet (deployment) |
+| C-2 | Contract account holds a full-access key and is its own owner | **High** | ✅ Fixed on mainnet (owner `trezonear.near`, contract keys deleted) |
 | C-3 | Owner can indirectly spend NPC treasuries via offer settings | Medium | ✅ Fixed (`lock_economy`, locked on testnet) |
 | C-4 | No on-chain mint rate limit if the oracle key leaks | Medium | ✅ Fixed (50 tickets/account/day, 5,000 items/hour) |
 | C-5 | NEAR sent to a deleted seller account is lost | Low | Accept, document |
@@ -18,7 +18,7 @@ Severity is rated **for mainnet**, where items and NEAR have real value.
 | S-3 | Old guest session stays valid after wallet login | Low | ✅ Fixed (rotated on login) |
 | S-4 | Unauthenticated, display-only market activity feed accepts junk | Low | Accept, document |
 | S-5 | No Content-Security-Policy on app pages | Low | ✅ Partly fixed (see below) |
-| O-1 | Production secrets have lived in a development container | Medium | Rotate for mainnet |
+| O-1 | Production secrets have lived in a development container | Medium | ✅ Fresh mainnet secrets (see note) |
 
 ## Contract
 
@@ -63,7 +63,9 @@ Deployed to a fresh testnet contract, `trezo-v2-f8ff97.testnet`, with the econom
 - **S-3:** `startSession()` deletes the previous session token before issuing a new one.
 - **S-5:** pages now send `frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'`, `X-Frame-Options: DENY` and HSTS. `script-src`/`connect-src` are **not** restricted yet, because NEAR Connect loads wallet code from each wallet's own hosts; tightening that needs testing with every wallet.
 
-Still open: **C-2** and **O-1** (mainnet deployment steps), C-5 and S-4 (accepted).
+Still open: C-5 and S-4 (accepted).
+
+**Mainnet (2026-11-09):** `trezo-game.near` was deployed from the reproducible build. Ownership went to `trezonear.near`, and every access key of the contract account was deleted (C-2). The oracle key, session secret and admin token are **new**: never used on testnet, and kept out of git. One caveat on O-1: they were generated in the cloud development session that did the deployment, not on an offline machine. If that matters, the owner can rotate the oracle key at any time with `set_oracle_key` from `trezonear.near`.
 
 ## Plan
 

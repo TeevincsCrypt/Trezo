@@ -1,0 +1,71 @@
+{
+  "network": "mainnet",
+  "contractId": "trezo-game.near",
+  "rpcUrl": "https://free.rpc.fastnear.com",
+  "deployedAt": "2026-11-09T09:06:03.796Z",
+  "transactions": [
+    {
+      "label": "deploy + init",
+      "hash": "8pCgktXE9TKLSFa5GraAs5j9RpKnCAB4QwmpRtUfT9Ho",
+      "url": "https://nearblocks.io/txns/8pCgktXE9TKLSFa5GraAs5j9RpKnCAB4QwmpRtUfT9Ho"
+    },
+    {
+      "label": "add_item_type ×8",
+      "hash": "ARJAZqh6fwZVE8PqQ7VojJkaXPUNtU7Yn7UqpQL5u617",
+      "url": "https://nearblocks.io/txns/ARJAZqh6fwZVE8PqQ7VojJkaXPUNtU7Yn7UqpQL5u617"
+    },
+    {
+      "label": "add_item_type ×5",
+      "hash": "GePjkoBxfdwCHNLjmfNwSUkNEhCo6DQgGgXYoTvN5ng7",
+      "url": "https://nearblocks.io/txns/GePjkoBxfdwCHNLjmfNwSUkNEhCo6DQgGgXYoTvN5ng7"
+    },
+    {
+      "label": "upsert NPCs",
+      "hash": "5cLWwxHVsYPqbKJETJ3Qq3xbFBckFDZgchyPVWQFbL2m",
+      "url": "https://nearblocks.io/txns/5cLWwxHVsYPqbKJETJ3Qq3xbFBckFDZgchyPVWQFbL2m"
+    },
+    {
+      "label": "set_npc_offer ×8",
+      "hash": "3XAJ66TcvUfacb39N7X9pKjjFhHxYjnV2EZz4Y7SjX6p",
+      "url": "https://nearblocks.io/txns/3XAJ66TcvUfacb39N7X9pKjjFhHxYjnV2EZz4Y7SjX6p"
+    },
+    {
+      "label": "set_npc_offer ×2",
+      "hash": "BWNoGz7iD9nFsGMhsFXVAa7bgvEWB55GFMA1bP78F2su",
+      "url": "https://nearblocks.io/txns/BWNoGz7iD9nFsGMhsFXVAa7bgvEWB55GFMA1bP78F2su"
+    },
+    {
+      "label": "fund_npc merchant (0.1 NEAR)",
+      "hash": "37Pcstz2Rz48m89PgJUAzP2PGVo4fzS5TTXwuLxMUtLa",
+      "url": "https://nearblocks.io/txns/37Pcstz2Rz48m89PgJUAzP2PGVo4fzS5TTXwuLxMUtLa"
+    },
+    {
+      "label": "lock_economy (irreversible)",
+      "hash": "4Bap9XF5GBwws1L8XKGaYv2yJ9ukf8TAt312uTL4Lthx",
+      "url": "https://nearblocks.io/txns/4Bap9XF5GBwws1L8XKGaYv2yJ9ukf8TAt312uTL4Lthx"
+    },
+    {
+      "label": "transfer_ownership → trezonear.near",
+      "hash": "GXrLouqArNifGA4YapBridRZkkw4Rts5CwQLA1P8Tm8H",
+      "url": "https://nearblocks.io/txns/GXrLouqArNifGA4YapBridRZkkw4Rts5CwQLA1P8Tm8H"
+    },
+    {
+      "label": "delete 1 access key(s): contract is now immutable",
+      "hash": "FBmPJ1pUAEhRJpNGkLLBJ9jbRbcNiKUtkLQwKyyqFuTW",
+      "url": "https://nearblocks.io/txns/FBmPJ1pUAEhRJpNGkLLBJ9jbRbcNiKUtkLQwKyyqFuTW"
+    }
+  ],
+  "keysDeleted": true,
+  "stats": {
+    "owner_id": "trezonear.near",
+    "oracle_public_key": "MyJFXt+692BRq3ZoR+bkKlin3ON9sasJgjIadfiYpjo=",
+    "paused": false,
+    "players": 0,
+    "claims": 0,
+    "item_types": 13,
+    "active_listings": 0,
+    "market_fee_bps": 250,
+    "total_market_volume": "0",
+    "economy_locked": true
+  }
+}
