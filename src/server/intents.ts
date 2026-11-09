@@ -23,6 +23,8 @@ export const DEST_ASSET = "nep141:wrap.near";
 const SLIPPAGE_BPS = 100; // 1%
 const DEADLINE_MS = 60 * 60 * 1000;
 const POPULAR = new Set(["USDC", "USDT", "ETH", "BTC", "SOL", "BNB", "ZEC", "DOGE", "XRP"]);
+/** Mainstream chains only, so players don't pick an exotic wrapped variant by mistake. */
+const CHAINS = new Set(["eth", "base", "arb", "op", "pol", "bsc", "avax", "sol", "btc", "tron", "ton", "doge", "xrp", "zec", "sui"]);
 const FINAL = new Set(["SUCCESS", "REFUNDED", "FAILED"]);
 
 export interface IntentToken {
@@ -69,7 +71,8 @@ export async function listTokens(): Promise<IntentToken[]> {
   if (tokenCache && Date.now() - tokenCache.at < 10 * 60_000) return tokenCache.tokens;
   const all = await oneClick<IntentToken[]>("/v0/tokens");
   const tokens = (Array.isArray(all) ? all : [])
-    .filter((t) => t.blockchain !== "near" && POPULAR.has(t.symbol.toUpperCase()) && typeof t.decimals === "number")
+    .filter((t) => CHAINS.has(t.blockchain) && POPULAR.has(t.symbol.toUpperCase()) && typeof t.decimals === "number")
+    .filter((t, i, a) => a.findIndex((x) => x.symbol === t.symbol && x.blockchain === t.blockchain) === i)
     .map(({ assetId, symbol, blockchain, decimals, price }) => ({ assetId, symbol, blockchain, decimals, price }))
     .sort((a, b) => a.symbol.localeCompare(b.symbol) || a.blockchain.localeCompare(b.blockchain));
   tokenCache = { at: Date.now(), tokens };

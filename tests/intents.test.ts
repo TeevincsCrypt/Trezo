@@ -5,6 +5,8 @@ const TOKENS = [
   { assetId: "nep141:eth.omft.near", symbol: "ETH", blockchain: "eth", decimals: 18, price: 3000 },
   { assetId: "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1", symbol: "USDC", blockchain: "near", decimals: 6, price: 1 },
   { assetId: "nep141:some-meme.omft.near", symbol: "MEME", blockchain: "sol", decimals: 9, price: 0.01 },
+  { assetId: "1cs_v1:aptos:aptos-fa:0xbtc", symbol: "BTC", blockchain: "aptos", decimals: 8, price: 74000 },
+  { assetId: "1cs_v1:hypercore:erc20:0xusdc2", symbol: "USDC", blockchain: "hypercore", decimals: 6, price: 1 },
 ];
 const USDC = TOKENS[0].assetId;
 
