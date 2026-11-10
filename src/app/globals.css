@@ -192,6 +192,13 @@ body {
 .orb:active {
   transform: scale(0.95);
 }
+/* Pressed/active state (e.g. "Following you"): the gradient is a background-image,
+   so a utility background-color alone would stay hidden under it. */
+.orb[aria-pressed="true"] {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+}
 
 .chip {
   display: inline-flex;
