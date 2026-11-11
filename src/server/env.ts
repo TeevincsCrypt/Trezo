@@ -17,12 +17,28 @@ function sessionSecret(): string {
   return cachedSecret;
 }
 
+/**
+ * Database file. On Railway, a database outside the attached volume is wiped
+ * on every deploy, so when a volume is mounted (RAILWAY_VOLUME_MOUNT_PATH) and
+ * TREZO_DB_PATH doesn't point inside it, use `<mount>/trezo.db` instead.
+ */
+function resolveDbPath(): string {
+  const configured = process.env.TREZO_DB_PATH || ["data", "trezo.db"].join("/");
+  const mount = process.env.RAILWAY_VOLUME_MOUNT_PATH?.replace(/\/$/, "");
+  if (!mount || configured === ":memory:") return configured;
+  const abs = configured.startsWith("/") ? configured : `${process.cwd()}/${configured}`;
+  if (abs === mount || abs.startsWith(mount + "/")) return configured;
+  const fixed = `${mount}/trezo.db`;
+  console.warn(`[trezo] TREZO_DB_PATH (${configured}) is outside the Railway volume (${mount}); using ${fixed} so data survives deploys.`);
+  return fixed;
+}
+
 export const serverEnv = {
   isProd,
   // Built at runtime on purpose: Turbopack traces static file paths passed to
   // node:sqlite as build dependencies, so a literal "data/trezo.db" made every DB
   // write trigger a dev rebuild/reload loop.
-  dbPath: process.env.TREZO_DB_PATH || ["data", "trezo.db"].join("/"),
+  dbPath: resolveDbPath(),
   get sessionSecret() {
     return sessionSecret();
   },

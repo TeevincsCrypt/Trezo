@@ -77,6 +77,18 @@ describe("storage persistence check", () => {
     expect(s.warning).toMatch(/No Railway volume/);
   });
 
+  it("moves a database configured outside the volume onto it", async () => {
+    vi.stubEnv("RAILWAY_VOLUME_MOUNT_PATH", "/data");
+    vi.stubEnv("TREZO_DB_PATH", "data/trezo.db");
+    vi.resetModules();
+    const { serverEnv } = await import("@/server/env");
+    expect(serverEnv.dbPath).toBe("/data/trezo.db");
+    vi.stubEnv("TREZO_DB_PATH", "/data/game/trezo.db");
+    vi.resetModules();
+    expect((await import("@/server/env")).serverEnv.dbPath).toBe("/data/game/trezo.db");
+    vi.resetModules();
+  });
+
   it("accepts a database on the mounted volume", async () => {
     vi.stubEnv("RAILWAY_ENVIRONMENT", "production");
     vi.stubEnv("RAILWAY_VOLUME_MOUNT_PATH", "/data");

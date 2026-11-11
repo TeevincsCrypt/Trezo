@@ -200,7 +200,7 @@ Copy `.env.example` to `.env.local`. Every variable is optional for local play.
 | `TREZO_ORACLE_SECRET_KEY` | **Server secret.** Signs claim tickets (`npm run oracle:keygen`). |
 | `TREZO_SESSION_SECRET` | **Server secret.** HMAC for admin cookies (≥16 chars). Required in production. |
 | `TREZO_ADMIN_TOKEN` / `TREZO_ADMIN_ACCOUNTS` | Admin access by token, or by wallet-authenticated NEAR accounts |
-| `TREZO_DB_PATH` | SQLite file (default `data/trezo.db`) |
+| `TREZO_DB_PATH` | SQLite file (local default `data/trezo.db`; Docker `/data/trezo.db`). On Railway the app always keeps it on the attached volume |
 | `NEXT_PUBLIC_MAP_STYLE_URLS` | Comma-separated MapLibre style URLs for the street map, tried in order |
 | `NEXT_PUBLIC_SATELLITE_TILES`, `NEXT_PUBLIC_SATELLITE_ATTRIBUTION` | Raster satellite tile URL and credit (default: Esri World Imagery) |
 | `NEXT_PUBLIC_DEMO_LAT/LNG/NAME` | Demo-zone centre |

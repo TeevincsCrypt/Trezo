@@ -3,6 +3,7 @@
 ## 2026-11-11: no fake players; data-loss alarm
 - Removed the seeded sample players. The leaderboard shows real explorers only, and existing sample rows are deleted on startup.
 - **Bug report:** "my profile resets to 0 after signing in with NEAR Mobile." The live admin data showed the cause was the mainnet service's database being **wiped on every redeploy**: one player created that morning, and 0 claims despite 1 claim on-chain. Wallet sign-in itself worked (`teevincs.near` was linked correctly). The Railway service had no volume at `/data`.
+- After the deploy, the new check found the real cause: a volume **was** attached at `/data`, but a `TREZO_DB_PATH=data/trezo.db` variable put the database at `/app/data/trezo.db`, outside the volume. On Railway the server now always keeps the database on the mounted volume, whatever `TREZO_DB_PATH` says, and `.env.example` no longer suggests a relative path.
 - The server now checks its storage (`storageStatus()`, using Railway's `RAILWAY_VOLUME_MOUNT_PATH`). It logs a warning at startup, and the admin page shows a red banner with the time the database was created when data isn't persistent.
 
 ## 2026-11-09: satellite map, easier to find treasure
