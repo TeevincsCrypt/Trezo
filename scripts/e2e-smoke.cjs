@@ -103,7 +103,7 @@ async function shot(page, name) {
 
   // 8. Leaderboard & profile
   await page.goto(`${BASE}/leaderboard`, { waitUntil: "load" });
-  await page.getByText("NovaRanger").first().waitFor();
+  await page.getByText(name).first().waitFor(); // the smoke player itself (no seeded samples)
   ok("leaderboard loads");
   await shot(page, "leaderboard");
   await page.goto(`${BASE}/profile`, { waitUntil: "load" });
@@ -138,7 +138,7 @@ async function shot(page, name) {
   const dp = await desk.newPage();
   dp.on("pageerror", (e) => problems.push(`pageerror(desktop): ${e.message}`));
   await dp.goto(`${BASE}/leaderboard`, { waitUntil: "load" });
-  await dp.getByText("NovaRanger").first().waitFor();
+  await dp.getByRole("heading", { name: "Leaderboard" }).first().waitFor();
   if (SHOTS) await dp.screenshot({ path: `${SHOTS}/${String(++step).padStart(2, "0")}-desktop-leaderboard.png` });
   ok("desktop layout renders");
 
