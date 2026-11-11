@@ -203,7 +203,7 @@ export function overview() {
     missions: q("SELECT * FROM npc_missions ORDER BY npc_id, sort"),
     npcs: q("SELECT id, name, title FROM npcs"),
     items: q("SELECT * FROM item_types"),
-    players: q("SELECT id, username, account_id, is_guest, is_sample, xp, shards, treasures_found, flags, created_at FROM players ORDER BY created_at DESC LIMIT 200"),
+    players: q("SELECT id, username, account_id, is_guest, is_sample, xp, shards, treasures_found, flags, created_at, last_lat, last_lng, last_loc_at FROM players ORDER BY created_at DESC LIMIT 200"),
     claims: q(
       `SELECT c.id, c.created_at, c.distance_m, c.accuracy_m, c.demo, p.username, t.name AS treasure, t.rarity, r.onchain_status, r.tx_hash
        FROM claims c JOIN players p ON p.id = c.player_id JOIN treasures t ON t.id = c.treasure_id LEFT JOIN rewards r ON r.id = c.reward_id
