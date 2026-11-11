@@ -46,7 +46,7 @@ function AddNearSheet({ open, onClose, accountId }: { open: boolean; onClose: ()
   const [refundTo, setRefundTo] = useState("");
   const [preview, setPreview] = useState<SwapView | null>(null);
   const [swap, setSwap] = useState<SwapView | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<false | "preview" | "quote">(false);
   const [error, setError] = useState<string | null>(null);
   const [recent, setRecent] = useState<SwapView[]>([]);
 
@@ -63,6 +63,8 @@ function AddNearSheet({ open, onClose, accountId }: { open: boolean; onClose: ()
   }, [open, tokens]);
 
   const token = useMemo(() => tokens?.find((t) => t.assetId === asset) ?? null, [tokens, asset]);
+  // Both buttons work as soon as the form is filled in; Preview is optional.
+  const ready = !!asset && Number(amount) > 0 && refundTo.length >= 20;
   useEffect(() => setPreview(null), [asset, amount, refundTo]);
 
   // Poll the live status of the active swap.
@@ -81,7 +83,7 @@ function AddNearSheet({ open, onClose, accountId }: { open: boolean; onClose: ()
   }, [swap, accountId, notify]);
 
   const request = async (dry: boolean) => {
-    setBusy(true);
+    setBusy(dry ? "preview" : "quote");
     setError(null);
     try {
       const r = await api<{ swap: SwapView }>("/api/intents/swaps", { body: { originAsset: asset, amount, refundTo, dry } });
@@ -144,13 +146,14 @@ function AddNearSheet({ open, onClose, accountId }: { open: boolean; onClose: ()
           {error && <p className="rounded-2xl bg-legendary/10 px-3 py-2 text-[13px] text-legendary">{error}</p>}
 
           <div className="flex gap-2">
-            <button className="btn btn-ghost flex-1" disabled={busy || !asset || !amount || !refundTo} onClick={() => request(true)}>
-              {busy && !preview ? <Spinner /> : null} Preview
+            <button className="btn btn-ghost flex-1" disabled={!!busy || !ready} onClick={() => request(true)}>
+              {busy === "preview" ? <Spinner /> : null} Preview
             </button>
-            <button className="btn btn-primary flex-1" disabled={busy || !preview} onClick={() => request(false)}>
-              {busy && preview ? <Spinner /> : null} Get deposit address
+            <button className="btn btn-primary flex-1" disabled={!!busy || !ready} onClick={() => request(false)}>
+              {busy === "quote" ? <Spinner /> : null} Get deposit address
             </button>
           </div>
+          {!ready && <p className="text-[12px] text-muted">Fill in the amount and your refund address to continue.</p>}
           <p className="text-[11px] text-faint">Rates come from NEAR Intents solvers (1% max slippage). Quotes expire after 1 hour; late or short deposits are refunded to your address.</p>
 
           {recent.length > 0 && (
