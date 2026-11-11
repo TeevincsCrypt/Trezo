@@ -282,6 +282,11 @@ CREATE TABLE IF NOT EXISTS intent_swaps (
 );
 CREATE INDEX IF NOT EXISTS intent_swaps_player ON intent_swaps(player_id, created_at);
 
+CREATE TABLE IF NOT EXISTS meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS admin_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   actor TEXT NOT NULL,
@@ -306,7 +311,42 @@ export function openDatabase(file: string): DB {
   db.exec(SCHEMA);
   const seeded = db.prepare("SELECT COUNT(*) AS n FROM item_types").get() as { n: number };
   if (seeded.n === 0) seedDatabase(db);
+  // Earlier versions seeded flagged sample players; real explorers only now.
+  db.prepare("DELETE FROM players WHERE is_sample = 1").run();
+  db.prepare("INSERT OR IGNORE INTO meta (key, value) VALUES ('created_at', ?)").run(String(Date.now()));
+  warnIfEphemeral(file);
   return db;
+}
+
+/**
+ * Where the database lives and whether it survives a redeploy. On Railway a
+ * volume sets RAILWAY_VOLUME_MOUNT_PATH; without one, every deploy starts from
+ * an empty database (all progress lost).
+ */
+export function storageStatus(file = serverEnv.dbPath) {
+  const onRailway = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_ENVIRONMENT_NAME || process.env.RAILWAY_SERVICE_ID);
+  const mount = process.env.RAILWAY_VOLUME_MOUNT_PATH || null;
+  const abs = file === ":memory:" ? file : path.resolve(file);
+  const onVolume = !!mount && (abs === mount || abs.startsWith(mount.replace(/\/$/, "") + "/"));
+  const persistent = file === ":memory:" ? false : onRailway ? onVolume : null; // null = unknown (not Railway)
+  return {
+    dbPath: abs,
+    host: onRailway ? "railway" : "other",
+    volumeMountPath: mount,
+    persistent,
+    warning:
+      persistent === false && onRailway
+        ? mount
+          ? `The database (${abs}) is not on the attached volume (${mount}). Set TREZO_DB_PATH=${mount.replace(/\/$/, "")}/trezo.db.`
+          : `No Railway volume is attached: the database (${abs}) is wiped on every deploy. Attach a volume mounted at /data.`
+        : null,
+  };
+}
+
+function warnIfEphemeral(file: string) {
+  if (file === ":memory:") return;
+  const s = storageStatus(file);
+  if (s.warning) console.error(`\n[trezo] STORAGE WARNING: ${s.warning}\n`);
 }
 
 export function db(): DB {

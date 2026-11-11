@@ -38,15 +38,14 @@ beforeEach(() => {
 });
 
 describe("seed", () => {
-  it("seeds catalog, demo zone and clearly-flagged sample players", () => {
+  it("seeds catalog and demo zone, and no fake players", () => {
     const n = (sql: string) => (db().prepare(sql).get() as { n: number }).n;
     expect(n("SELECT COUNT(*) n FROM item_types")).toBeGreaterThanOrEqual(10);
     expect(n("SELECT COUNT(*) n FROM npcs")).toBe(4);
     expect(n("SELECT COUNT(*) n FROM quests WHERE category='daily'")).toBe(4);
     expect(n("SELECT COUNT(*) n FROM quests WHERE category='weekly'")).toBe(4);
     expect(n("SELECT COUNT(*) n FROM treasures WHERE zone='demo'")).toBeGreaterThan(10);
-    expect(n("SELECT COUNT(*) n FROM players WHERE is_sample=1")).toBe(12);
-    expect(n("SELECT COUNT(*) n FROM players WHERE is_sample=0")).toBe(0);
+    expect(n("SELECT COUNT(*) n FROM players")).toBe(0);
   });
 });
 

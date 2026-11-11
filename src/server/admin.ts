@@ -1,7 +1,7 @@
 import "server-only";
 import crypto from "node:crypto";
 import { z } from "zod";
-import { db, now } from "./db";
+import { db, now, storageStatus } from "./db";
 import { fail } from "./errors";
 import { RARITY } from "@/lib/rules";
 
@@ -184,6 +184,7 @@ export function overview() {
   const q = <T,>(sql: string, ...a: unknown[]) => db().prepare(sql).all(...a) as T[];
   const one = (sql: string) => (db().prepare(sql).get() as { n: number }).n;
   return {
+    storage: storageStatus(),
     stats: {
       players: one("SELECT COUNT(*) n FROM players WHERE is_sample = 0"),
       wallets: one("SELECT COUNT(*) n FROM players WHERE account_id IS NOT NULL"),
@@ -195,6 +196,7 @@ export function overview() {
       shardsBurned: -one("SELECT COALESCE(SUM(delta),0) n FROM shard_ledger WHERE delta < 0"),
       rewardsSettled: one("SELECT COUNT(*) n FROM rewards WHERE onchain_status = 'settled'"),
       securityEvents: one("SELECT COUNT(*) n FROM security_events"),
+      dbCreatedAt: Number((db().prepare("SELECT value FROM meta WHERE key = 'created_at'").get() as { value: string } | undefined)?.value ?? 0),
     },
     treasures: q("SELECT * FROM treasures WHERE source != 'spawn' OR claim_count > 0 ORDER BY created_at DESC LIMIT 200"),
     quests: q("SELECT * FROM quests ORDER BY category, sort"),

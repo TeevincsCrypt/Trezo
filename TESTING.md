@@ -34,7 +34,7 @@ These run in-memory SQLite (`TREZO_DB_PATH=:memory:`) against the real game modu
 - **Quests:** daily progress and single payout; special-event entry fee; only post-join progress counts.
 - **Missions:** progress counted only after acceptance; unlock costs; Merchant exchange consumes vault items and returns supply; level gating; exploration missions from real GPS.
 - **Shop:** frames are one per player; boosts stack radar time.
-- **Leaderboard:** ranking with flagged sample data.
+- **Leaderboard:** ranks real players only (no seeded samples).
 - **Oracle and settlement:** wallet required; ticket JSON matches the contract schema and its signature verifies against the oracle public key; settlement only after `get_claim` returns a record for the right account (mocked RPC).
 - **NEP-413:** a real signature from a near-api-js `KeyPairSigner` verifies; a wrong message fails; a function-call key is rejected.
 

@@ -91,7 +91,7 @@ export default function Landing() {
           <Stat label="Treasures live now" value={s.live} />
           <Stat label="Collectible types" value={s.items} />
         </div>
-        <p className="mt-2 px-2 text-[11px] text-faint">Live counts from this server. Seeded sample leaderboard profiles are excluded.</p>
+        <p className="mt-2 px-2 text-[11px] text-faint">Live counts from this server.</p>
       </section>
 
       {/* How it works */}

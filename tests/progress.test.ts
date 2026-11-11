@@ -158,11 +158,14 @@ describe("shard shop", () => {
 });
 
 describe("leaderboard", () => {
-  it("ranks players and includes flagged sample data", () => {
+  it("ranks real players only", () => {
+    const a = createPlayer({ username: "alpha", avatar: "fox" });
+    const b = createPlayer({ username: "bravo", avatar: "owl" });
+    db().prepare("UPDATE players SET xp = ? WHERE id = ?").run(500, b.id);
+    db().prepare("UPDATE players SET xp = ? WHERE id = ?").run(200, a.id);
     const board = leaderboard("xp");
-    expect(board[0].player.username).toBe("NovaRanger");
-    expect(board[0].player.isSample).toBe(true);
-    expect(leaderboard("weekly").length).toBeGreaterThan(0);
+    expect(board.map((e) => e.player.username).slice(0, 2)).toEqual(["bravo", "alpha"]);
+    expect(board.every((e) => !e.player.isSample)).toBe(true);
   });
 });
 

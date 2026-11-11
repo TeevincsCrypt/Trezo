@@ -64,3 +64,24 @@ describe("demo rewards (S-1)", () => {
     }
   });
 });
+
+describe("storage persistence check", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("flags Railway without a volume", async () => {
+    vi.stubEnv("RAILWAY_ENVIRONMENT", "production");
+    vi.stubEnv("RAILWAY_VOLUME_MOUNT_PATH", "");
+    const { storageStatus } = await import("@/server/db");
+    const s = storageStatus("/data/trezo.db");
+    expect(s.persistent).toBe(false);
+    expect(s.warning).toMatch(/No Railway volume/);
+  });
+
+  it("accepts a database on the mounted volume", async () => {
+    vi.stubEnv("RAILWAY_ENVIRONMENT", "production");
+    vi.stubEnv("RAILWAY_VOLUME_MOUNT_PATH", "/data");
+    const { storageStatus } = await import("@/server/db");
+    expect(storageStatus("/data/trezo.db")).toMatchObject({ persistent: true, warning: null });
+    expect(storageStatus("/app/data/trezo.db").warning).toMatch(/not on the attached volume/);
+  });
+});

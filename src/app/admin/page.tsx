@@ -8,6 +8,7 @@ import { Logo, Segmented, Spinner, cx } from "@/components/ui";
 
 type Row = Record<string, unknown>;
 interface Overview {
+  storage: { dbPath: string; host: string; volumeMountPath: string | null; persistent: boolean | null; warning: string | null };
   stats: Record<string, number>;
   treasures: Row[];
   quests: Row[];
@@ -85,6 +86,19 @@ export default function AdminPage() {
           options={(["overview", "treasures", "quests", "missions", "items", "players", "claims", "security", "market"] as Tab[]).map((t) => ({ value: t, label: <span className="capitalize">{t}</span> }))}
         />
       </div>
+      {data?.storage.warning && (
+        <div className="mt-4 rounded-2xl border border-danger/40 bg-danger/10 p-4 text-sm text-danger">
+          <p className="font-semibold">⚠ Player data is NOT persistent</p>
+          <p className="mt-1">{data.storage.warning}</p>
+          <p className="mt-1 text-[12px] opacity-80">Database created {new Date(data.stats.dbCreatedAt).toLocaleString()} (that is the last time it was wiped).</p>
+        </div>
+      )}
+      {data && !data.storage.warning && (
+        <p className="mt-3 text-[12px] text-muted">
+          Storage: {data.storage.dbPath}
+          {data.storage.persistent ? ` · on volume ${data.storage.volumeMountPath} ✓` : ""} · database since {new Date(data.stats.dbCreatedAt).toLocaleString()}
+        </p>
+      )}
       {msg && <p className={cx("mt-3 rounded-xl px-3 py-2 text-sm", msg.startsWith("✓") ? "bg-teal/10 text-teal" : "bg-danger/10 text-danger")}>{msg}</p>}
       {data && (
         <div className="mt-5">
@@ -93,7 +107,7 @@ export default function AdminPage() {
           {tab === "quests" && <QuestsTab d={data} act={act} />}
           {tab === "missions" && <MissionsTab d={data} act={act} />}
           {tab === "items" && <ItemsTab d={data} act={act} />}
-          {tab === "players" && <Table rows={data.players} cols={["username", "account_id", "is_guest", "is_sample", "xp", "shards", "treasures_found", "flags", "created_at"]} />}
+          {tab === "players" && <Table rows={data.players} cols={["username", "account_id", "is_guest", "xp", "shards", "treasures_found", "flags", "created_at"]} />}
           {tab === "claims" && <Table rows={data.claims} cols={["created_at", "username", "treasure", "rarity", "distance_m", "accuracy_m", "demo", "onchain_status", "tx_hash"]} />}
           {tab === "security" && <Table rows={data.security} cols={["created_at", "username", "kind", "detail"]} />}
           {tab === "market" && (
