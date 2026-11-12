@@ -6,13 +6,27 @@ TREZO is a location-based treasure-hunting game built on **NEAR Protocol**. Play
 
 Built for the **NEAR Hackathon, November 2026, Track 09: Games With Real Economies**. It covers NPCs with wallets, player-owned markets, an economy that adjusts without developer intervention, and NEP-245.
 
+## For judges: verify in 2 minutes
+
+| What | Where to check |
+|---|---|
+| **Live game on NEAR mainnet** | **https://playtrezo.xyz** (satellite map, real GPS, NEAR wallet login) |
+| **Contract** | [`trezo-game.near`](https://nearblocks.io/address/trezo-game.near): NEP-245 collectibles, escrowed player market, NPC treasuries. Economy locked, **all access keys deleted**, reproducible build |
+| **A real player mint, found by walking** | [`Fz6SAaYu…`](https://nearblocks.io/txns/Fz6SAaYuyXi5keiA6oTgCZeCGYUXJK83nCFHSkAZaQi2): `teevincs.near` calls `claim` on `trezo-game.near` after physically walking ~200 m to a treasure (Success) |
+| **Real items held by a player** | `mt_tokens_for_owner({"account_id":"teevincs.near"})` on `trezo-game.near` returns `egg-ember` (Legendary, max supply 50) and `relic-compass` |
+| **NEAR Intents, live** | "Add NEAR from any chain": 1 USDC on Base → **NEAR delivered** to the player's wallet (shown end-to-end in the demo video) |
+| **Track 09 fit** | NPCs with on-chain treasuries ([npc.rs](contracts/trezo/src/npc.rs)), player-owned escrow market ([market.rs](contracts/trezo/src/market.rs)), self-adjusting bonding-curve prices, hard supply caps, an off-chain currency with real sinks |
+| **Tests** | 42 contract unit tests, 48 server tests, 34-check local-chain run, 14-check browser smoke test, GPS walk tests |
+| **Security** | [SECURITY_REVIEW.md](SECURITY_REVIEW.md): findings and fixes (storage deposits, mint rate limits, economy lock, key deletion) |
+| **Submission summary** | [SUBMISSION.md](SUBMISSION.md) |
+
 ![TREZO landing page](docs/screenshots/landing.png)
 
 | Onboarding | Explore (demo zone) | Treasure in range | Opening | Guild NPC + live on-chain treasury | Quests |
 |---|---|---|---|---|---|
 | ![](docs/screenshots/onboarding.png) | ![](docs/screenshots/explore.png) | ![](docs/screenshots/treasure.png) | ![](docs/screenshots/reveal.png) | ![](docs/screenshots/npc-treasury.png) | ![](docs/screenshots/quests.png) |
 
-<sub>Screenshots come from automated test runs of a local server configured against the live testnet contract (the Merchant treasury panel shows real testnet state). The test container blocked map-tile hosts, so the map shows TREZO's built-in dot-grid fallback. With normal internet access, a light OpenStreetMap-based map (OpenFreeMap / CARTO Positron) renders underneath.</sub>
+<sub>These screenshots come from early automated test runs, where the container blocked map tiles, so the map shows the dot-grid fallback. The live game now opens on a **satellite map** with road and place labels (switchable to a street map). See the demo video for the real thing.</sub>
 
 **Design.** A light "daylight expedition" system: a warm paper canvas, porcelain cards with large radii, ink-black primary surfaces and a single ember-orange accent. Headlines and numbers use the wide geometric Unbounded face; body text is Inter. Navigation is a floating ink dock with a white active pill, plus an orange **Hunt** button that jumps straight to the nearest treasure. The concentric-ring logo is a compass seen from above, or a radar ping. Design tokens are in `src/app/globals.css`.
 
@@ -73,7 +87,7 @@ Automated version of the steps above: `npm run test:e2e` (needs the dev server r
 
 ### Enabling the blockchain parts
 
-On-chain features (wallet login, minting, market, NPC treasuries) need a deployed contract: use the live testnet one above, or deploy your own with **[DEPLOYMENT.md](DEPLOYMENT.md)** (about five commands). Note that ticket signing needs the oracle key the contract trusts, so minting against `trezo-game-0e8b06.testnet` only works with that deployment's server key; for your own end-to-end runs, deploy your own contract. To see every on-chain path working on a local chain, run:
+On-chain features (wallet login, minting, market, NPC treasuries) need a deployed contract. The fastest way to see them is the live game at https://playtrezo.xyz (mainnet). To run them yourself, deploy your own contract with **[DEPLOYMENT.md](DEPLOYMENT.md)** (about five commands). Minting needs the oracle key that the contract trusts, so a local server can't mint against the live contracts. To see every on-chain path working on a local chain, run:
 
 ```bash
 npm run contract:build     # needs Rust + cargo-near (see DEPLOYMENT.md)
@@ -141,7 +155,7 @@ Details: **[ARCHITECTURE.md](ARCHITECTURE.md)**. Security model: **[SECURITY.md]
 | **NPC on-chain treasuries** | `contracts/trezo/src/npc.rs` | ✅ contract-held balances with per-NPC accounting. NPCs have **no private keys**; they act only through contract rules. |
 | **Social login** | NEAR Connect wallet list | ⚠️ via wallets that offer email/social sign-in inside NEAR Connect (e.g. HOT, Meteor). A Privy/Web3Auth integration was *not* added: it needs third-party app IDs, and FastAuth is deprecated per the NEAR docs. |
 | **NEP-171 (NFT)** | not used | Deliberate: TREZO items are editions (many identical copies), which NEP-245 models natively. Badges are NEP-245 tokens marked soulbound. |
-| **NEAR Intents** (1Click Swap API) | `src/server/intents.ts`, `src/app/api/intents/**`, `src/components/onchain/AddNear.tsx` | ✅ (mainnet) **"Add NEAR from any chain"**: pay with USDC, USDT, ETH, BTC, SOL and more. NEAR Intents solvers deliver NEAR to the player's own wallet. The recipient is always the signed-in wallet (never client input), refunds go to the player's origin-chain address, and TREZO never holds funds. Signed quotes are stored for disputes. Unit-tested against a mocked 1Click API; a live swap needs a real deposit. |
+| **NEAR Intents** (1Click Swap API) | `src/server/intents.ts`, `src/app/api/intents/**`, `src/components/onchain/AddNear.tsx` | ✅ (mainnet) **"Add NEAR from any chain"**: pay with USDC, USDT, ETH, BTC, SOL and more. NEAR Intents solvers deliver NEAR to the player's own wallet. The recipient is always the signed-in wallet (never client input), refunds go to the player's origin-chain address, and TREZO never holds funds. Signed quotes are stored for disputes. Unit-tested against a mocked 1Click API **and verified live on mainnet**: 1 USDC on Base → ≈0.263 NEAR delivered to `teevincs.near` as native NEAR (no wNEAR left behind). |
 | **Testnet deployment** | `scripts/deploy-contract.mjs`, `scripts/testnet-demo.mjs` | ✅ [`trezo-v2-f8ff97.testnet`](https://testnet.nearblocks.io/address/trezo-v2-f8ff97.testnet), with real claim, market and NPC transactions (see [Live on NEAR testnet](#live-on-near-testnet)). **Mainnet:** [`trezo-game.near`](https://nearblocks.io/address/trezo-game.near) (see [Live on NEAR mainnet](#live-on-near-mainnet)). |
 
 ### Contract methods
